@@ -42,7 +42,7 @@ stratforge::CsvData load_feed(const std::string& relative_path) {
     return feed;
 }
 
-// ─── Indicator hot-path allocation audit ────────────────────────────
+// --- Indicator hot-path allocation audit --------------------------------
 
 template <typename IndicatorFactory>
 std::int64_t audit_indicator_allocs(const std::string& label,
@@ -82,7 +82,7 @@ std::int64_t audit_indicator_allocs(const std::string& label,
     return allocs;
 }
 
-// ─── Strategy with indicator access for hot-path auditing ───────────
+// --- Strategy with indicator access for hot-path auditing ---------------
 
 class CompositeStrategy : public stratforge::Strategy {
 public:
@@ -168,7 +168,7 @@ int main() {
     JsonReport report;
     std::int64_t total_violations = 0;
 
-    // ─── Individual Indicator Allocation Audit ──────────────────────
+    // --- Individual Indicator Allocation Audit ----------------------------
     std::cout << "--- Indicator Hot-Path Allocation Audit ---\n";
     std::cout << "(Warmup: first 60 bars excluded from counting)\n\n";
 
@@ -224,7 +224,7 @@ int main() {
         audit_indicator_allocs("Ichimoku(9,26,52)", feed_512,
             [](stratforge::CsvData& f) { return stratforge::Ichimoku(f.high(), f.low(), f.close(), 9, 26, 52, 26, 26); }));
 
-    // ─── Strategy Allocation Audit ──────────────────────────────────
+    // --- Strategy Allocation Audit ------------------------------------------
     std::cout << "\n--- Strategy Allocation Audit ---\n";
     const auto strategy_allocs = audit_strategy_allocs(feed_512);
     std::cout << "  CompositeStrategy (full run): " << strategy_allocs
@@ -235,7 +235,7 @@ int main() {
                 .bars_per_iteration = feed_512.size(),
                 .alloc_count = strategy_allocs});
 
-    // ─── Summary ────────────────────────────────────────────────────
+    // --- Summary -------------------------------------------------------------
     std::cout << "\n--- Summary ---\n";
     std::cout << "Indicators with hot-path allocations: " << total_violations << " / 11\n";
     if (total_violations == 0) {
@@ -249,7 +249,7 @@ int main() {
                   << "      Consider pre-reserving output lines for zero-alloc hot path.\n";
     }
 
-    // ─── Write JSON report ──────────────────────────────────────────
+    // --- Write JSON report --------------------------------------------------
     report.write(source_path("build/bench_results/memory_benchmarks.json"),
                  "memory_benchmarks");
 

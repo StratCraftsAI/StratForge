@@ -127,7 +127,7 @@ TEST_CASE("IBCommission per-share with min/max", "[broker][commission][ib]") {
     }
 
     SECTION("Small order hits minimum") {
-        // 10 shares * $0.005 = $0.05 → capped at $1.00 minimum
+        // 10 shares * $0.005 = $0.05 -> capped at $1.00 minimum
         REQUIRE_THAT(ib.calculate(10.0, 50.0), WithinRel(1.0, 0.001));
     }
 

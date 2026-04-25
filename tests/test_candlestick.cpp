@@ -36,7 +36,7 @@ void run_ohlc(stratforge::Line<double>& o, stratforge::Line<double>& h,
 TEST_CASE("CDLDoji detects doji candle", "[candlestick][doji]") {
     // Bar 0: clear doji (open==close, but range > 0)
     // Bar 1: normal candle (body > 5% of range)
-    // Bar 2: flat bar (H==L) → 0
+    // Bar 2: flat bar (H==L) -> 0
     auto open  = make_line({100.0, 100.0, 50.0});
     auto high  = make_line({105.0, 110.0, 50.0});
     auto low   = make_line({ 95.0,  90.0, 50.0});
@@ -45,7 +45,7 @@ TEST_CASE("CDLDoji detects doji candle", "[candlestick][doji]") {
     stratforge::CDLDoji doji(open, high, low, close);
     run_ohlc(open, high, low, close, doji);
 
-    CHECK(doji.line().data()[0] == Approx(100.0));   // doji, close==open → bullish
+    CHECK(doji.line().data()[0] == Approx(100.0));   // doji, close==open -> bullish
     CHECK(doji.line().data()[1] == Approx(0.0));     // big body
     CHECK(doji.line().data()[2] == Approx(0.0));     // flat bar
 }
@@ -60,7 +60,7 @@ TEST_CASE("CDLDoji bearish doji", "[candlestick][doji]") {
     stratforge::CDLDoji doji(open, high, low, close);
     run_ohlc(open, high, low, close, doji);
 
-    // body = 0.5, range = 20, 0.5/20 = 0.025 < 0.05 → doji, close < open → -100
+    // body = 0.5, range = 20, 0.5/20 = 0.025 < 0.05 -> doji, close < open -> -100
     CHECK(doji.line().data()[0] == Approx(-100.0));
 }
 
@@ -70,8 +70,8 @@ TEST_CASE("CDLDoji bearish doji", "[candlestick][doji]") {
 TEST_CASE("CDLHammer detects hammer pattern", "[candlestick][hammer]") {
     // Hammer: body at top, long lower shadow, no upper shadow
     // body_top=101, body_bot=100, body=1, range=10
-    // lower_shadow=100-91=9 >= 2*1=2 ✓, upper_shadow=101-101=0 <= 0.1 ✓
-    // body=1 < 10/3=3.33 ✓
+    // lower_shadow=100-91=9 >= 2*1=2 [ok], upper_shadow=101-101=0 <= 0.1 [ok]
+    // body=1 < 10/3=3.33 [ok]
     auto open  = make_line({100.0, 100.0});
     auto high  = make_line({101.0, 110.0});
     auto low   = make_line({ 91.0,  90.0});
@@ -129,7 +129,7 @@ TEST_CASE("CDLEngulfing bearish engulfing", "[candlestick][engulfing]") {
 }
 
 TEST_CASE("CDLEngulfing no pattern when same color", "[candlestick][engulfing]") {
-    // Both bars bullish → no engulfing
+    // Both bars bullish -> no engulfing
     auto open  = make_line({100.0, 99.0});
     auto high  = make_line({106.0, 107.0});
     auto low   = make_line({ 99.0,  98.0});
@@ -242,7 +242,7 @@ TEST_CASE("CDLHarami no pattern when body not contained", "[candlestick][harami]
 TEST_CASE("CDLShootingStar detects shooting star", "[candlestick][shootingstar]") {
     // Body at bottom, long upper shadow
     // body_bot=100, body_top=101, body=1, range=10
-    // upper_shadow=110-101=9 >= 2 ✓, lower_shadow=100-100=0 <= 0.1 ✓
+    // upper_shadow=110-101=9 >= 2 [ok], lower_shadow=100-100=0 <= 0.1 [ok]
     auto open  = make_line({100.0, 100.0});
     auto high  = make_line({110.0, 101.0});
     auto low   = make_line({100.0,  99.0});
@@ -276,7 +276,7 @@ TEST_CASE("CDLHangingMan detects hanging man", "[candlestick][hangingman]") {
 // ============================================================
 TEST_CASE("CDLMarubozu bullish marubozu", "[candlestick][marubozu]") {
     // Almost full body: open=100, close=110, high=110.2, low=99.8
-    // body=10, range=10.4, 10/10.4 = 0.9615 >= 0.95 ✓
+    // body=10, range=10.4, 10/10.4 = 0.9615 >= 0.95 [ok]
     auto open  = make_line({100.0, 100.0});
     auto high  = make_line({110.2, 110.0});
     auto low   = make_line({ 99.8,  90.0});
@@ -318,10 +318,10 @@ TEST_CASE("CDLMarubozu flat bar returns 0", "[candlestick][marubozu]") {
 // ============================================================
 TEST_CASE("CDLSpinningTop detects spinning top", "[candlestick][spinningtop]") {
     // Small body centered with shadows on both sides
-    // open=100, close=101, high=105, low=95 → range=10
-    // body=1 < 0.3*10=3 ✓
-    // upper_shadow=105-101=4 > 0.2*10=2 ✓
-    // lower_shadow=100-95=5 > 2 ✓
+    // open=100, close=101, high=105, low=95 -> range=10
+    // body=1 < 0.3*10=3 [ok]
+    // upper_shadow=105-101=4 > 0.2*10=2 [ok]
+    // lower_shadow=100-95=5 > 2 [ok]
     auto open  = make_line({100.0, 100.0});
     auto high  = make_line({105.0, 101.0});
     auto low   = make_line({ 95.0,  99.0});
@@ -330,7 +330,7 @@ TEST_CASE("CDLSpinningTop detects spinning top", "[candlestick][spinningtop]") {
     stratforge::CDLSpinningTop st(open, high, low, close);
     run_ohlc(open, high, low, close, st);
 
-    CHECK(st.line().data()[0] == Approx(100.0));  // spinning top, close > open → +100
+    CHECK(st.line().data()[0] == Approx(100.0));  // spinning top, close > open -> +100
     CHECK(st.line().data()[1] == Approx(0.0));    // shadows too small
 }
 

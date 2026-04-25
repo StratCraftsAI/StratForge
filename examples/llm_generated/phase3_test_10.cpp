@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: Williams %R Overbought/Oversold
 // Prompt: "Buy when Williams %R(14) falls below -80, sell when it rises above -20."
-// Validation: End-to-end AI-generated strategy example
+// Phase: TICKET_004 Phase 3 -- End-to-End LLM Generation Test
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>

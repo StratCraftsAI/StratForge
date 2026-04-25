@@ -1,6 +1,6 @@
-// End-to-end integration test.
-// Exercises the full public backtesting pipeline:
-// CSV load → Cerebro → Strategy → Analyzers → Observers → Report extraction
+// End-to-End Integration Test (TICKET_003_10_10 Phase 10.5)
+// Comprehensive test exercising the full nonabt pipeline:
+// CSV load -> Cerebro -> Strategy -> Analyzers -> Observers -> Report extraction
 
 #include <stratforge/analyzers/drawdown.hpp>
 #include <stratforge/analyzers/returns.hpp>
@@ -80,7 +80,7 @@ private:
 
 } // namespace
 
-TEST_CASE("End-to-end integration: CSV → Cerebro → Strategy → Analyzers → Observers", "[e2e][integration]") {
+TEST_CASE("End-to-end integration: CSV -> Cerebro -> Strategy -> Analyzers -> Observers", "[e2e][integration]") {
     SECTION("Full pipeline with SMA crossover strategy") {
         Cerebro cerebro;
 
@@ -220,10 +220,10 @@ TEST_CASE("End-to-end integration: CSV → Cerebro → Strategy → Analyzers �
         REQUIRE(trades.lost.total == 0);
 
         const auto& sharpe_analysis = sharpe.get_analysis();
-        REQUIRE(sharpe_analysis.sharperatio == 0.0); // Zero trades → zero Sharpe
+        REQUIRE(sharpe_analysis.sharperatio == 0.0); // Zero trades -> zero Sharpe
 
         const auto& dd = drawdown.get_analysis();
-        REQUIRE(dd.max.drawdown == 0.0); // No trades → no drawdown
+        REQUIRE(dd.max.drawdown == 0.0); // No trades -> no drawdown
 
         // Cash should be unchanged
         REQUIRE_THAT(cerebro.broker().cash(), WithinRel(10000.0, 1e-10));

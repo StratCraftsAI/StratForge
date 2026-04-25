@@ -50,7 +50,7 @@ void run_indicator(stratforge::CsvData& feed, Indicator& indicator) {
     }
 }
 
-// ─── Whole-run benchmark: load data ONCE, clone per iteration ───────
+// --- Whole-run benchmark: load data ONCE, clone per iteration ---------
 
 template <typename IndicatorFactory>
 SampleSummary benchmark_indicator_run(const std::string& label,
@@ -60,7 +60,7 @@ SampleSummary benchmark_indicator_run(const std::string& label,
                                       JsonReport& report) {
     const auto bars = preloaded_feed.size();
 
-    // Clone feed for each iteration — no disk I/O in timing loop
+    // Clone feed for each iteration -- no disk I/O in timing loop
     const auto summary = run_benchmark(iterations, [&]() {
         auto feed_ptr = preloaded_feed.clone();
         auto& feed = static_cast<stratforge::CsvData&>(*feed_ptr);
@@ -78,7 +78,7 @@ SampleSummary benchmark_indicator_run(const std::string& label,
     return summary;
 }
 
-// ─── Per-bar micro-benchmark: time each next() individually ─────────
+// --- Per-bar micro-benchmark: time each next() individually -----------
 
 template <typename IndicatorFactory>
 SampleSummary benchmark_indicator_perbar(const std::string& label,
@@ -114,7 +114,7 @@ SampleSummary benchmark_indicator_perbar(const std::string& label,
     return summary;
 }
 
-// ─── Per-bar with allocation counting ───────────────────────────────
+// --- Per-bar with allocation counting ---------------------------------
 
 template <typename IndicatorFactory>
 std::int64_t benchmark_indicator_allocs(const std::string& label,
@@ -145,7 +145,7 @@ std::int64_t benchmark_indicator_allocs(const std::string& label,
     std::cout << "  " << label << " [allocs]: "
               << allocs << " allocations in " << hot_bars << " hot-path bars";
     if (allocs == 0) {
-        std::cout << " ✓ ZERO-ALLOC";
+        std::cout << " [ok] ZERO-ALLOC";
     } else {
         std::cout << " (" << (static_cast<double>(allocs) / static_cast<double>(hot_bars))
                   << " allocs/bar)";
@@ -160,7 +160,7 @@ std::int64_t benchmark_indicator_allocs(const std::string& label,
     return allocs;
 }
 
-// ─── Full indicator benchmark suite ─────────────────────────────────
+// --- Full indicator benchmark suite -----------------------------------
 
 template <typename IndicatorFactory>
 void full_indicator_benchmark(const std::string& label,
@@ -229,7 +229,7 @@ int main() {
 
     JsonReport report;
 
-    // ─── Cold/Warm comparison ───────────────────────────────────────
+    // --- Cold/Warm comparison -----------------------------------------------
     std::cout << "--- Cold/Warm Comparison ---\n";
     run_cold_warm_comparison("SMA(30) full-run", 10, [&]() {
         auto fp = feed_512.clone();
@@ -240,7 +240,7 @@ int main() {
     });
     std::cout << '\n';
 
-    // ─── Moving Averages ────────────────────────────────────────────
+    // --- Moving Averages ---------------------------------------------------
     std::cout << "--- Moving Averages ---\n";
     full_indicator_benchmark("SMA(30)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::SMA(f.close(), 30); }, report);
@@ -248,7 +248,7 @@ int main() {
     full_indicator_benchmark("EMA(30)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::EMA(f.close(), 30); }, report);
 
-    // ─── Volatility ─────────────────────────────────────────────────
+    // --- Volatility --------------------------------------------------------
     std::cout << "--- Volatility ---\n";
     full_indicator_benchmark("StdDev(20)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::StdDev(f.close(), 20); }, report);
@@ -259,7 +259,7 @@ int main() {
     full_indicator_benchmark("BollingerBands(20,2)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::BollingerBands(f.close(), 20, 2.0); }, report);
 
-    // ─── Momentum/Oscillators ───────────────────────────────────────
+    // --- Momentum/Oscillators -----------------------------------------------
     std::cout << "--- Momentum/Oscillators ---\n";
     full_indicator_benchmark("RSI(14)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::RSI(f.close(), 14); }, report);
@@ -270,7 +270,7 @@ int main() {
     full_indicator_benchmark("Stochastic(14,3,3)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::Stochastic(f.high(), f.low(), f.close(), 14, 3, 3); }, report);
 
-    // ─── Trend ──────────────────────────────────────────────────────
+    // --- Trend --------------------------------------------------------------
     std::cout << "--- Trend ---\n";
     full_indicator_benchmark("ADX(14)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::ADX(f.high(), f.low(), f.close(), 14); }, report);
@@ -278,12 +278,12 @@ int main() {
     full_indicator_benchmark("SuperTrend(10,3)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::SuperTrend(f.high(), f.low(), f.close(), 10, 3.0); }, report);
 
-    // ─── Complex Multi-line ─────────────────────────────────────────
+    // --- Complex Multi-line -------------------------------------------------
     std::cout << "--- Complex Multi-line ---\n";
     full_indicator_benchmark("Ichimoku(9,26,52)", feed_512, feed_100k_ptr.get(), iterations,
         [](stratforge::CsvData& f) { return stratforge::Ichimoku(f.high(), f.low(), f.close(), 9, 26, 52, 26, 26); }, report);
 
-    // ─── Write JSON report ──────────────────────────────────────────
+    // --- Write JSON report --------------------------------------------------
     report.write(source_path("build/bench_results/indicator_benchmarks.json"),
                  "indicator_benchmarks");
 

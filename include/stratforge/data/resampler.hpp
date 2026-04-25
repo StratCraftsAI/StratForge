@@ -116,19 +116,17 @@ public:
 private:
     /// End-of-day timestamp for a given bar (date + 23:59:59)
     static DateTime end_of_day(DateTime dt) {
-        using namespace std::chrono;
-        auto day = floor<days>(dt);
-        return DateTime(day + hours(23) + minutes(59) + seconds(59));
+        namespace chrono = std::chrono;
+        auto day = chrono::floor<chrono::days>(dt);
+        return DateTime(day + chrono::hours(23) + chrono::minutes(59) + chrono::seconds(59));
     }
 
     /// Compute the output bar timestamp matching backtrader conventions:
     /// - For daily source resampled to weeks/months: last bar's date + 23:59:59
     /// - For minute source resampled to larger minutes: bucket-end timestamp
     [[nodiscard]] DateTime compute_bar_timestamp(DateTime last_bar_dt) const {
-        using namespace std::chrono;
-
         if (target_tf_ == TimeFrame::Minutes) {
-            // Minute resample: use bucket-end time (e.g., 09:00-09:14 → 09:15:00)
+            // Minute resample: use bucket-end time (e.g., 09:00-09:14 -> 09:15:00)
             return get_bucket_timestamp(last_bar_dt, target_tf_, target_compression_);
         }
 
@@ -139,18 +137,17 @@ private:
     }
 
     static std::int64_t get_bucket(DateTime dt, TimeFrame tf, int compression) {
-        using namespace std::chrono;
-        
-        auto sys_days = floor<days>(dt);
+        namespace chrono = std::chrono;
+        auto sys_days = chrono::floor<chrono::days>(dt);
         auto time_of_day = dt - sys_days;
-        
+
         if (tf == TimeFrame::Minutes) {
-            auto total_mins_of_day = duration_cast<minutes>(time_of_day).count();
+            auto total_mins_of_day = chrono::duration_cast<chrono::minutes>(time_of_day).count();
             // backtrader [0, 15) boundaries
             auto day_idx = sys_days.time_since_epoch().count();
             return day_idx * 10000 + (total_mins_of_day / compression);
         }
-        
+
         if (tf == TimeFrame::Days) {
              return sys_days.time_since_epoch().count() / compression;
         }
@@ -160,9 +157,9 @@ private:
             // 1970-01-01 was Thursday. (sys_days + 3) / 7 gives weeks starting Monday
             return (sys_days_val + 3) / 7;
         }
-        
+
         if (tf == TimeFrame::Months) {
-            year_month_day ymd{sys_days};
+            chrono::year_month_day ymd{sys_days};
             return static_cast<int>(ymd.year()) * 12 + static_cast<unsigned>(ymd.month());
         }
 
@@ -170,32 +167,32 @@ private:
     }
 
     static DateTime get_bucket_timestamp(DateTime dt, TimeFrame tf, int compression) {
-        using namespace std::chrono;
-        auto sys_days_val = floor<days>(dt);
+        namespace chrono = std::chrono;
+        auto sys_days_val = chrono::floor<chrono::days>(dt);
         auto time_of_day = dt - sys_days_val;
-        
+
         if (tf == TimeFrame::Minutes) {
-            auto total_mins_of_day = duration_cast<minutes>(time_of_day).count();
+            auto total_mins_of_day = chrono::duration_cast<chrono::minutes>(time_of_day).count();
             auto bucket_end_mins = (total_mins_of_day / compression + 1) * compression;
-            return DateTime(sys_days_val + minutes(bucket_end_mins));
+            return DateTime(sys_days_val + chrono::minutes(bucket_end_mins));
         }
-        
+
         if (tf == TimeFrame::Days) {
-             return DateTime(sys_days_val + days(compression - 1) + hours(23) + minutes(59) + seconds(59));
+             return DateTime(sys_days_val + chrono::days(compression - 1) + chrono::hours(23) + chrono::minutes(59) + chrono::seconds(59));
         }
 
         if (tf == TimeFrame::Weeks) {
-            weekday wd{sys_days_val};
+            chrono::weekday wd{sys_days_val};
             int wd_val = static_cast<int>(wd.c_encoding());
-            if (wd_val == 0) wd_val = 7; 
+            if (wd_val == 0) wd_val = 7;
             auto days_to_sunday = 7 - wd_val;
-            return DateTime(sys_days_val + days(days_to_sunday) + hours(23) + minutes(59) + seconds(59));
+            return DateTime(sys_days_val + chrono::days(days_to_sunday) + chrono::hours(23) + chrono::minutes(59) + chrono::seconds(59));
         }
-        
+
         if (tf == TimeFrame::Months) {
-            year_month_day ymd{sys_days_val};
-            auto last_day_ymd = year_month_day_last(ymd.year(), month_day_last(ymd.month()));
-            return DateTime(sys_days{last_day_ymd} + hours(23) + minutes(59) + seconds(59));
+            chrono::year_month_day ymd{sys_days_val};
+            auto last_day_ymd = chrono::year_month_day_last(ymd.year(), chrono::month_day_last(ymd.month()));
+            return DateTime(chrono::sys_days{last_day_ymd} + chrono::hours(23) + chrono::minutes(59) + chrono::seconds(59));
         }
 
         return dt;

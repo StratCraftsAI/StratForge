@@ -31,6 +31,9 @@ add_executable(stratforge_tests
     test_registry_compile.cpp
     test_indicator_ticket011.cpp
     test_candlestick.cpp
+    test_coverage_indicators.cpp
+    test_coverage_broker.cpp
+    test_coverage_engine.cpp
 )
 
 target_link_libraries(stratforge_tests PRIVATE

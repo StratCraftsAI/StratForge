@@ -1,4 +1,4 @@
-// Optimizer Example — SMA Crossover Parameter Grid Search
+// Optimizer Example -- SMA Crossover Parameter Grid Search
 // Demonstrates: Optimizer, ParamRange, ResultExtractor, parallel execution
 
 #include <stratforge/data/csv_data.hpp>
@@ -96,7 +96,7 @@ int main() {
         return std::make_unique<SmaCrossover>();
     };
 
-    // Result extractor — collects final portfolio value
+    // Result extractor -- collects final portfolio value
     auto extractor = [](const stratforge::Cerebro& cerebro,
                         const stratforge::ParamMap&) -> stratforge::OptResult {
         stratforge::OptResult result;

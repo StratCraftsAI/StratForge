@@ -121,7 +121,7 @@ TEST_CASE("Multi-data strategy accesses both feeds correctly", "[multidata]") {
     REQUIRE_THAT(strategy.spreads[1], WithinRel(16.0, 1e-9));  // 118-102
     REQUIRE_THAT(strategy.spreads[4], WithinRel(-3.0, 1e-9));  // 105-108
 
-    // Bar 0: spread=20 > 10 → open pair trade
+    // Bar 0: spread=20 > 10 -> open pair trade
     REQUIRE(strategy.trades_opened >= 1);
 }
 

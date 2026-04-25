@@ -66,7 +66,7 @@ void benchmark_optimization_grid(stratforge::CsvData& preloaded_feed,
     std::cout << "Grid size: " << grid_size << " parameter combinations\n";
 
     const auto summary = run_benchmark(iterations, [&]() {
-        // Clone feed — no disk I/O
+        // Clone feed -- no disk I/O
         auto base_feed = preloaded_feed.clone();
         auto& feed = static_cast<stratforge::CsvData&>(*base_feed);
         feed.load();

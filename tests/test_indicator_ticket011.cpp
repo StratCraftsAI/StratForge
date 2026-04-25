@@ -168,7 +168,7 @@ TEST_CASE("BOP computes (C-O)/(H-L)", "[indicator][bop]") {
     REQUIRE(bop.line().data()[1] == Approx(-0.3333333333));
     // (15-14)/(16-11) = 0.2
     REQUIRE(bop.line().data()[2] == Approx(0.2));
-    // zero range → 0.0
+    // zero range -> 0.0
     REQUIRE(bop.line().data()[3] == Approx(0.0));
 }
 
@@ -274,11 +274,11 @@ TEST_CASE("MidPoint computes (highest + lowest) / 2 over period", "[indicator][m
 
     REQUIRE(std::isnan(mid.line().data()[0]));
     REQUIRE(std::isnan(mid.line().data()[1]));
-    // period 3: {10,15,8} → (15+8)/2 = 11.5
+    // period 3: {10,15,8} -> (15+8)/2 = 11.5
     REQUIRE(mid.line().data()[2] == Approx(11.5));
-    // {15,8,12} → (15+8)/2 = 11.5
+    // {15,8,12} -> (15+8)/2 = 11.5
     REQUIRE(mid.line().data()[3] == Approx(11.5));
-    // {8,12,20} → (20+8)/2 = 14.0
+    // {8,12,20} -> (20+8)/2 = 14.0
     REQUIRE(mid.line().data()[4] == Approx(14.0));
 }
 
@@ -299,9 +299,9 @@ TEST_CASE("MidPrice computes (highest_high + lowest_low) / 2", "[indicator][midp
 
     REQUIRE(std::isnan(mid.line().data()[0]));
     REQUIRE(std::isnan(mid.line().data()[1]));
-    // highs {12,15,14} max=15, lows {8,9,10} min=8 → (15+8)/2 = 11.5
+    // highs {12,15,14} max=15, lows {8,9,10} min=8 -> (15+8)/2 = 11.5
     REQUIRE(mid.line().data()[2] == Approx(11.5));
-    // highs {15,14,18} max=18, lows {9,10,7} min=7 → (18+7)/2 = 12.5
+    // highs {15,14,18} max=18, lows {9,10,7} min=7 -> (18+7)/2 = 12.5
     REQUIRE(mid.line().data()[3] == Approx(12.5));
 }
 
@@ -389,15 +389,15 @@ TEST_CASE("PlusDM and MinusDM compute raw directional movement", "[indicator][dm
     REQUIRE(std::isnan(plus_dm.line().data()[0]));
     REQUIRE(std::isnan(minus_dm.line().data()[0]));
 
-    // bar 1: upmove=3, downmove=-1 → plus_dm=3, minus_dm=0
+    // bar 1: upmove=3, downmove=-1 -> plus_dm=3, minus_dm=0
     REQUIRE(plus_dm.line().data()[1] == Approx(3.0));
     REQUIRE(minus_dm.line().data()[1] == Approx(0.0));
 
-    // bar 2: upmove=-1, downmove=-1 → both 0
+    // bar 2: upmove=-1, downmove=-1 -> both 0
     REQUIRE(plus_dm.line().data()[2] == Approx(0.0));
     REQUIRE(minus_dm.line().data()[2] == Approx(0.0));
 
-    // bar 3: upmove=3, downmove=3 → both 0 (equal, neither wins)
+    // bar 3: upmove=3, downmove=3 -> both 0 (equal, neither wins)
     REQUIRE(plus_dm.line().data()[3] == Approx(0.0));
     REQUIRE(minus_dm.line().data()[3] == Approx(0.0));
 }
@@ -474,7 +474,7 @@ TEST_CASE("MinMaxIndex outputs indices of both extremes", "[indicator][minmaxind
 // --- LinearReg ---
 
 TEST_CASE("LinearReg fits line to price data", "[indicator][linearreg]") {
-    // Perfect line: y = 2*x + 1 → values at x=0,1,2,3,4 are 1,3,5,7,9
+    // Perfect line: y = 2*x + 1 -> values at x=0,1,2,3,4 are 1,3,5,7,9
     auto source = make_line({1.0, 3.0, 5.0, 7.0, 9.0});
 
     stratforge::LinearReg lr(source, 3);
@@ -482,13 +482,13 @@ TEST_CASE("LinearReg fits line to price data", "[indicator][linearreg]") {
 
     REQUIRE(std::isnan(lr.line().data()[0]));
     REQUIRE(std::isnan(lr.line().data()[1]));
-    // {1,3,5}: slope=2, intercept=1, fitted at x=2 → 2*2+1=5
+    // {1,3,5}: slope=2, intercept=1, fitted at x=2 -> 2*2+1=5
     REQUIRE(lr.line().data()[2] == Approx(5.0));
     REQUIRE(lr.slope().data()[2] == Approx(2.0));
     REQUIRE(lr.intercept().data()[2] == Approx(1.0));
-    // {3,5,7}: slope=2, intercept=3, fitted at x=2 → 2*2+3=7
+    // {3,5,7}: slope=2, intercept=3, fitted at x=2 -> 2*2+3=7
     REQUIRE(lr.line().data()[3] == Approx(7.0));
-    // {5,7,9}: slope=2, intercept=5, fitted at x=2 → 2*2+5=9
+    // {5,7,9}: slope=2, intercept=5, fitted at x=2 -> 2*2+5=9
     REQUIRE(lr.line().data()[4] == Approx(9.0));
 }
 
@@ -539,9 +539,9 @@ TEST_CASE("TSF extrapolates one bar forward", "[indicator][tsf]") {
     run_indicator(source, tsf);
 
     REQUIRE(std::isnan(tsf.line().data()[0]));
-    // {1,3,5}: slope=2, intercept=1, forecast at x=3 → 2*3+1=7
+    // {1,3,5}: slope=2, intercept=1, forecast at x=3 -> 2*3+1=7
     REQUIRE(tsf.line().data()[2] == Approx(7.0));
-    // {3,5,7}: slope=2, intercept=3, forecast at x=3 → 2*3+3=9
+    // {3,5,7}: slope=2, intercept=3, forecast at x=3 -> 2*3+3=9
     REQUIRE(tsf.line().data()[3] == Approx(9.0));
 }
 

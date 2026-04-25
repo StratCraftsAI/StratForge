@@ -30,7 +30,7 @@ struct ParamRange {
 };
 
 /// Generate Cartesian product of parameter ranges
-inline std::vector<ParamMap> generate_param_grid(const std::vector<ParamRange>& ranges) {
+[[nodiscard]] inline std::vector<ParamMap> generate_param_grid(const std::vector<ParamRange>& ranges) {
     std::vector<ParamMap> grid;
     if (ranges.empty()) return grid;
 

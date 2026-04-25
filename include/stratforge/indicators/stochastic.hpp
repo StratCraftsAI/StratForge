@@ -2,6 +2,7 @@
 
 #include <stratforge/indicators/indicator.hpp>
 
+#include <cmath>
 #include <cstddef>
 #include <limits>
 

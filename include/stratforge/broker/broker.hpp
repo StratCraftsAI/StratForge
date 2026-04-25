@@ -136,7 +136,7 @@ public:
         auto main_id = submit_order(OrderSide::Buy, size, 0.0, std::nullopt,
                                      OrderType::Market, data_index);
 
-        // Take-profit (limit sell) — child, OCO with stop
+        // Take-profit (limit sell) -- child, OCO with stop
         OrderParams tp_params;
         tp_params.type = OrderType::Limit;
         tp_params.price = limit_price;
@@ -146,7 +146,7 @@ public:
         tp_params.transmit = false;
         auto limit_id = submit_order_ext(OrderSide::Sell, size, tp_params);
 
-        // Stop-loss (stop sell) — child, OCO with limit
+        // Stop-loss (stop sell) -- child, OCO with limit
         OrderParams sl_params;
         sl_params.type = OrderType::Stop;
         sl_params.stop_price = stop_price;
@@ -181,7 +181,7 @@ public:
         auto main_id = submit_order(OrderSide::Sell, size, 0.0, std::nullopt,
                                      OrderType::Market, data_index);
 
-        // Take-profit (limit buy) — child, OCO
+        // Take-profit (limit buy) -- child, OCO
         OrderParams tp_params;
         tp_params.type = OrderType::Limit;
         tp_params.price = limit_price;
@@ -191,7 +191,7 @@ public:
         tp_params.transmit = false;
         auto limit_id = submit_order_ext(OrderSide::Buy, size, tp_params);
 
-        // Stop-loss (stop buy) — child, OCO
+        // Stop-loss (stop buy) -- child, OCO
         OrderParams sl_params;
         sl_params.type = OrderType::Stop;
         sl_params.stop_price = stop_price;
@@ -257,7 +257,7 @@ public:
                     still_pending.push_back(order);
                     continue;
                 }
-                // Parent filled — activate this child
+                // Parent filled -- activate this child
                 order.transmit = true;
             }
 

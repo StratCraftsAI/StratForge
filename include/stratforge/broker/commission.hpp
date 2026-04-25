@@ -41,7 +41,7 @@ struct CommissionInfo {
     }
 };
 
-/// Tiered commission — volume-based commission tiers.
+/// Tiered commission -- volume-based commission tiers.
 /// Lower tiers apply first; once a tier threshold is exceeded, the next tier's rate applies
 /// to the excess volume.
 struct TieredCommission {

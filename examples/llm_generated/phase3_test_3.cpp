@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: MACD Signal Crossover
 // Prompt: "Buy when MACD line crosses above signal line, sell when it crosses below."
-// Validation: End-to-end AI-generated strategy example
+// Phase: TICKET_004 Phase 3 -- End-to-End LLM Generation Test
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>

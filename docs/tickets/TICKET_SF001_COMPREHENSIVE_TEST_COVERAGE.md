@@ -168,6 +168,21 @@ Existing files to extend: `test_strategy.cpp`, `test_line.cpp`, indicator test f
 
 ---
 
+## Development Workflow
+
+All test development happens in the **upstream** `nonabackTrader` repository, never directly in StratForge:
+
+1. **Write** — Create/edit test files in `nonabackTrader/tests/` using `nonabt` namespace and `<nonabt/...>` includes
+2. **Build & verify** — Compile and run via `nonabackTrader/build-gcc/bin/tests/nonabt_tests`
+3. **Sync** — Run `nonabackTrader/tools/sync_to_stratforge.sh` which performs one-way sync with automatic `nonabt` → `stratforge` namespace/include replacement
+4. **CI verify** — StratForge CI re-validates all tests under `stratforge` namespace
+
+**Rationale**: Single source of truth, unified build environment, consistent with existing 38 test files, sync script already handles tests/ directory and namespace transformation.
+
+**Important**: Test files must NOT reference `live/` headers, `serialization/` headers, `nonabt_engine.hpp`, or any other private-only components stripped from StratForge.
+
+---
+
 ## References
 
 - [Why AI Code Needs the Same Rigor](https://dev.to/whetlan/why-ai-code-needs-the-same-rigor-we-should-have-been-using-all-along-1kk4)

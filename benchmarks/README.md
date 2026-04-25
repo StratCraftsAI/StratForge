@@ -1,6 +1,6 @@
-# StratForge Benchmark Suite
+# nonabackTrader Benchmark Suite
 
-Performance benchmarks for the StratForge engine with proper methodology:
+Performance benchmarks for the nonabackTrader engine with proper methodology:
 warmup phases, I/O-isolated timing, per-bar micro-benchmarks, allocation
 counting, and machine-parseable JSON output.
 
@@ -69,7 +69,7 @@ Dedicated allocation audit for all indicators and strategy:
 
 - Counts heap allocations via global `operator new` override
 - 60-bar warmup to exclude initial vector growth
-- Verifies the zero-allocation hot-path target
+- Verifies zero-alloc hot-path target per TICKET_174
 
 ## Methodology
 
@@ -102,7 +102,7 @@ See [BASELINE.md](BASELINE.md) for the full baseline report.
 - Ichimoku: 67 ns/bar (15M bars/sec) — only zero-alloc indicator
 - All indicators meet <100ns P50 target
 
-## Performance Targets
+## Performance Targets (TICKET_003)
 
 | Target | Metric | Status |
 |--------|--------|--------|

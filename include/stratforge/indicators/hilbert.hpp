@@ -116,7 +116,7 @@ struct HilbertState {
     }
 
     /// Run the full Hilbert chain for the current bar.
-    /// @param today  The absolute bar index (0-based) — used for even/odd check.
+    /// @param today  The absolute bar index (0-based) -- used for even/odd check.
     /// @return Phase angle in degrees (for MAMA use).
     double compute_step(int today) noexcept {
         const double adjusted_prev_period = 0.075 * period + 0.54;

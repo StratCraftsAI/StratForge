@@ -81,12 +81,12 @@ private:
     std::unique_ptr<stratforge::MACD> macd_;
 };
 
-// ─── Helper: run a full cerebro backtest (no I/O in hot path) ───────
+// --- Helper: run a full cerebro backtest (no I/O in hot path) --------
 
 void run_cerebro_backtest(stratforge::CsvData& preloaded_feed) {
     stratforge::Cerebro cerebro;
 
-    // Clone feed — no disk I/O
+    // Clone feed -- no disk I/O
     auto feed_ptr = preloaded_feed.clone();
     auto& feed = static_cast<stratforge::CsvData&>(*feed_ptr);
     feed.load();
@@ -105,7 +105,7 @@ void run_cerebro_backtest(stratforge::CsvData& preloaded_feed) {
     (void)final_cash;
 }
 
-// ─── Whole-run strategy benchmark ───────────────────────────────────
+// --- Whole-run strategy benchmark ----------------------------------------
 
 void benchmark_strategy_execution(stratforge::CsvData& preloaded_feed,
                                   std::size_t iterations,
@@ -138,7 +138,7 @@ void benchmark_strategy_execution(stratforge::CsvData& preloaded_feed,
                 .bars_per_iteration = bars});
 }
 
-// ─── Full backtest wall-clock ───────────────────────────────────────
+// --- Full backtest wall-clock -------------------------------------------
 
 void benchmark_full_backtest(stratforge::CsvData& preloaded_feed,
                              std::size_t iterations,
@@ -165,7 +165,7 @@ void benchmark_full_backtest(stratforge::CsvData& preloaded_feed,
                 .bars_per_iteration = bars});
 }
 
-// ─── Strategy allocation audit ──────────────────────────────────────
+// --- Strategy allocation audit -------------------------------------------
 
 void benchmark_strategy_allocs(stratforge::CsvData& preloaded_feed,
                                const std::string& dataset_label,
@@ -227,14 +227,14 @@ int main() {
 
     JsonReport report;
 
-    // ─── Cold/Warm comparison ───────────────────────────────────────
+    // --- Cold/Warm comparison -----------------------------------------------
     std::cout << "--- Cold/Warm Comparison ---\n";
     run_cold_warm_comparison("Full Backtest (512)", 10, [&]() {
         run_cerebro_backtest(feed_512);
     });
     std::cout << '\n';
 
-    // ─── 512-bar benchmarks ─────────────────────────────────────────
+    // --- 512-bar benchmarks -------------------------------------------------
     std::cout << "--- Per-Bar Composite Strategy [512] ---\n";
     benchmark_strategy_execution(feed_512, iterations, "512", report);
 
@@ -244,7 +244,7 @@ int main() {
     std::cout << "\n--- Allocation Audit [512] ---\n";
     benchmark_strategy_allocs(feed_512, "512", report);
 
-    // ─── 100K-bar benchmarks ────────────────────────────────────────
+    // --- 100K-bar benchmarks ------------------------------------------------
     if (feed_100k_ptr) {
         std::cout << "\n--- Per-Bar Composite Strategy [100K] ---\n";
         benchmark_strategy_execution(*feed_100k_ptr, std::min(iterations, std::size_t{10}),
@@ -255,7 +255,7 @@ int main() {
                                 "100K", report);
     }
 
-    // ─── Write JSON report ──────────────────────────────────────────
+    // --- Write JSON report --------------------------------------------------
     report.write(source_path("build/bench_results/strategy_benchmarks.json"),
                  "strategy_benchmarks");
 

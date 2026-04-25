@@ -129,9 +129,9 @@ TEST_CASE("Trailing stop follows price and triggers on reversal", "[orders][trai
     Cerebro cerebro;
     cerebro.set_cash(10000.0);
     // Trail order placed on bar 1. Processing starts bar 2:
-    // Bar 2: trail_stop=0 → no fill. Update: high=110 → trail_stop=105
-    // Bar 3: trail_stop=105, low=108 > 105 → no fill. Update: high=112 → trail_stop=107
-    // Bar 4: trail_stop=107, low=106 < 107 → fills at min(107, open=109) = 107
+    // Bar 2: trail_stop=0 -> no fill. Update: high=110 -> trail_stop=105
+    // Bar 3: trail_stop=105, low=108 > 105 -> no fill. Update: high=112 -> trail_stop=107
+    // Bar 4: trail_stop=107, low=106 < 107 -> fills at min(107, open=109) = 107
     cerebro.add_data(std::make_unique<StaticFeed>(std::vector<StaticFeed::Bar>{
         {100.0, 101.0, 99.0, 100.0},  // bar 0: buy at market
         {100.0, 105.0, 99.0, 104.0},  // bar 1: place trail stop

@@ -62,7 +62,7 @@ public:
             std::int64_t bucket = get_bucket(dt, target_tf_, target_compression_);
 
             if (!first && bucket != current_bucket) {
-                // New period — reset accumulation
+                // New period -- reset accumulation
                 o = bar_o;
                 h = bar_h;
                 l = bar_l;
@@ -114,13 +114,13 @@ public:
 
 private:
     static std::int64_t get_bucket(DateTime dt, TimeFrame tf, int compression) {
-        using namespace std::chrono;
+        namespace chrono = std::chrono;
 
-        auto sys_days = floor<days>(dt);
+        auto sys_days = chrono::floor<chrono::days>(dt);
         auto time_of_day = dt - sys_days;
 
         if (tf == TimeFrame::Minutes) {
-            auto total_mins_of_day = duration_cast<minutes>(time_of_day).count();
+            auto total_mins_of_day = chrono::duration_cast<chrono::minutes>(time_of_day).count();
             auto day_idx = sys_days.time_since_epoch().count();
             return day_idx * 10000 + (total_mins_of_day / compression);
         }
@@ -135,7 +135,7 @@ private:
         }
 
         if (tf == TimeFrame::Months) {
-            year_month_day ymd{sys_days};
+            chrono::year_month_day ymd{sys_days};
             return static_cast<int>(ymd.year()) * 12 + static_cast<unsigned>(ymd.month());
         }
 
