@@ -7,27 +7,34 @@ on:
     branches: [main, develop]
 
 jobs:
+  # ---------------------------------------------------------------------------
+  # Cross-platform build matrix (4 compilers)
+  # ---------------------------------------------------------------------------
   build:
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: ubuntu-24.04
-            name: Linux GCC 14
+            compiler: gcc
             cc: gcc-14
             cxx: g++-14
+            name: Linux GCC 14
 
           - os: ubuntu-24.04
-            name: Linux Clang 18
+            compiler: clang
             cc: clang-18
             cxx: clang++-18
+            name: Linux Clang 18
 
           - os: macos-latest
-            name: macOS Apple Clang
+            compiler: apple-clang
             cc: clang
             cxx: clang++
+            name: macOS Apple Clang
 
           - os: windows-latest
+            compiler: msvc
             name: Windows MSVC
 
     runs-on: ${{ matrix.os }}
@@ -37,17 +44,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache CMake build (FetchContent)
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: ${{ runner.os }}-${{ matrix.compiler }}-deps-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.compiler }}-deps-
+
       - name: Install dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build libc++-18-dev libc++abi-18-dev
+          sudo apt-get install -y ninja-build
+
+      - name: Install libc++ (Linux Clang)
+        if: runner.os == 'Linux' && matrix.compiler == 'clang'
+        run: |
+          sudo apt-get install -y libc++-18-dev libc++abi-18-dev
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
-        run: brew install ninja
+        run: |
+          brew install ninja
 
-      - name: Setup MSVC
+      - name: Setup MSVC (Windows)
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
@@ -78,13 +99,44 @@ jobs:
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
 
-  linux-bench:
+      # --- Test Reporting ---
+      - name: Run Catch2 with JUnit output (Unix)
+        if: runner.os != 'Windows' && always()
+        run: |
+          ./build/bin/tests/stratforge_tests -r junit -o build/test-results.xml || true
+
+      - name: Run Catch2 with JUnit output (Windows)
+        if: runner.os == 'Windows' && always()
+        run: |
+          ./build/bin/tests/stratforge_tests.exe -r junit -o build/test-results.xml
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.name }}
+          path: build/test-results.xml
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # Linux full features (benchmarks + examples)
+  # ---------------------------------------------------------------------------
+  linux-full:
     runs-on: ubuntu-24.04
-    name: Linux Bench Smoke Test
+    name: Linux Full Features
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Cache CMake build (FetchContent)
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: ubuntu-gcc-full-deps-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            ubuntu-gcc-full-deps-
 
       - name: Install dependencies
         run: |
@@ -98,10 +150,139 @@ jobs:
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DSF_BUILD_TESTS=OFF \
-            -DSF_BUILD_EXAMPLES=OFF \
-            -DSF_BUILD_BENCHMARKS=ON
+            -DSF_BUILD_TESTS=ON \
+            -DSF_BUILD_BENCHMARKS=ON \
+            -DSF_BUILD_EXAMPLES=ON
 
-      - name: Build benchmark targets
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  # ---------------------------------------------------------------------------
+  # Coverage (Linux GCC)
+  # ---------------------------------------------------------------------------
+  coverage:
+    runs-on: ubuntu-24.04
+    name: Coverage (GCC 14)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache CMake build (FetchContent)
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: ubuntu-gcc-cov-deps-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            ubuntu-gcc-cov-deps-
+
+      - name: Install dependencies
         run: |
-          cmake --build build --target gen_bench_data indicator_benchmarks strategy_benchmarks optimization_benchmarks memory_benchmarks
+          sudo apt-get update
+          sudo apt-get install -y ninja-build gcovr
+
+      - name: Configure
+        env:
+          CC: gcc-14
+          CXX: g++-14
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_FLAGS="--coverage -fprofile-arcs -ftest-coverage -O0" \
+            -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
+            -DSF_BUILD_TESTS=ON \
+            -DSF_BUILD_BENCHMARKS=OFF \
+            -DSF_BUILD_EXAMPLES=OFF
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Generate coverage report
+        run: |
+          gcovr --root . \
+            --filter 'include/stratforge/' \
+            --exclude 'build/_deps/' \
+            --exclude 'tests/' \
+            --exclude 'benchmarks/' \
+            --exclude 'examples/' \
+            --xml -o build/coverage.xml \
+            --html-details -o build/coverage.html \
+            --print-summary
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            build/coverage.xml
+            build/coverage.html
+            build/coverage.*.html
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # Sanitizer builds (Linux GCC)
+  # ---------------------------------------------------------------------------
+  sanitizers:
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - sanitizer: address
+            flags: "-fsanitize=address -fno-omit-frame-pointer -O1"
+            name: AddressSanitizer
+            env_var: ASAN_OPTIONS
+            env_val: "detect_leaks=1:halt_on_error=1"
+
+          - sanitizer: undefined
+            flags: "-fsanitize=undefined -fno-omit-frame-pointer -O1"
+            name: UndefinedBehaviorSanitizer
+            env_var: UBSAN_OPTIONS
+            env_val: "print_stacktrace=1:halt_on_error=1"
+
+    name: ${{ matrix.name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache CMake build (FetchContent)
+        uses: actions/cache@v4
+        with:
+          path: build/_deps
+          key: ubuntu-gcc-${{ matrix.sanitizer }}-deps-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            ubuntu-gcc-${{ matrix.sanitizer }}-deps-
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Configure
+        env:
+          CC: gcc-14
+          CXX: g++-14
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_FLAGS="${{ matrix.flags }}" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=${{ matrix.sanitizer }}" \
+            -DSF_BUILD_TESTS=ON \
+            -DSF_BUILD_BENCHMARKS=OFF \
+            -DSF_BUILD_EXAMPLES=OFF
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - name: Test
+        env:
+          ${{ matrix.env_var }}: ${{ matrix.env_val }}
+        run: ctest --test-dir build --output-on-failure
