@@ -1,0 +1,2105 @@
+{
+  "backtrader_version": "1.9.78.123",
+  "bar_snapshots": [
+    {
+      "bar": 0,
+      "cash": 10000.0,
+      "close": 3604.33,
+      "position_size": 0.0,
+      "value": 10000.0
+    },
+    {
+      "bar": 1,
+      "cash": 6395.92,
+      "close": 3614.34,
+      "position_size": 1.0,
+      "value": 10010.26
+    },
+    {
+      "bar": 2,
+      "cash": 6395.92,
+      "close": 3652.46,
+      "position_size": 1.0,
+      "value": 10048.380000000001
+    },
+    {
+      "bar": 3,
+      "cash": 10048.11,
+      "close": 3650.24,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 4,
+      "cash": 10048.11,
+      "close": 3666.99,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 5,
+      "cash": 10048.11,
+      "close": 3671.78,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 6,
+      "cash": 10048.11,
+      "close": 3644.94,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 7,
+      "cash": 10048.11,
+      "close": 3668.61,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 8,
+      "cash": 10048.11,
+      "close": 3670.2,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 9,
+      "cash": 10048.11,
+      "close": 3629.25,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 10,
+      "cash": 10048.11,
+      "close": 3644.41,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 11,
+      "cash": 10048.11,
+      "close": 3610.07,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 12,
+      "cash": 10048.11,
+      "close": 3570.17,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 13,
+      "cash": 10048.11,
+      "close": 3593.22,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 14,
+      "cash": 10048.11,
+      "close": 3550.8,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 15,
+      "cash": 10048.11,
+      "close": 3544.31,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 16,
+      "cash": 10048.11,
+      "close": 3532.68,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 17,
+      "cash": 10048.11,
+      "close": 3578.0,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 18,
+      "cash": 10048.11,
+      "close": 3641.42,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 19,
+      "cash": 10048.11,
+      "close": 3685.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 20,
+      "cash": 10048.11,
+      "close": 3677.52,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 21,
+      "cash": 10048.11,
+      "close": 3691.41,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 22,
+      "cash": 10048.11,
+      "close": 3728.25,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 23,
+      "cash": 10048.11,
+      "close": 3677.05,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 24,
+      "cash": 10048.11,
+      "close": 3678.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 25,
+      "cash": 10048.11,
+      "close": 3682.32,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 26,
+      "cash": 10048.11,
+      "close": 3680.8,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 27,
+      "cash": 10048.11,
+      "close": 3671.37,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 28,
+      "cash": 10048.11,
+      "close": 3726.81,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 29,
+      "cash": 10048.11,
+      "close": 3695.63,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 30,
+      "cash": 10048.11,
+      "close": 3727.46,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 31,
+      "cash": 10048.11,
+      "close": 3734.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 32,
+      "cash": 10048.11,
+      "close": 3729.79,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 33,
+      "cash": 10048.11,
+      "close": 3756.47,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 34,
+      "cash": 10048.11,
+      "close": 3767.7,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 35,
+      "cash": 10048.11,
+      "close": 3766.74,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 36,
+      "cash": 10048.11,
+      "close": 3779.51,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 37,
+      "cash": 10048.11,
+      "close": 3818.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 38,
+      "cash": 10048.11,
+      "close": 3813.29,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 39,
+      "cash": 10048.11,
+      "close": 3826.0,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 40,
+      "cash": 10048.11,
+      "close": 3840.56,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 41,
+      "cash": 10048.11,
+      "close": 3774.51,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 42,
+      "cash": 10048.11,
+      "close": 3806.03,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 43,
+      "cash": 10048.11,
+      "close": 3763.73,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 44,
+      "cash": 10048.11,
+      "close": 3733.95,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 45,
+      "cash": 10048.11,
+      "close": 3754.07,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 46,
+      "cash": 10048.11,
+      "close": 3745.2,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 47,
+      "cash": 10048.11,
+      "close": 3727.96,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 48,
+      "cash": 10048.11,
+      "close": 3757.59,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 49,
+      "cash": 10048.11,
+      "close": 3798.46,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 50,
+      "cash": 10048.11,
+      "close": 3824.97,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 51,
+      "cash": 10048.11,
+      "close": 3833.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 52,
+      "cash": 10048.11,
+      "close": 3842.16,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 53,
+      "cash": 10048.11,
+      "close": 3839.71,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 54,
+      "cash": 10048.11,
+      "close": 3832.43,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 55,
+      "cash": 10048.11,
+      "close": 3842.03,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 56,
+      "cash": 10048.11,
+      "close": 3848.17,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 57,
+      "cash": 10048.11,
+      "close": 3868.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 58,
+      "cash": 10048.11,
+      "close": 3860.13,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 59,
+      "cash": 10048.11,
+      "close": 3870.89,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 60,
+      "cash": 10048.11,
+      "close": 3828.53,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 61,
+      "cash": 10048.11,
+      "close": 3811.45,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 62,
+      "cash": 10048.11,
+      "close": 3826.3,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 63,
+      "cash": 10048.11,
+      "close": 3874.61,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 64,
+      "cash": 10048.11,
+      "close": 3853.74,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 65,
+      "cash": 10048.11,
+      "close": 3878.64,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 66,
+      "cash": 10048.11,
+      "close": 3850.11,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 67,
+      "cash": 10048.11,
+      "close": 3863.92,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 68,
+      "cash": 10048.11,
+      "close": 3861.29,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 69,
+      "cash": 10048.11,
+      "close": 3823.11,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 70,
+      "cash": 10048.11,
+      "close": 3843.52,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 71,
+      "cash": 10048.11,
+      "close": 3788.81,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 72,
+      "cash": 10048.11,
+      "close": 3776.94,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 73,
+      "cash": 10048.11,
+      "close": 3779.94,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 74,
+      "cash": 10048.11,
+      "close": 3770.79,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 75,
+      "cash": 10048.11,
+      "close": 3820.96,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 76,
+      "cash": 10048.11,
+      "close": 3860.0,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 77,
+      "cash": 10048.11,
+      "close": 3888.46,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 78,
+      "cash": 10048.11,
+      "close": 3862.27,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 79,
+      "cash": 10048.11,
+      "close": 3871.09,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 80,
+      "cash": 10048.11,
+      "close": 3887.0,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 81,
+      "cash": 10048.11,
+      "close": 3865.42,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 82,
+      "cash": 10048.11,
+      "close": 3839.9,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 83,
+      "cash": 10048.11,
+      "close": 3862.24,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 84,
+      "cash": 10048.11,
+      "close": 3821.97,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 85,
+      "cash": 10048.11,
+      "close": 3843.08,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 86,
+      "cash": 10048.11,
+      "close": 3874.32,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 87,
+      "cash": 10048.11,
+      "close": 3877.53,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 88,
+      "cash": 10048.11,
+      "close": 3890.94,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 89,
+      "cash": 10048.11,
+      "close": 3863.56,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 90,
+      "cash": 10048.11,
+      "close": 3837.86,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 91,
+      "cash": 10048.11,
+      "close": 3750.44,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 92,
+      "cash": 10048.11,
+      "close": 3711.16,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 93,
+      "cash": 10048.11,
+      "close": 3730.36,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 94,
+      "cash": 10048.11,
+      "close": 3605.37,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 95,
+      "cash": 10048.11,
+      "close": 3606.33,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 96,
+      "cash": 10048.11,
+      "close": 3625.33,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 97,
+      "cash": 10048.11,
+      "close": 3539.77,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 98,
+      "cash": 10048.11,
+      "close": 3620.28,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 99,
+      "cash": 10048.11,
+      "close": 3574.86,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 100,
+      "cash": 10048.11,
+      "close": 3635.0,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 101,
+      "cash": 10048.11,
+      "close": 3699.8,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 102,
+      "cash": 10048.11,
+      "close": 3679.57,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 103,
+      "cash": 10048.11,
+      "close": 3590.91,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 104,
+      "cash": 10048.11,
+      "close": 3637.17,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 105,
+      "cash": 10048.11,
+      "close": 3648.33,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 106,
+      "cash": 10048.11,
+      "close": 3636.89,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 107,
+      "cash": 10048.11,
+      "close": 3604.33,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 108,
+      "cash": 10048.11,
+      "close": 3529.1,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 109,
+      "cash": 10048.11,
+      "close": 3562.36,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 110,
+      "cash": 10048.11,
+      "close": 3462.37,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 111,
+      "cash": 10048.11,
+      "close": 3520.99,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 112,
+      "cash": 10048.11,
+      "close": 3480.76,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 113,
+      "cash": 10048.11,
+      "close": 3408.02,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 114,
+      "cash": 10048.11,
+      "close": 3414.21,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 115,
+      "cash": 10048.11,
+      "close": 3493.25,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 116,
+      "cash": 10048.11,
+      "close": 3463.56,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 117,
+      "cash": 10048.11,
+      "close": 3490.24,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 118,
+      "cash": 10048.11,
+      "close": 3514.83,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 119,
+      "cash": 10048.11,
+      "close": 3526.84,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 120,
+      "cash": 10048.11,
+      "close": 3544.85,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 121,
+      "cash": 10048.11,
+      "close": 3550.15,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 122,
+      "cash": 10048.11,
+      "close": 3534.84,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 123,
+      "cash": 10048.11,
+      "close": 3506.93,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 124,
+      "cash": 10048.11,
+      "close": 3506.07,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 125,
+      "cash": 10048.11,
+      "close": 3582.61,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 126,
+      "cash": 10048.11,
+      "close": 3648.92,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 127,
+      "cash": 10048.11,
+      "close": 3662.92,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 128,
+      "cash": 10048.11,
+      "close": 3670.75,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 129,
+      "cash": 10048.11,
+      "close": 3618.64,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 130,
+      "cash": 10048.11,
+      "close": 3662.39,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 131,
+      "cash": 10048.11,
+      "close": 3651.33,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 132,
+      "cash": 10048.11,
+      "close": 3666.51,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 133,
+      "cash": 10048.11,
+      "close": 3617.78,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 134,
+      "cash": 10048.11,
+      "close": 3630.5,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 135,
+      "cash": 10048.11,
+      "close": 3562.56,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 136,
+      "cash": 10048.11,
+      "close": 3508.25,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 137,
+      "cash": 10048.11,
+      "close": 3498.62,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 138,
+      "cash": 10048.11,
+      "close": 3492.11,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 139,
+      "cash": 10048.11,
+      "close": 3585.65,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 140,
+      "cash": 10048.11,
+      "close": 3589.63,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 141,
+      "cash": 10048.11,
+      "close": 3557.08,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 142,
+      "cash": 10048.11,
+      "close": 3632.93,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 143,
+      "cash": 10048.11,
+      "close": 3631.5,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 144,
+      "cash": 10048.11,
+      "close": 3640.75,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 145,
+      "cash": 10048.11,
+      "close": 3681.55,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 146,
+      "cash": 10048.11,
+      "close": 3710.6,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 147,
+      "cash": 10048.11,
+      "close": 3691.87,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 148,
+      "cash": 10048.11,
+      "close": 3640.6,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 149,
+      "cash": 10048.11,
+      "close": 3696.35,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 150,
+      "cash": 10048.11,
+      "close": 3667.91,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 151,
+      "cash": 10048.11,
+      "close": 3718.09,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 152,
+      "cash": 10048.11,
+      "close": 3659.03,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 153,
+      "cash": 10048.11,
+      "close": 3668.1,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 154,
+      "cash": 10048.11,
+      "close": 3707.19,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 155,
+      "cash": 10048.11,
+      "close": 3675.44,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 156,
+      "cash": 10048.11,
+      "close": 3675.1,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 157,
+      "cash": 10048.11,
+      "close": 3719.11,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 158,
+      "cash": 10048.11,
+      "close": 3766.38,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 159,
+      "cash": 10048.11,
+      "close": 3790.94,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 160,
+      "cash": 10048.11,
+      "close": 3800.1,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 161,
+      "cash": 10048.11,
+      "close": 3791.4,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 162,
+      "cash": 10048.11,
+      "close": 3777.25,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 163,
+      "cash": 10048.11,
+      "close": 3792.55,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 164,
+      "cash": 10048.11,
+      "close": 3758.98,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 165,
+      "cash": 10048.11,
+      "close": 3781.87,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 166,
+      "cash": 10048.11,
+      "close": 3781.17,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 167,
+      "cash": 10048.11,
+      "close": 3808.57,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 168,
+      "cash": 10048.11,
+      "close": 3806.81,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 169,
+      "cash": 10048.11,
+      "close": 3817.86,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 170,
+      "cash": 10048.11,
+      "close": 3808.7,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 171,
+      "cash": 10048.11,
+      "close": 3820.89,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 172,
+      "cash": 10048.11,
+      "close": 3837.61,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 173,
+      "cash": 10048.11,
+      "close": 3817.76,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 174,
+      "cash": 10048.11,
+      "close": 3772.21,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 175,
+      "cash": 10048.11,
+      "close": 3739.7,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 176,
+      "cash": 10048.11,
+      "close": 3750.08,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 177,
+      "cash": 10048.11,
+      "close": 3742.06,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 178,
+      "cash": 10048.11,
+      "close": 3788.96,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 179,
+      "cash": 10048.11,
+      "close": 3805.55,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 180,
+      "cash": 10048.11,
+      "close": 3796.65,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 181,
+      "cash": 10048.11,
+      "close": 3812.11,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 182,
+      "cash": 10048.11,
+      "close": 3808.47,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 183,
+      "cash": 10048.11,
+      "close": 3780.18,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 184,
+      "cash": 10048.11,
+      "close": 3841.31,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 185,
+      "cash": 10048.11,
+      "close": 3857.14,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 186,
+      "cash": 10048.11,
+      "close": 3812.73,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 187,
+      "cash": 10048.11,
+      "close": 3822.12,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 188,
+      "cash": 10048.11,
+      "close": 3872.92,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 189,
+      "cash": 10048.11,
+      "close": 3896.18,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 190,
+      "cash": 10048.11,
+      "close": 3894.98,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 191,
+      "cash": 10048.11,
+      "close": 3899.41,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 192,
+      "cash": 10048.11,
+      "close": 3892.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 193,
+      "cash": 10048.11,
+      "close": 3880.14,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 194,
+      "cash": 10048.11,
+      "close": 3914.73,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 195,
+      "cash": 10048.11,
+      "close": 3939.86,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 196,
+      "cash": 10048.11,
+      "close": 3940.31,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 197,
+      "cash": 10048.11,
+      "close": 3939.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 198,
+      "cash": 10048.11,
+      "close": 3960.67,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 199,
+      "cash": 10048.11,
+      "close": 3967.39,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 200,
+      "cash": 10048.11,
+      "close": 3999.93,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 201,
+      "cash": 10048.11,
+      "close": 3999.07,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 202,
+      "cash": 10048.11,
+      "close": 4001.97,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 203,
+      "cash": 10048.11,
+      "close": 3949.57,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 204,
+      "cash": 10048.11,
+      "close": 3991.38,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 205,
+      "cash": 10048.11,
+      "close": 3986.82,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 206,
+      "cash": 10048.11,
+      "close": 3998.19,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 207,
+      "cash": 10048.11,
+      "close": 4019.02,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 208,
+      "cash": 10048.11,
+      "close": 4014.01,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 209,
+      "cash": 10048.11,
+      "close": 4019.14,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 210,
+      "cash": 10048.11,
+      "close": 4027.29,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 211,
+      "cash": 10048.11,
+      "close": 4017.27,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 212,
+      "cash": 10048.11,
+      "close": 4004.92,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 213,
+      "cash": 10048.11,
+      "close": 4004.8,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 214,
+      "cash": 10048.11,
+      "close": 4014.34,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 215,
+      "cash": 10048.11,
+      "close": 3974.62,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 216,
+      "cash": 10048.11,
+      "close": 3990.46,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 217,
+      "cash": 10048.11,
+      "close": 4045.22,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 218,
+      "cash": 10048.11,
+      "close": 4072.86,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 219,
+      "cash": 10048.11,
+      "close": 4073.81,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 220,
+      "cash": 10048.11,
+      "close": 4073.0,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 221,
+      "cash": 10048.11,
+      "close": 4063.84,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 222,
+      "cash": 10048.11,
+      "close": 4086.14,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 223,
+      "cash": 10048.11,
+      "close": 4084.33,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 224,
+      "cash": 10048.11,
+      "close": 4108.83,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 225,
+      "cash": 10048.11,
+      "close": 4109.71,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 226,
+      "cash": 10048.11,
+      "close": 4078.36,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 227,
+      "cash": 10048.11,
+      "close": 4096.74,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 228,
+      "cash": 10048.11,
+      "close": 4096.06,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 229,
+      "cash": 10048.11,
+      "close": 4094.97,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 230,
+      "cash": 10048.11,
+      "close": 4085.76,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 231,
+      "cash": 10048.11,
+      "close": 4048.16,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 232,
+      "cash": 10048.11,
+      "close": 3978.25,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 233,
+      "cash": 10048.11,
+      "close": 3975.11,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 234,
+      "cash": 10048.11,
+      "close": 4023.09,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 235,
+      "cash": 10048.11,
+      "close": 3987.23,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 236,
+      "cash": 10048.11,
+      "close": 3932.09,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 237,
+      "cash": 10048.11,
+      "close": 3962.93,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 238,
+      "cash": 10048.11,
+      "close": 4007.94,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 239,
+      "cash": 10048.11,
+      "close": 4002.31,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 240,
+      "cash": 10048.11,
+      "close": 4018.69,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 241,
+      "cash": 10048.11,
+      "close": 4019.89,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 242,
+      "cash": 10048.11,
+      "close": 4052.89,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 243,
+      "cash": 10048.11,
+      "close": 4059.74,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 244,
+      "cash": 10048.11,
+      "close": 4094.33,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 245,
+      "cash": 10048.11,
+      "close": 4118.84,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 246,
+      "cash": 10048.11,
+      "close": 4140.66,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 247,
+      "cash": 10048.11,
+      "close": 4130.06,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 248,
+      "cash": 10048.11,
+      "close": 4100.48,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 249,
+      "cash": 10048.11,
+      "close": 4118.54,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 250,
+      "cash": 10048.11,
+      "close": 4112.1,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 251,
+      "cash": 10048.11,
+      "close": 4073.5,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 252,
+      "cash": 10048.11,
+      "close": 4134.86,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 253,
+      "cash": 10048.11,
+      "close": 4130.66,
+      "position_size": 0.0,
+      "value": 10048.11
+    },
+    {
+      "bar": 254,
+      "cash": 10048.11,
+      "close": 4119.94,
+      "position_size": 0.0,
+      "value": 10048.11
+    }
+  ],
+  "component": "cerebro",
+  "data_file": "tools/golden_extract/datas/2006-day-001.txt",
+  "lifecycle": [
+    "start",
+    "nextstart@0",
+    "next@1",
+    "next@2",
+    "next@3",
+    "next@4",
+    "next@5",
+    "next@6",
+    "next@7",
+    "next@8",
+    "next@9",
+    "next@10",
+    "next@11",
+    "next@12",
+    "next@13",
+    "next@14",
+    "next@15",
+    "next@16",
+    "next@17",
+    "next@18",
+    "next@19",
+    "next@20",
+    "next@21",
+    "next@22",
+    "next@23",
+    "next@24",
+    "next@25",
+    "next@26",
+    "next@27",
+    "next@28",
+    "next@29",
+    "next@30",
+    "next@31",
+    "next@32",
+    "next@33",
+    "next@34",
+    "next@35",
+    "next@36",
+    "next@37",
+    "next@38",
+    "next@39",
+    "next@40",
+    "next@41",
+    "next@42",
+    "next@43",
+    "next@44",
+    "next@45",
+    "next@46",
+    "next@47",
+    "next@48",
+    "next@49",
+    "next@50",
+    "next@51",
+    "next@52",
+    "next@53",
+    "next@54",
+    "next@55",
+    "next@56",
+    "next@57",
+    "next@58",
+    "next@59",
+    "next@60",
+    "next@61",
+    "next@62",
+    "next@63",
+    "next@64",
+    "next@65",
+    "next@66",
+    "next@67",
+    "next@68",
+    "next@69",
+    "next@70",
+    "next@71",
+    "next@72",
+    "next@73",
+    "next@74",
+    "next@75",
+    "next@76",
+    "next@77",
+    "next@78",
+    "next@79",
+    "next@80",
+    "next@81",
+    "next@82",
+    "next@83",
+    "next@84",
+    "next@85",
+    "next@86",
+    "next@87",
+    "next@88",
+    "next@89",
+    "next@90",
+    "next@91",
+    "next@92",
+    "next@93",
+    "next@94",
+    "next@95",
+    "next@96",
+    "next@97",
+    "next@98",
+    "next@99",
+    "next@100",
+    "next@101",
+    "next@102",
+    "next@103",
+    "next@104",
+    "next@105",
+    "next@106",
+    "next@107",
+    "next@108",
+    "next@109",
+    "next@110",
+    "next@111",
+    "next@112",
+    "next@113",
+    "next@114",
+    "next@115",
+    "next@116",
+    "next@117",
+    "next@118",
+    "next@119",
+    "next@120",
+    "next@121",
+    "next@122",
+    "next@123",
+    "next@124",
+    "next@125",
+    "next@126",
+    "next@127",
+    "next@128",
+    "next@129",
+    "next@130",
+    "next@131",
+    "next@132",
+    "next@133",
+    "next@134",
+    "next@135",
+    "next@136",
+    "next@137",
+    "next@138",
+    "next@139",
+    "next@140",
+    "next@141",
+    "next@142",
+    "next@143",
+    "next@144",
+    "next@145",
+    "next@146",
+    "next@147",
+    "next@148",
+    "next@149",
+    "next@150",
+    "next@151",
+    "next@152",
+    "next@153",
+    "next@154",
+    "next@155",
+    "next@156",
+    "next@157",
+    "next@158",
+    "next@159",
+    "next@160",
+    "next@161",
+    "next@162",
+    "next@163",
+    "next@164",
+    "next@165",
+    "next@166",
+    "next@167",
+    "next@168",
+    "next@169",
+    "next@170",
+    "next@171",
+    "next@172",
+    "next@173",
+    "next@174",
+    "next@175",
+    "next@176",
+    "next@177",
+    "next@178",
+    "next@179",
+    "next@180",
+    "next@181",
+    "next@182",
+    "next@183",
+    "next@184",
+    "next@185",
+    "next@186",
+    "next@187",
+    "next@188",
+    "next@189",
+    "next@190",
+    "next@191",
+    "next@192",
+    "next@193",
+    "next@194",
+    "next@195",
+    "next@196",
+    "next@197",
+    "next@198",
+    "next@199",
+    "next@200",
+    "next@201",
+    "next@202",
+    "next@203",
+    "next@204",
+    "next@205",
+    "next@206",
+    "next@207",
+    "next@208",
+    "next@209",
+    "next@210",
+    "next@211",
+    "next@212",
+    "next@213",
+    "next@214",
+    "next@215",
+    "next@216",
+    "next@217",
+    "next@218",
+    "next@219",
+    "next@220",
+    "next@221",
+    "next@222",
+    "next@223",
+    "next@224",
+    "next@225",
+    "next@226",
+    "next@227",
+    "next@228",
+    "next@229",
+    "next@230",
+    "next@231",
+    "next@232",
+    "next@233",
+    "next@234",
+    "next@235",
+    "next@236",
+    "next@237",
+    "next@238",
+    "next@239",
+    "next@240",
+    "next@241",
+    "next@242",
+    "next@243",
+    "next@244",
+    "next@245",
+    "next@246",
+    "next@247",
+    "next@248",
+    "next@249",
+    "next@250",
+    "next@251",
+    "next@252",
+    "next@253",
+    "next@254",
+    "stop"
+  ],
+  "order_events": [
+    {
+      "commission": 0.0,
+      "price": 0.0,
+      "ref": 1,
+      "size": 0.0,
+      "status": "Submitted"
+    },
+    {
+      "commission": 0.0,
+      "price": 0.0,
+      "ref": 1,
+      "size": 0.0,
+      "status": "Accepted"
+    },
+    {
+      "commission": 0.0,
+      "price": 3604.08,
+      "ref": 1,
+      "size": 1.0,
+      "status": "Completed"
+    },
+    {
+      "commission": 0.0,
+      "price": 0.0,
+      "ref": 2,
+      "size": 0.0,
+      "status": "Submitted"
+    },
+    {
+      "commission": 0.0,
+      "price": 0.0,
+      "ref": 2,
+      "size": 0.0,
+      "status": "Accepted"
+    },
+    {
+      "commission": 0.0,
+      "price": 3652.19,
+      "ref": 2,
+      "size": -1.0,
+      "status": "Completed"
+    }
+  ],
+  "runonce": false,
+  "scenario": "single_feed",
+  "trade_events": [
+    {
+      "pnl": 48.11000000000013,
+      "pnlcomm": 48.11000000000013,
+      "ref": 1,
+      "status": "Closed"
+    }
+  ]
+}

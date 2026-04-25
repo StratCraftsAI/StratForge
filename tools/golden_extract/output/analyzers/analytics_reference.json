@@ -1,0 +1,122 @@
+{
+  "analyzers": {
+    "drawdown": {
+      "drawdown": 0.0,
+      "len": 0,
+      "max": {
+        "drawdown": 1.999000499750125,
+        "len": 1,
+        "moneydown": 20.0
+      },
+      "moneydown": 0.0
+    },
+    "returns": {
+      "ravg": 0.002487582713292023,
+      "rnorm": 0.8717444252272818,
+      "rnorm100": 87.17444252272819,
+      "rtot": 0.009950330853168092
+    },
+    "sharpe_ratio": {
+      "sharperatio": 2.3536783533201535
+    },
+    "trade_analyzer": {
+      "len": {
+        "average": 2.0,
+        "max": 2,
+        "min": 2,
+        "total": 2
+      },
+      "lost": {
+        "pnl": {
+          "average": 0.0,
+          "max": 0.0,
+          "total": 0.0
+        },
+        "total": 0
+      },
+      "pnl": {
+        "gross": {
+          "average": 10.0,
+          "total": 10.0
+        },
+        "net": {
+          "average": 10.0,
+          "total": 10.0
+        }
+      },
+      "streak": {
+        "lost": {
+          "current": 0,
+          "longest": 0
+        },
+        "won": {
+          "current": 1,
+          "longest": 1
+        }
+      },
+      "total": {
+        "closed": 1,
+        "open": 0,
+        "total": 1
+      },
+      "won": {
+        "pnl": {
+          "average": 10.0,
+          "max": 10.0,
+          "total": 10.0
+        },
+        "total": 1
+      }
+    }
+  },
+  "backtrader_version": "1.9.78.123",
+  "bars": [
+    {
+      "close": 100.5,
+      "high": 101.0,
+      "low": 99.0,
+      "open": 100.0
+    },
+    {
+      "close": 110.5,
+      "high": 111.0,
+      "low": 109.0,
+      "open": 110.0
+    },
+    {
+      "close": 90.5,
+      "high": 91.0,
+      "low": 89.0,
+      "open": 90.0
+    },
+    {
+      "close": 120.5,
+      "high": 121.0,
+      "low": 119.0,
+      "open": 120.0
+    }
+  ],
+  "component": "analytics",
+  "initial_cash": 1000.0,
+  "observers": {
+    "buy": [
+      "nan",
+      "110.0",
+      "nan",
+      "nan"
+    ],
+    "sell": [
+      "nan",
+      "nan",
+      "nan",
+      "120.0"
+    ],
+    "value": [
+      "1000.0",
+      "1000.5",
+      "980.5",
+      "1010.0"
+    ]
+  },
+  "scenario": "single_feed_roundtrip"
+}

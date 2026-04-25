@@ -1,0 +1,14 @@
+{
+  "backtrader_version": "1.9.78.123",
+  "component": "broker",
+  "data_file": "tools/golden_extract/datas/2006-day-001.txt",
+  "events": [
+    {
+      "commission": "0",
+      "price": "0",
+      "ref": 1,
+      "size": 0,
+      "status": "Submitted"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "backtrader_version": "1.9.78.123",
+  "component": "position",
+  "steps": [
+    {
+      "closed": 0,
+      "delta_size": 10,
+      "fill_price": "100",
+      "opened": 10,
+      "price": "100",
+      "size": 10
+    },
+    {
+      "closed": 0,
+      "delta_size": 5,
+      "fill_price": "110",
+      "opened": 5,
+      "price": "103.333333333333",
+      "size": 15
+    },
+    {
+      "closed": -8,
+      "delta_size": -8,
+      "fill_price": "120",
+      "opened": 0,
+      "price": "103.333333333333",
+      "size": 7
+    },
+    {
+      "closed": -7,
+      "delta_size": -10,
+      "fill_price": "90",
+      "opened": -3,
+      "price": "90",
+      "size": -3
+    },
+    {
+      "closed": 3,
+      "delta_size": 3,
+      "fill_price": "80",
+      "opened": 0,
+      "price": "0",
+      "size": 0
+    }
+  ]
+}

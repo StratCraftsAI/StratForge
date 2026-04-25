@@ -1,0 +1,22 @@
+{
+  "data_file": "tools/golden_extract/datas/2006-day-001.txt",
+  "expected_rows": 255,
+  "first_bar": {
+    "date": "2006-01-02",
+    "open": 3578.73,
+    "high": 3605.95,
+    "low": 3578.73,
+    "close": 3604.33,
+    "volume": 0.0,
+    "openinterest": 0.0
+  },
+  "last_bar": {
+    "date": "2006-12-29",
+    "open": 4130.12,
+    "high": 4142.01,
+    "low": 4119.94,
+    "close": 4119.94,
+    "volume": 0.0,
+    "openinterest": 0.0
+  }
+}

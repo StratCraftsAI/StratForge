@@ -1,0 +1,58 @@
+{
+  "backtrader_version": "1.9.78.123",
+  "component": "trade",
+  "steps": [
+    {
+      "barclose": 0,
+      "baropen": 1,
+      "commission": "0.1",
+      "delta_size": 10,
+      "fill_price": "100",
+      "isclosed": false,
+      "isopen": true,
+      "pnl": "0",
+      "pnlcomm": "-0.1",
+      "price": "100",
+      "size": 10
+    },
+    {
+      "barclose": 0,
+      "baropen": 1,
+      "commission": "0.2",
+      "delta_size": 5,
+      "fill_price": "110",
+      "isclosed": false,
+      "isopen": true,
+      "pnl": "0",
+      "pnlcomm": "-0.3",
+      "price": "103.333333333333",
+      "size": 15
+    },
+    {
+      "barclose": 0,
+      "baropen": 1,
+      "commission": "0.3",
+      "delta_size": -8,
+      "fill_price": "120",
+      "isclosed": false,
+      "isopen": true,
+      "pnl": "133.333333333333",
+      "pnlcomm": "132.733333333333",
+      "price": "103.333333333333",
+      "size": 7
+    },
+    {
+      "barclose": 4,
+      "baropen": 1,
+      "commission": "0.4",
+      "delta_size": -7,
+      "fill_price": "90",
+      "isclosed": true,
+      "isopen": false,
+      "pnl": "40.0000000000001",
+      "pnlcomm": "39.0000000000001",
+      "price": "103.333333333333",
+      "size": 0
+    }
+  ]
+}
