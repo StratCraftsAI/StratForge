@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, "feature/**"]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            name: Linux GCC 14
+            cc: gcc-14
+            cxx: g++-14
+
+          - os: ubuntu-24.04
+            name: Linux Clang 18
+            cc: clang-18
+            cxx: clang++-18
+
+          - os: macos-latest
+            name: macOS Apple Clang
+            cc: clang
+            cxx: clang++
+
+          - os: windows-latest
+            name: Windows MSVC
+
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.name }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libc++-18-dev libc++abi-18-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure (Unix)
+        if: runner.os != 'Windows'
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DSF_BUILD_TESTS=ON \
+            -DSF_BUILD_EXAMPLES=OFF \
+            -DSF_BUILD_BENCHMARKS=OFF
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cmake -B build -G Ninja `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DSF_BUILD_TESTS=ON `
+            -DSF_BUILD_EXAMPLES=OFF `
+            -DSF_BUILD_BENCHMARKS=OFF
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure -C Release
+
+  linux-bench:
+    runs-on: ubuntu-24.04
+    name: Linux Bench Smoke Test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: Configure
+        env:
+          CC: gcc-14
+          CXX: g++-14
+        run: |
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DSF_BUILD_TESTS=OFF \
+            -DSF_BUILD_EXAMPLES=OFF \
+            -DSF_BUILD_BENCHMARKS=ON
+
+      - name: Build benchmark targets
+        run: |
+          cmake --build build --target gen_bench_data indicator_benchmarks strategy_benchmarks optimization_benchmarks memory_benchmarks

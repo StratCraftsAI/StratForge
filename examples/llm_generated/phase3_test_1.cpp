@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: SMA Crossover
 // Prompt: "Buy when SMA(10) crosses above SMA(30), sell when it crosses below."
-// Phase: TICKET_004 Phase 3 — End-to-End LLM Generation Test
+// Validation: End-to-end AI-generated strategy example
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>

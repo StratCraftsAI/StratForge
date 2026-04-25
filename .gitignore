@@ -35,6 +35,13 @@ Testing/
 *.temp
 *.log
 
+# Accidental nested generated output
+tools/golden_extract/output/output/
+
+# Internal documents (private, not for public repo)
+.internal/
+CLAUDE.md
+
 # Credential files
 *.pem
 *.key

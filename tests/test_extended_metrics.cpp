@@ -9,7 +9,7 @@
 using namespace stratforge;
 using Catch::Matchers::WithinRel;
 
-TEST_CASE("Extended metrics match QuantNexus-style formulas", "[analytics][extended]") {
+TEST_CASE("Extended metrics match reference formulas", "[analytics][extended]") {
     const std::vector<double> equity_curve{1000.0, 1010.0, 990.0, 980.0, 1005.0, 970.0};
     const std::vector<double> trade_pnls{20.0, -10.0, 15.0, -5.0};
 

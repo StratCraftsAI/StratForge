@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
 project(stratforge VERSION 0.1.0 LANGUAGES CXX)
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -61,6 +64,7 @@ endif()
 
 # Main header-only library
 add_library(stratforge INTERFACE)
+add_library(StratForge::stratforge ALIAS stratforge)
 target_include_directories(stratforge INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
@@ -97,5 +101,46 @@ endif()
 
 # Install headers
 install(DIRECTORY include/stratforge
-    DESTINATION include
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# Install common distribution metadata so release artifacts are self-describing.
+install(FILES
+    README.md
+    LICENSE
+    CHANGELOG.md
+    CONTRIBUTING.md
+    SECURITY.md
+    SUPPORT.md
+    ROADMAP.md
+    CODE_OF_CONDUCT.md
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/stratforge
+)
+
+install(TARGETS stratforge
+    EXPORT StratForgeTargets
+)
+
+install(EXPORT StratForgeTargets
+    FILE StratForgeTargets.cmake
+    NAMESPACE StratForge::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/StratForge
+)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/StratForgeConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/StratForgeConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/StratForgeConfig.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/StratForge
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/StratForgeConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/StratForgeConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/StratForge
 )

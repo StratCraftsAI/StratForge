@@ -26,7 +26,7 @@ add_stratforge_example(multi_timeframe)
 add_stratforge_example(pairs_trading)
 add_stratforge_example(optimizer_example)
 
-# Add LLM-generated examples subdirectory
+# Add AI-generated examples subdirectory
 add_subdirectory(llm_generated)
 
 # Custom target to build all examples

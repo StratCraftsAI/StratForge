@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: Bollinger Bands Breakout
 // Prompt: "Buy when price breaks above upper Bollinger Band, sell when it falls below lower band."
-// Phase: TICKET_004 Phase 3 — End-to-End LLM Generation Test
+// Validation: End-to-end AI-generated strategy example
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>

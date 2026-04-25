@@ -1,4 +1,4 @@
-# LLM-Generated Strategies (TICKET_003_10_10 Phase 10.3)
+# AI-generated strategy examples
 
 function(add_llm_example name)
     add_executable(${name} ${name}.cpp)
@@ -16,12 +16,12 @@ function(add_llm_example name)
     )
 endfunction()
 
-# Add all LLM-generated examples
+# Add all AI-generated examples
 add_llm_example(sma_crossover_with_stop)
 add_llm_example(rsi_with_stop)
 add_llm_example(macd_trailing_stop)
 
-# Phase 3: End-to-End LLM Generation Tests (TICKET_004)
+# End-to-end AI-generated strategy examples
 add_llm_example(phase3_test_1)
 add_llm_example(phase3_test_2)
 add_llm_example(phase3_test_3)
@@ -33,7 +33,7 @@ add_llm_example(phase3_test_8)
 add_llm_example(phase3_test_9)
 add_llm_example(phase3_test_10)
 
-# Custom target to build all LLM examples
+# Custom target to build all AI-generated examples
 add_custom_target(llm_examples
     DEPENDS
         sma_crossover_with_stop

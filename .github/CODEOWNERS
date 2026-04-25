@@ -1,0 +1,6 @@
+* @StratCraftsAI
+
+/include/stratforge/ @StratCraftsAI
+/tests/ @StratCraftsAI
+/benchmarks/ @StratCraftsAI
+/.github/ @StratCraftsAI

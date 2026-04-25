@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: TRIX Momentum
 // Prompt: "Buy when TRIX(15) crosses above zero, sell when it crosses below zero."
-// Phase: TICKET_004 Phase 3 — End-to-End LLM Generation Test
+// Validation: End-to-end AI-generated strategy example
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>
