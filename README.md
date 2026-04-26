@@ -6,6 +6,11 @@
   <p align="center">
     Header-Only | Golden-Master Validated | Multi-Timeframe | Zero-Allocation Hot Path
   </p>
+  <p align="center">
+    <a href="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml"><img src="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+    <img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="C++23">
+    <img src="https://img.shields.io/badge/license-Apache--2.0-green.svg" alt="License">
+  </p>
 </p>
 
 <p align="center">
