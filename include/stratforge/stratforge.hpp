@@ -100,6 +100,8 @@
 #include <stratforge/indicators/weightedaverage.hpp>
 #include <stratforge/indicators/zerolag.hpp>
 #include <stratforge/indicators/zlema.hpp>
+#include <stratforge/indicators/mavp.hpp>
+#include <stratforge/indicators/talib_compat.hpp>
 
 // Analyzers
 #include <stratforge/analyzers/analyzer.hpp>
