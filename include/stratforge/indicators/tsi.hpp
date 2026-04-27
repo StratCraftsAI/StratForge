@@ -12,9 +12,9 @@ namespace stratforge {
 class TrueStrengthIndicator : public Indicator<TrueStrengthIndicator> {
 public:
     explicit TrueStrengthIndicator(const Line<double>& source,
-                                   std::size_t period1 = 25,
-                                   std::size_t period2 = 13,
-                                   std::size_t pchange = 1)
+                                   std::size_t period1 = 25uz,
+                                   std::size_t period2 = 13uz,
+                                   std::size_t pchange = 1uz)
         : source_(source)
         , period1_(period1 == 0 ? 1 : period1)
         , period2_(period2 == 0 ? 1 : period2)

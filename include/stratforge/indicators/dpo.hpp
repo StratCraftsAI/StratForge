@@ -12,7 +12,7 @@ namespace stratforge {
 /// Detrended Price Oscillator.
 class DetrendedPriceOscillator : public Indicator<DetrendedPriceOscillator> {
 public:
-    explicit DetrendedPriceOscillator(const Line<double>& source, std::size_t period = 20)
+    explicit DetrendedPriceOscillator(const Line<double>& source, std::size_t period = 20uz)
         : source_(source)
         , period_(period)
         , offset_((period > 0 ? period - 1 : 0) / 2)

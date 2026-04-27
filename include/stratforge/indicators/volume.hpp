@@ -131,7 +131,7 @@ public:
                      const Line<double>& low,
                      const Line<double>& close,
                      const Line<double>& volume,
-                     std::size_t period = 20)
+                     std::size_t period = 20uz)
         : high_(high), low_(low), close_(close), volume_(volume), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -180,7 +180,7 @@ public:
                    const Line<double>& low,
                    const Line<double>& close,
                    const Line<double>& volume,
-                   std::size_t period = 14)
+                   std::size_t period = 14uz)
         : high_(high), low_(low), close_(close), volume_(volume), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -253,7 +253,7 @@ public:
     EaseOfMovement(const Line<double>& high,
                    const Line<double>& low,
                    const Line<double>& volume,
-                   std::size_t period = 14,
+                   std::size_t period = 14uz,
                    double divisor = 10000.0)
         : high_(high), low_(low), volume_(volume), period_(period == 0 ? 1 : period), divisor_(divisor) {}
 
@@ -312,9 +312,9 @@ public:
                       const Line<double>& low,
                       const Line<double>& close,
                       const Line<double>& volume,
-                      std::size_t fast_period = 34,
-                      std::size_t slow_period = 55,
-                      std::size_t signal_period = 13)
+                      std::size_t fast_period = 34uz,
+                      std::size_t slow_period = 55uz,
+                      std::size_t signal_period = 13uz)
         : high_(high)
         , low_(low)
         , close_(close)

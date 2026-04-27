@@ -12,9 +12,9 @@ namespace stratforge {
 class HurstExponent : public Indicator<HurstExponent> {
 public:
     explicit HurstExponent(const Line<double>& source,
-                           std::size_t period = 40,
-                           std::size_t lag_start = 2,
-                           std::size_t lag_end = 0)
+                           std::size_t period = 40uz,
+                           std::size_t lag_start = 2uz,
+                           std::size_t lag_end = 0uz)
         : source_(source)
         , period_(period == 0 ? 1 : period)
         , lag_start_(lag_start)

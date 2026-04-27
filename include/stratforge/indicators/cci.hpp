@@ -14,7 +14,7 @@ public:
     CCI(const Line<double>& high,
         const Line<double>& low,
         const Line<double>& close,
-        std::size_t period = 20,
+        std::size_t period = 20uz,
         double factor = 0.015)
         : high_(high), low_(low), close_(close), period_(period), factor_(factor) {}
 

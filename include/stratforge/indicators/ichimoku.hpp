@@ -14,11 +14,11 @@ public:
     Ichimoku(const Line<double>& high,
              const Line<double>& low,
              const Line<double>& close,
-             std::size_t tenkan = 9,
-             std::size_t kijun = 26,
-             std::size_t senkou = 52,
-             std::size_t senkou_lead = 26,
-             std::size_t chikou = 26)
+             std::size_t tenkan = 9uz,
+             std::size_t kijun = 26uz,
+             std::size_t senkou = 52uz,
+             std::size_t senkou_lead = 26uz,
+             std::size_t chikou = 26uz)
         : high_(high)
         , low_(low)
         , close_(close)
@@ -115,7 +115,7 @@ private:
     std::size_t senkou_;
     std::size_t senkou_lead_;
     std::size_t chikou_;
-    std::size_t total_bars_ = 0;
+    std::size_t total_bars_ = 0uz;
     bool initialized_ = false;
     Line<double> kijun_sen_;
     Line<double> senkou_span_a_;

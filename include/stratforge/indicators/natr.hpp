@@ -12,7 +12,7 @@ namespace stratforge {
 class NATR : public Indicator<NATR> {
 public:
     NATR(const Line<double>& high, const Line<double>& low,
-         const Line<double>& close, std::size_t period = 14)
+         const Line<double>& close, std::size_t period = 14uz)
         : close_(close), atr_(high, low, close, period) {}
 
     void next_impl() {

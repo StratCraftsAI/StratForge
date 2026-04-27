@@ -28,11 +28,11 @@ enum class MaType {
 class MACDExt : public Indicator<MACDExt> {
 public:
     MACDExt(const Line<double>& source,
-            std::size_t fast_period = 12,
+            std::size_t fast_period = 12uz,
             MaType fast_ma = MaType::EMA,
-            std::size_t slow_period = 26,
+            std::size_t slow_period = 26uz,
             MaType slow_ma = MaType::EMA,
-            std::size_t signal_period = 9,
+            std::size_t signal_period = 9uz,
             MaType signal_ma = MaType::EMA)
         : source_(source)
         , fast_period_(fast_period)

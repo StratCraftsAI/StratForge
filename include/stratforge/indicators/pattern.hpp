@@ -12,7 +12,7 @@ namespace stratforge {
 /// Fisher transform of a normalized median-price oscillator.
 class FisherTransform : public Indicator<FisherTransform> {
 public:
-    FisherTransform(const Line<double>& high, const Line<double>& low, std::size_t period = 10)
+    FisherTransform(const Line<double>& high, const Line<double>& low, std::size_t period = 10uz)
         : high_(high), low_(low), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -213,9 +213,9 @@ private:
     double retrace_;
     bool initialized_ = false;
     int direction_ = 0;
-    std::size_t pivot_idx_ = 0;
+    std::size_t pivot_idx_ = 0uz;
     double pivot_price_ = 0.0;
-    std::size_t candidate_idx_ = 0;
+    std::size_t candidate_idx_ = 0uz;
     double candidate_price_ = 0.0;
 };
 

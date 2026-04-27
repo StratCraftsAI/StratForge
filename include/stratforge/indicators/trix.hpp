@@ -11,7 +11,7 @@ namespace stratforge {
 /// Triple exponential moving average rate of change.
 class Trix : public Indicator<Trix> {
 public:
-    explicit Trix(const Line<double>& source, std::size_t period = 15, std::size_t rocperiod = 1)
+    explicit Trix(const Line<double>& source, std::size_t period = 15uz, std::size_t rocperiod = 1uz)
         : source_(source)
         , period_(period)
         , rocperiod_(rocperiod)
@@ -128,9 +128,9 @@ using TRIX = Trix;
 class TrixSignal : public Indicator<TrixSignal> {
 public:
     explicit TrixSignal(const Line<double>& source,
-                        std::size_t period = 15,
-                        std::size_t rocperiod = 1,
-                        std::size_t sigperiod = 9)
+                        std::size_t period = 15uz,
+                        std::size_t rocperiod = 1uz,
+                        std::size_t sigperiod = 9uz)
         : trix_(source, period, rocperiod)
         , source_ref_(source)
         , sigperiod_(sigperiod)

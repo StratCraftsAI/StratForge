@@ -15,8 +15,8 @@ public:
     explicit DV2(const Line<double>& high,
                  const Line<double>& low,
                  const Line<double>& close,
-                 std::size_t period = 252,
-                 std::size_t maperiod = 2)
+                 std::size_t period = 252uz,
+                 std::size_t maperiod = 2uz)
         : high_(high)
         , low_(low)
         , close_(close)

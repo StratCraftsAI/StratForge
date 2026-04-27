@@ -15,9 +15,9 @@ namespace stratforge {
 class StochRSI : public Indicator<StochRSI> {
 public:
     explicit StochRSI(const Line<double>& source,
-                      std::size_t rsi_period = 14,
-                      std::size_t stoch_period = 14,
-                      std::size_t period_d = 3)
+                      std::size_t rsi_period = 14uz,
+                      std::size_t stoch_period = 14uz,
+                      std::size_t period_d = 3uz)
         : source_(source)
         , rsi_(source, rsi_period)
         , stoch_period_(stoch_period)
@@ -89,8 +89,8 @@ private:
     RSI rsi_;
     std::size_t stoch_period_;
     std::size_t period_d_;
-    std::size_t rsi_valid_count_ = 0;
-    std::size_t k_valid_count_ = 0;
+    std::size_t rsi_valid_count_ = 0uz;
+    std::size_t k_valid_count_ = 0uz;
     Line<double> perc_d_;
 };
 

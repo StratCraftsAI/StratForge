@@ -13,15 +13,15 @@ namespace stratforge {
 class KnowSureThing : public Indicator<KnowSureThing> {
 public:
     explicit KnowSureThing(const Line<double>& source,
-                           std::size_t rp1 = 10,
-                           std::size_t rp2 = 15,
-                           std::size_t rp3 = 20,
-                           std::size_t rp4 = 30,
-                           std::size_t rma1 = 10,
-                           std::size_t rma2 = 10,
-                           std::size_t rma3 = 10,
-                           std::size_t rma4 = 10,
-                           std::size_t rsignal = 9)
+                           std::size_t rp1 = 10uz,
+                           std::size_t rp2 = 15uz,
+                           std::size_t rp3 = 20uz,
+                           std::size_t rp4 = 30uz,
+                           std::size_t rma1 = 10uz,
+                           std::size_t rma2 = 10uz,
+                           std::size_t rma3 = 10uz,
+                           std::size_t rma4 = 10uz,
+                           std::size_t rsignal = 9uz)
         : source_(source)
         , roc1_(source, rp1)
         , roc2_(source, rp2)

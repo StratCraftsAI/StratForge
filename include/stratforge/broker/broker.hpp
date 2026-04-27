@@ -26,6 +26,8 @@ class BackBroker {
 public:
     explicit BackBroker(double cash = 10000.0)
         : initial_cash_(cash), cash_(cash) {
+        // Performance hints only — not hard capacity limits.
+        // Vectors auto-grow if exceeded (matches backtrader's unbounded lists).
         all_orders_.reserve(1024);
         pending_orders_.reserve(64);
         positions_.reserve(8);

@@ -98,7 +98,7 @@ TEST_CASE("FixedSize sizer returns constant size", "[sizer][fixed]") {
 
     auto& strategy = cerebro.add_strategy<SizerStrategy>();
     strategy.setsizer(std::make_unique<FixedSize>(5.0));
-    
+
     cerebro.run();
 
     REQUIRE(strategy.sizes.size() == 1);
@@ -114,7 +114,7 @@ TEST_CASE("PercentSizer returns size based on portfolio value", "[sizer][percent
 
     auto& strategy = cerebro.add_strategy<SizerStrategy>();
     strategy.setsizer(std::make_unique<PercentSizer>(10.0)); // 10%
-    
+
     cerebro.run();
 
     REQUIRE(strategy.sizes.size() == 1);
@@ -131,7 +131,7 @@ TEST_CASE("AllInSizer uses all available cash for buy", "[sizer][allin]") {
 
     auto& strategy = cerebro.add_strategy<SizerStrategy>();
     strategy.setsizer(std::make_unique<AllInSizer>());
-    
+
     cerebro.run();
 
     REQUIRE(strategy.sizes.size() == 1);

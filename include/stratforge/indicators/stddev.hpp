@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stratforge/indicators/indicator.hpp>
+#include <stratforge/simd/simd_ops.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -22,19 +23,9 @@ public:
             return;
         }
 
-        double sum = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            sum += source_.data()[idx - i];
-        }
-        const double mean = sum / static_cast<double>(period_);
-
-        double variance_sum = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            const double delta = source_.data()[idx - i] - mean;
-            variance_sum += delta * delta;
-        }
-
-        line_.forward(std::sqrt(variance_sum / static_cast<double>(period_)));
+        const auto [mean, variance] = simd::reduce_mean_variance(
+            &source_.data()[idx - period_ + 1], period_);
+        line_.forward(std::sqrt(variance));
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {

@@ -14,7 +14,7 @@ public:
     DirectionalMovement(const Line<double>& high,
                         const Line<double>& low,
                         const Line<double>& close,
-                        std::size_t period = 14)
+                        std::size_t period = 14uz)
         : high_(high), low_(low), close_(close), period_(period) {}
 
     void next_impl() {
@@ -187,8 +187,8 @@ private:
     double prev_plus_dm_ = 0.0;
     double prev_minus_dm_ = 0.0;
     double prev_adx_ = 0.0;
-    std::size_t seed_count_ = 0;
-    std::size_t dx_count_ = 0;
+    std::size_t seed_count_ = 0uz;
+    std::size_t dx_count_ = 0uz;
     bool atr_initialized_ = false;
     bool adx_initialized_ = false;
 };
@@ -198,7 +198,7 @@ public:
     PlusDirectionalIndicator(const Line<double>& high,
                              const Line<double>& low,
                              const Line<double>& close,
-                             std::size_t period = 14)
+                             std::size_t period = 14uz)
         : close_(close), dm_(high, low, close, period) {}
 
     void next_impl() {
@@ -221,7 +221,7 @@ public:
     MinusDirectionalIndicator(const Line<double>& high,
                               const Line<double>& low,
                               const Line<double>& close,
-                              std::size_t period = 14)
+                              std::size_t period = 14uz)
         : close_(close), dm_(high, low, close, period) {}
 
     void next_impl() {
@@ -244,7 +244,7 @@ public:
     ADX(const Line<double>& high,
         const Line<double>& low,
         const Line<double>& close,
-        std::size_t period = 14)
+        std::size_t period = 14uz)
         : close_(close), dm_(high, low, close, period) {}
 
     void next_impl() {
@@ -267,7 +267,7 @@ public:
     DirectionalIndicator(const Line<double>& high,
                          const Line<double>& low,
                          const Line<double>& close,
-                         std::size_t period = 14)
+                         std::size_t period = 14uz)
         : close_(close), dm_(high, low, close, period) {}
 
     void next_impl() {
@@ -293,7 +293,7 @@ public:
     ADXR(const Line<double>& high,
          const Line<double>& low,
          const Line<double>& close,
-         std::size_t period = 14)
+         std::size_t period = 14uz)
         : close_(close), dm_(high, low, close, period), period_(period) {}
 
     void next_impl() {

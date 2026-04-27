@@ -18,7 +18,7 @@ public:
     SuperTrend(const Line<double>& high,
                const Line<double>& low,
                const Line<double>& close,
-               std::size_t period = 10,
+               std::size_t period = 10uz,
                double multiplier = 3.0)
         : high_(high), low_(low), close_(close), atr_(high, low, close, period), multiplier_(multiplier) {}
 
@@ -100,7 +100,7 @@ public:
     ChandelierExit(const Line<double>& high,
                    const Line<double>& low,
                    const Line<double>& close,
-                   std::size_t period = 22,
+                   std::size_t period = 22uz,
                    double multiplier = 3.0)
         : close_(close)
         , atr_(high, low, close, period)

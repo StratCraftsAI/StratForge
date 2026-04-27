@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: Stochastic + RSI
 // Prompt: "Buy when both Stochastic %K < 20 and RSI < 35, sell when Stochastic %K > 80 and RSI > 65."
-// Phase: TICKET_004 Phase 3 -- End-to-End LLM Generation Test
+// Phase: internal reference -- End-to-End LLM Generation Test
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>

@@ -11,9 +11,9 @@ namespace stratforge {
 class MACD : public Indicator<MACD> {
 public:
     explicit MACD(const Line<double>& source,
-                  std::size_t fast_period = 12,
-                  std::size_t slow_period = 26,
-                  std::size_t signal_period = 9)
+                  std::size_t fast_period = 12uz,
+                  std::size_t slow_period = 26uz,
+                  std::size_t signal_period = 9uz)
         : source_(source)
         , fast_period_(fast_period)
         , slow_period_(slow_period)
@@ -122,7 +122,7 @@ private:
     double fast_prev_ema_ = 0.0;
     double slow_prev_ema_ = 0.0;
     double signal_prev_ema_ = 0.0;
-    std::size_t macd_valid_count_ = 0;
+    std::size_t macd_valid_count_ = 0uz;
     bool fast_initialized_ = false;
     bool slow_initialized_ = false;
     bool signal_initialized_ = false;

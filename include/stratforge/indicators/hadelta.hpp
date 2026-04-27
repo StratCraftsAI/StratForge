@@ -15,7 +15,7 @@ public:
             const Line<double>& high,
             const Line<double>& low,
             const Line<double>& close,
-            std::size_t period = 3,
+            std::size_t period = 3uz,
             bool autoheikin = true)
         : open_(open)
         , close_(close)

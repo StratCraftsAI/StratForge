@@ -1,5 +1,5 @@
-// End-to-End Integration Test (TICKET_003_10_10 Phase 10.5)
-// Comprehensive test exercising the full nonabt pipeline:
+// End-to-End Integration Test
+// Comprehensive test exercising the full backtest pipeline:
 // CSV load -> Cerebro -> Strategy -> Analyzers -> Observers -> Report extraction
 
 #include <stratforge/analyzers/drawdown.hpp>

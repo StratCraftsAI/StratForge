@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stratforge/indicators/indicator.hpp>
+#include <stratforge/simd/simd_ops.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -11,7 +12,7 @@ namespace stratforge {
 /// Pearson correlation over a trailing window.
 class Correlation : public Indicator<Correlation> {
 public:
-    Correlation(const Line<double>& data0, const Line<double>& data1, std::size_t period = 20)
+    Correlation(const Line<double>& data0, const Line<double>& data1, std::size_t period = 20uz)
         : data0_(data0), data1_(data1), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -22,22 +23,18 @@ public:
             return;
         }
 
-        double sum_x = 0.0;
-        double sum_y = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            sum_x += data0_.data()[idx - i];
-            sum_y += data1_.data()[idx - i];
-        }
+        const double* px = &data0_.data()[idx - period_ + 1];
+        const double* py = &data1_.data()[idx - period_ + 1];
 
-        const double mean_x = sum_x / static_cast<double>(period_);
-        const double mean_y = sum_y / static_cast<double>(period_);
+        const double mean_x = simd::reduce_sum(px, period_) / static_cast<double>(period_);
+        const double mean_y = simd::reduce_sum(py, period_) / static_cast<double>(period_);
 
         double covariance = 0.0;
         double var_x = 0.0;
         double var_y = 0.0;
         for (std::size_t i = 0; i < period_; ++i) {
-            const double dx = data0_.data()[idx - i] - mean_x;
-            const double dy = data1_.data()[idx - i] - mean_y;
+            const double dx = px[i] - mean_x;
+            const double dy = py[i] - mean_y;
             covariance += dx * dy;
             var_x += dx * dx;
             var_y += dy * dy;
@@ -67,7 +64,7 @@ using Correl = Correlation;
 /// Coefficient of determination from the trailing Pearson correlation.
 class RSquared : public Indicator<RSquared> {
 public:
-    RSquared(const Line<double>& data0, const Line<double>& data1, std::size_t period = 20)
+    RSquared(const Line<double>& data0, const Line<double>& data1, std::size_t period = 20uz)
         : data0_(data0), correlation_(data0, data1, period) {}
 
     void next_impl() {

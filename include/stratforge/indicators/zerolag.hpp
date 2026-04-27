@@ -12,7 +12,7 @@ namespace stratforge {
 class ZeroLagIndicator : public Indicator<ZeroLagIndicator> {
 public:
     explicit ZeroLagIndicator(const Line<double>& source,
-                              std::size_t period = 20,
+                              std::size_t period = 20uz,
                               int gainlimit = 50)
         : source_(source)
         , period_(period)

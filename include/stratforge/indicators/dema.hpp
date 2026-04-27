@@ -10,7 +10,7 @@ namespace stratforge {
 /// Double exponential moving average.
 class DoubleExponentialMovingAverage : public Indicator<DoubleExponentialMovingAverage> {
 public:
-    explicit DoubleExponentialMovingAverage(const Line<double>& source, std::size_t period = 30)
+    explicit DoubleExponentialMovingAverage(const Line<double>& source, std::size_t period = 30uz)
         : source_(source)
         , period_(period)
         , multiplier_(2.0 / (static_cast<double>(period) + 1.0)) {}

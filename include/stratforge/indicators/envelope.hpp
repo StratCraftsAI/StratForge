@@ -59,7 +59,7 @@ template <typename MovingAverageType>
 class MovingAverageEnvelope : public Indicator<MovingAverageEnvelope<MovingAverageType>> {
 public:
     explicit MovingAverageEnvelope(const Line<double>& source,
-                                   std::size_t period = 30,
+                                   std::size_t period = 30uz,
                                    double perc = 2.5)
         : source_(source), average_(source, period), factor_(perc / 100.0) {}
 
@@ -136,9 +136,9 @@ using MovingAverageTripleExponentialEnvelope = TEMAEnvelope;
 class KAMAEnvelope : public Indicator<KAMAEnvelope> {
 public:
     explicit KAMAEnvelope(const Line<double>& source,
-                          std::size_t period = 30,
-                          std::size_t fast = 2,
-                          std::size_t slow = 30,
+                          std::size_t period = 30uz,
+                          std::size_t fast = 2uz,
+                          std::size_t slow = 30uz,
                           double perc = 2.5)
         : source_(source), average_(source, period, fast, slow), factor_(perc / 100.0) {}
 
@@ -187,9 +187,9 @@ using MovingAverageAdaptiveEnvelope = KAMAEnvelope;
 class DMAEnvelope : public Indicator<DMAEnvelope> {
 public:
     explicit DMAEnvelope(const Line<double>& source,
-                         std::size_t period = 20,
+                         std::size_t period = 20uz,
                          int gainlimit = 50,
-                         std::size_t hperiod = 7,
+                         std::size_t hperiod = 7uz,
                          double perc = 2.5)
         : source_(source), average_(source, period, gainlimit, hperiod), factor_(perc / 100.0) {}
 
@@ -243,7 +243,7 @@ using ZeroLagExponentialMovingAverageEnvelope = ZLEMAEnvelope;
 class ZLIndicatorEnvelope : public Indicator<ZLIndicatorEnvelope> {
 public:
     explicit ZLIndicatorEnvelope(const Line<double>& source,
-                                  std::size_t period = 20,
+                                  std::size_t period = 20uz,
                                   int gainlimit = 50,
                                   double perc = 2.5)
         : source_(source), average_(source, period, gainlimit), factor_(perc / 100.0) {}

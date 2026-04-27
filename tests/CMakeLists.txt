@@ -34,6 +34,8 @@ add_executable(stratforge_tests
     test_coverage_indicators.cpp
     test_coverage_broker.cpp
     test_coverage_engine.cpp
+    test_data_robustness.cpp
+    test_simd_ops.cpp
 )
 
 target_link_libraries(stratforge_tests PRIVATE

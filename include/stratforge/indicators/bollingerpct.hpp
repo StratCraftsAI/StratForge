@@ -11,7 +11,7 @@ namespace stratforge {
 /// Bollinger Bands extended with the %B line.
 class BollingerBandsPct : public Indicator<BollingerBandsPct> {
 public:
-    explicit BollingerBandsPct(const Line<double>& source, std::size_t period = 20, double devfactor = 2.0)
+    explicit BollingerBandsPct(const Line<double>& source, std::size_t period = 20uz, double devfactor = 2.0)
         : source_(source), bands_(source, period, devfactor) {}
 
     void next_impl() {

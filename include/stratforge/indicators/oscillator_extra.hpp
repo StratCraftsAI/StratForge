@@ -14,7 +14,7 @@ namespace stratforge {
 /// Chande Momentum Oscillator.
 class ChandeMomentumOscillator : public Indicator<ChandeMomentumOscillator> {
 public:
-    explicit ChandeMomentumOscillator(const Line<double>& source, std::size_t period = 14)
+    explicit ChandeMomentumOscillator(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -54,7 +54,7 @@ using CMO = ChandeMomentumOscillator;
 /// Tillson T3 moving average.
 class T3MovingAverage : public Indicator<T3MovingAverage> {
 public:
-    explicit T3MovingAverage(const Line<double>& source, std::size_t period = 5, double vfactor = 0.7)
+    explicit T3MovingAverage(const Line<double>& source, std::size_t period = 5uz, double vfactor = 0.7)
         : source_(source)
         , period_(period == 0 ? 1 : period)
         , multiplier_(2.0 / (static_cast<double>(period_) + 1.0))
@@ -123,9 +123,9 @@ using T3 = T3MovingAverage;
 class CoppockCurve : public Indicator<CoppockCurve> {
 public:
     explicit CoppockCurve(const Line<double>& source,
-                          std::size_t period1 = 11,
-                          std::size_t period2 = 14,
-                          std::size_t wma_period = 10)
+                          std::size_t period1 = 11uz,
+                          std::size_t period2 = 14uz,
+                          std::size_t wma_period = 10uz)
         : source_(source), roc1_(source, period1), roc2_(source, period2), wma_(sum_line_, wma_period) {}
 
     void next_impl() {

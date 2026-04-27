@@ -45,7 +45,7 @@ private:
 template <typename MovingAverageType>
 class MovingAverageOscillator : public Indicator<MovingAverageOscillator<MovingAverageType>> {
 public:
-    explicit MovingAverageOscillator(const Line<double>& source, std::size_t period = 30)
+    explicit MovingAverageOscillator(const Line<double>& source, std::size_t period = 30uz)
         : source_(source), average_(source, period) {}
 
     void next_impl() {
@@ -104,9 +104,9 @@ using MovingAverageTripleExponentialOscillator = TEMAOscillator;
 class KAMAOscillator : public Indicator<KAMAOscillator> {
 public:
     explicit KAMAOscillator(const Line<double>& source,
-                            std::size_t period = 30,
-                            std::size_t fast = 2,
-                            std::size_t slow = 30)
+                            std::size_t period = 30uz,
+                            std::size_t fast = 2uz,
+                            std::size_t slow = 30uz)
         : source_(source), average_(source, period, fast, slow) {}
 
     void next_impl() {
@@ -137,9 +137,9 @@ using MovingAverageAdaptiveOscillator = KAMAOscillator;
 class DMAOscillator : public Indicator<DMAOscillator> {
 public:
     explicit DMAOscillator(const Line<double>& source,
-                           std::size_t period = 20,
+                           std::size_t period = 20uz,
                            int gainlimit = 50,
-                           std::size_t hperiod = 7)
+                           std::size_t hperiod = 7uz)
         : source_(source), average_(source, period, gainlimit, hperiod) {}
 
     void next_impl() {
@@ -174,7 +174,7 @@ using ZeroLagExponentialMovingAverageOscillator = ZLEMAOscillator;
 class ZeroLagIndicatorOscillator : public Indicator<ZeroLagIndicatorOscillator> {
 public:
     explicit ZeroLagIndicatorOscillator(const Line<double>& source,
-                                         std::size_t period = 20,
+                                         std::size_t period = 20uz,
                                          int gainlimit = 50)
         : source_(source), average_(source, period, gainlimit) {}
 
@@ -208,8 +208,8 @@ using ECOscillator = ZeroLagIndicatorOscillator;
 class PriceOscillator : public Indicator<PriceOscillator> {
 public:
     explicit PriceOscillator(const Line<double>& source,
-                             std::size_t period1 = 12,
-                             std::size_t period2 = 26)
+                             std::size_t period1 = 12uz,
+                             std::size_t period2 = 26uz)
         : source_(source), fast_(source, period1), slow_(source, period2) {}
 
     void next_impl() {
@@ -248,9 +248,9 @@ using AbsPriceOsc = PriceOscillator;
 class PercentagePriceOscillator : public Indicator<PercentagePriceOscillator> {
 public:
     explicit PercentagePriceOscillator(const Line<double>& source,
-                                       std::size_t period1 = 12,
-                                       std::size_t period2 = 26,
-                                       std::size_t period_signal = 9)
+                                       std::size_t period1 = 12uz,
+                                       std::size_t period2 = 26uz,
+                                       std::size_t period_signal = 9uz)
         : source_(source)
         , fast_(source, period1)
         , slow_(source, period2)
@@ -326,7 +326,7 @@ private:
     Line<double> signal_;
     Line<double> histogram_;
     double signal_prev_ = 0.0;
-    std::size_t valid_count_ = 0;
+    std::size_t valid_count_ = 0uz;
     bool signal_initialized_ = false;
 };
 

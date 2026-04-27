@@ -12,7 +12,7 @@ namespace stratforge {
 /// Average True Range using Wilder smoothing.
 class ATR : public Indicator<ATR> {
 public:
-    ATR(const Line<double>& high, const Line<double>& low, const Line<double>& close, std::size_t period = 14)
+    ATR(const Line<double>& high, const Line<double>& low, const Line<double>& close, std::size_t period = 14uz)
         : high_(high), low_(low), close_(close), period_(period) {}
 
     void next_impl() {
@@ -60,7 +60,7 @@ private:
     const Line<double>& close_;
     std::size_t period_;
     double tr_sum_ = 0.0;
-    std::size_t tr_count_ = 0;
+    std::size_t tr_count_ = 0uz;
     double prev_atr_ = 0.0;
     bool initialized_ = false;
 };

@@ -11,7 +11,7 @@ namespace stratforge {
 /// Momentum: current price minus price N bars ago.
 class Momentum : public Indicator<Momentum> {
 public:
-    explicit Momentum(const Line<double>& source, std::size_t period = 12)
+    explicit Momentum(const Line<double>& source, std::size_t period = 12uz)
         : source_(source), period_(period) {}
 
     void next_impl() {
@@ -37,7 +37,7 @@ private:
 /// Rate of change: percent change relative to N bars ago.
 class ROC : public Indicator<ROC> {
 public:
-    explicit ROC(const Line<double>& source, std::size_t period = 12)
+    explicit ROC(const Line<double>& source, std::size_t period = 12uz)
         : source_(source), period_(period) {}
 
     void next_impl() {
@@ -64,7 +64,7 @@ private:
 /// Rate of change with base 100.
 class ROC100 : public Indicator<ROC100> {
 public:
-    explicit ROC100(const Line<double>& source, std::size_t period = 12)
+    explicit ROC100(const Line<double>& source, std::size_t period = 12uz)
         : source_(source), roc_(source, period) {}
 
     void next_impl() {
@@ -86,7 +86,7 @@ private:
 /// Momentum oscillator expressed as 100 * current / previous-N.
 class MomentumOscillator : public Indicator<MomentumOscillator> {
 public:
-    explicit MomentumOscillator(const Line<double>& source, std::size_t period = 12)
+    explicit MomentumOscillator(const Line<double>& source, std::size_t period = 12uz)
         : source_(source), period_(period) {}
 
     void next_impl() {

@@ -12,7 +12,7 @@ namespace stratforge {
 /// Variable Index Dynamic Average using Chande Momentum Oscillator scaling.
 class VIDYA : public Indicator<VIDYA> {
 public:
-    explicit VIDYA(const Line<double>& source, std::size_t period = 14, std::size_t momentum_period = 9)
+    explicit VIDYA(const Line<double>& source, std::size_t period = 14uz, std::size_t momentum_period = 9uz)
         : source_(source)
         , period_(period == 0 ? 1 : period)
         , momentum_period_(momentum_period == 0 ? 1 : momentum_period)
@@ -69,9 +69,9 @@ private:
 class FRAMA : public Indicator<FRAMA> {
 public:
     explicit FRAMA(const Line<double>& source,
-                   std::size_t period = 16,
-                   std::size_t fast = 4,
-                   std::size_t slow = 300)
+                   std::size_t period = 16uz,
+                   std::size_t fast = 4uz,
+                   std::size_t slow = 300uz)
         : source_(source)
         , period_(normalize_period(period))
         , fast_alpha_(2.0 / (static_cast<double>(fast == 0 ? 1 : fast) + 1.0))

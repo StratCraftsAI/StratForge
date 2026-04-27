@@ -11,7 +11,7 @@ namespace stratforge {
 /// Rate of Change Percentage: ((price - prev) / prev) * 100.
 class ROCP : public Indicator<ROCP> {
 public:
-    explicit ROCP(const Line<double>& source, std::size_t period = 12)
+    explicit ROCP(const Line<double>& source, std::size_t period = 12uz)
         : source_(source), period_(period) {}
 
     void next_impl() {
@@ -45,7 +45,7 @@ using RateOfChangePercentage = ROCP;
 /// Rate of Change Ratio: price / prev.
 class ROCR : public Indicator<ROCR> {
 public:
-    explicit ROCR(const Line<double>& source, std::size_t period = 12)
+    explicit ROCR(const Line<double>& source, std::size_t period = 12uz)
         : source_(source), period_(period) {}
 
     void next_impl() {
@@ -79,7 +79,7 @@ using RateOfChangeRatio = ROCR;
 /// Rate of Change Ratio * 100: (price / prev) * 100.
 class ROCR100 : public Indicator<ROCR100> {
 public:
-    explicit ROCR100(const Line<double>& source, std::size_t period = 12)
+    explicit ROCR100(const Line<double>& source, std::size_t period = 12uz)
         : source_(source), rocr_(source, period) {}
 
     void next_impl() {

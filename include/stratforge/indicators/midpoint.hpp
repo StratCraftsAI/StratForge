@@ -12,7 +12,7 @@ namespace stratforge {
 /// Midpoint over period: (Highest + Lowest) / 2 of a single source line.
 class MidPoint : public Indicator<MidPoint> {
 public:
-    explicit MidPoint(const Line<double>& source, std::size_t period = 14)
+    explicit MidPoint(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), highest_(source, period), lowest_(source, period) {}
 
     void next_impl() {
@@ -45,7 +45,7 @@ using MIDPOINT = MidPoint;
 /// Midpoint Price: (HighestHigh + LowestLow) / 2 over period.
 class MidPrice : public Indicator<MidPrice> {
 public:
-    MidPrice(const Line<double>& high, const Line<double>& low, std::size_t period = 14)
+    MidPrice(const Line<double>& high, const Line<double>& low, std::size_t period = 14uz)
         : high_(high), highest_(high, period), lowest_(low, period) {}
 
     void next_impl() {

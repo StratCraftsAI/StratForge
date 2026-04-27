@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stratforge/indicators/indicator.hpp>
+#include <stratforge/simd/simd_ops.hpp>
 
 #include <cstddef>
 #include <limits>
@@ -11,7 +12,7 @@ namespace stratforge {
 class Lowest : public Indicator<Lowest> {
 public:
     explicit Lowest(const Line<double>& source, std::size_t period)
-        : source_(source), period_(period) {}
+        : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(source_.size()); }
@@ -21,15 +22,7 @@ public:
             return;
         }
 
-        double lowest = source_.data()[idx];
-        for (std::size_t i = 1; i < period_; ++i) {
-            const double candidate = source_.data()[idx - i];
-            if (candidate < lowest) {
-                lowest = candidate;
-            }
-        }
-
-        line_.forward(lowest);
+        line_.forward(simd::reduce_min(&source_.data()[idx - period_ + 1], period_));
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {

@@ -1,35 +1,35 @@
 <p align="center">
-  <h1 align="center">StratForge</h1>
-  <p align="center">
-    <strong>Modern C++23 Backtesting Engine for Systematic Trading Research</strong>
-  </p>
-  <p align="center">
-    Header-Only | Golden-Master Validated | Multi-Timeframe | Zero-Allocation Hot Path
-  </p>
-  <p align="center">
-    <a href="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml"><img src="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
-    <img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="C++23">
-    <img src="https://img.shields.io/badge/license-Apache--2.0-green.svg" alt="License">
-  </p>
+ <h1 align="center">StratForge</h1>
+ <p align="center">
+ <strong>Modern C++23 Backtesting Engine for Systematic Trading Research</strong>
+ </p>
+ <p align="center">
+ Header-Only | Golden-Master Validated | Multi-Timeframe | Zero-Allocation Hot Path
+ </p>
+ <p align="center">
+ <a href="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml"><img src="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+ <img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="C++23">
+ <img src="https://img.shields.io/badge/license-Apache--2.0-green.svg" alt="License">
+ </p>
 </p>
 
 <p align="center">
-  <a href="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml"><img src="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="C++23">
-  <img src="https://img.shields.io/badge/Library-Header--Only-blue.svg" alt="Header-Only">
-  <img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="Apache 2.0">
-  <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg" alt="Cross-Platform">
-  <img src="https://img.shields.io/badge/Indicators-157-orange.svg" alt="157 Indicators">
-  <img src="https://img.shields.io/badge/Validation-Golden%20References-brightgreen.svg" alt="Golden References">
+ <a href="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml"><img src="https://github.com/StratCraftsAI/StratForge/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+ <img src="https://img.shields.io/badge/C%2B%2B-23-blue.svg" alt="C++23">
+ <img src="https://img.shields.io/badge/Library-Header--Only-blue.svg" alt="Header-Only">
+ <img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="Apache 2.0">
+ <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg" alt="Cross-Platform">
+ <img src="https://img.shields.io/badge/Indicators-157-orange.svg" alt="157 Indicators">
+ <img src="https://img.shields.io/badge/Validation-Golden%20References-brightgreen.svg" alt="Golden References">
 </p>
 
 <p align="center">
-  <a href="#why-stratforge">Why StratForge</a> |
-  <a href="#features">Features</a> |
-  <a href="#validation">Validation</a> |
-  <a href="#quick-start">Quick Start</a> |
-  <a href="#documentation">Documentation</a> |
-  <a href="#performance">Performance</a>
+ <a href="#why-stratforge">Why StratForge</a> |
+ <a href="#features">Features</a> |
+ <a href="#validation">Validation</a> |
+ <a href="#quick-start">Quick Start</a> |
+ <a href="#documentation">Documentation</a> |
+ <a href="#performance">Performance</a>
 </p>
 
 ---
@@ -113,57 +113,57 @@ ctest --test-dir build --output-on-failure
 #include <memory>
 
 class SmaCross : public stratforge::Strategy {
-    std::unique_ptr<stratforge::SMA> fast_;
-    std::unique_ptr<stratforge::SMA> slow_;
+ std::unique_ptr<stratforge::SMA> fast_;
+ std::unique_ptr<stratforge::SMA> slow_;
 
 public:
-    void init() override {
-        fast_ = std::make_unique<stratforge::SMA>(data().close(), 10);
-        slow_ = std::make_unique<stratforge::SMA>(data().close(), 30);
-    }
+ void init override {
+ fast_ = std::make_unique<stratforge::SMA>(data.close, 10);
+ slow_ = std::make_unique<stratforge::SMA>(data.close, 30);
+ }
 
-    void next() override {
-        if (fast_->line().size() == 0 || slow_->line().size() == 0) {
-            return;
-        }
+ void next override {
+ if (fast_->line.size == 0 || slow_->line.size == 0) {
+ return;
+ }
 
-        const double fast = fast_->line()[0];
-        const double slow = slow_->line()[0];
+ const double fast = fast_->line[0];
+ const double slow = slow_->line[0];
 
-        if (!position().size && fast > slow) {
-            (void)buy(100.0);
-        } else if (position().size > 0 && fast < slow) {
-            (void)close();
-        }
-    }
+ if (!position.size && fast > slow) {
+ (void)buy(100.0);
+ } else if (position.size > 0 && fast < slow) {
+ (void)close;
+ }
+ }
 };
 
-int main() {
-    stratforge::Cerebro cerebro;
-    cerebro.add_strategy<SmaCross>();
+int main {
+ stratforge::Cerebro cerebro;
+ cerebro.add_strategy<SmaCross>;
 
-    auto feed = std::make_unique<stratforge::CsvData>(stratforge::CsvData::Params{
-        .filename = "data.csv",
-        .columns = {},
-        .date_format = "%Y-%m-%d",
-        .separator = ',',
-        .has_headers = true,
-        .fromdate = std::nullopt,
-        .todate = std::nullopt,
-    });
+ auto feed = std::make_unique<stratforge::CsvData>(stratforge::CsvData::Params{
+ .filename = "data.csv",
+ .columns = {},
+ .date_format = "%Y-%m-%d",
+ .separator = ',',
+ .has_headers = true,
+ .fromdate = std::nullopt,
+ .todate = std::nullopt,
+ });
 
-    if (!feed->load()) {
-        std::cerr << "Failed to load data\n";
-        return 1;
-    }
+ if (!feed->load) {
+ std::cerr << "Failed to load data\n";
+ return 1;
+ }
 
-    cerebro.add_data(std::move(feed));
-    auto& trades = cerebro.add_analyzer<stratforge::TradeAnalyzer>();
-    cerebro.set_cash(10000.0);
-    cerebro.run();
+ cerebro.add_data(std::move(feed));
+ auto& trades = cerebro.add_analyzer<stratforge::TradeAnalyzer>;
+ cerebro.set_cash(10000.0);
+ cerebro.run;
 
-    std::cout << "Final cash: " << cerebro.broker().cash() << '\n';
-    std::cout << "Total trades: " << trades.get_analysis().total.total << '\n';
+ std::cout << "Final cash: " << cerebro.broker.cash << '\n';
+ std::cout << "Total trades: " << trades.get_analysis.total.total << '\n';
 }
 ```
 
@@ -173,9 +173,9 @@ int main() {
 include(FetchContent)
 
 FetchContent_Declare(
-    stratforge
-    GIT_REPOSITORY https://github.com/StratCraftsAI/StratForge.git
-    GIT_TAG v0.1.0
+ stratforge
+ GIT_REPOSITORY https://github.com/StratCraftsAI/StratForge.git
+ GIT_TAG v0.1.0
 )
 FetchContent_MakeAvailable(stratforge)
 

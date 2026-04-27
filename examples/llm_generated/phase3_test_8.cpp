@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: ADX Trend Filter + EMA
 // Prompt: "Only trade when ADX(14) > 25 indicating a strong trend. Buy when price is above EMA(20), sell when below."
-// Phase: TICKET_004 Phase 3 -- End-to-End LLM Generation Test
+// Phase: internal reference -- End-to-End LLM Generation Test
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>

@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
+#include <stratforge/core/error.hpp>
 #include <stratforge/data/csv_data.hpp>
 #include <stratforge/data/timeframe.hpp>
 
@@ -117,5 +118,79 @@ TEST_CASE("CsvData loading", "[data][csv]") {
 
         REQUIRE(feed.name() == "TEST");
         REQUIRE(feed.timeframe().timeframe == TimeFrame::Days);
+    }
+}
+
+TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
+    SECTION("FileNotFound — nonexistent path") {
+        CsvData feed(CsvData::Params{.filename = "/tmp/stratforge_no_such_file.csv", .columns = {}});
+        auto result = feed.load_expected();
+        REQUIRE_FALSE(result.has_value());
+        REQUIRE(result.error() == DataError::FileNotFound);
+    }
+
+    SECTION("AlreadyLoaded — double load") {
+        auto path = create_test_csv("test_expected_double.csv");
+        CsvData feed(CsvData::Params{.filename = path, .columns = {}});
+        auto first = feed.load_expected();
+        REQUIRE(first.has_value());
+
+        auto second = feed.load_expected();
+        REQUIRE_FALSE(second.has_value());
+        REQUIRE(second.error() == DataError::AlreadyLoaded);
+    }
+
+    SECTION("HeaderOnly — header-only CSV") {
+        std::string path = "/tmp/stratforge_header_only.csv";
+        {
+            std::ofstream f(path);
+            f << "Date,Open,High,Low,Close,Volume\n";
+        }
+        CsvData feed(CsvData::Params{.filename = path, .columns = {}});
+        auto result = feed.load_expected();
+        REQUIRE_FALSE(result.has_value());
+        REQUIRE(result.error() == DataError::HeaderOnly);
+    }
+
+    SECTION("EmptyFile — empty file with has_headers=false") {
+        std::string path = "/tmp/stratforge_empty.csv";
+        {
+            std::ofstream f(path);
+            // write nothing
+        }
+        CsvData feed(CsvData::Params{.filename = path, .columns = {}, .has_headers = false});
+        auto result = feed.load_expected();
+        REQUIRE_FALSE(result.has_value());
+        REQUIRE(result.error() == DataError::EmptyFile);
+    }
+
+    SECTION("Success — normal CSV") {
+        auto path = create_test_csv("test_expected_ok.csv");
+        CsvData feed(CsvData::Params{.filename = path, .columns = {}});
+        auto result = feed.load_expected();
+        REQUIRE(result.has_value());
+        REQUIRE(feed.size() == 5);
+    }
+
+    SECTION("Bool load() wrapper still works identically") {
+        auto path = create_test_csv("test_expected_bool.csv");
+        CsvData feed(CsvData::Params{.filename = path, .columns = {}});
+        REQUIRE(feed.load());
+        REQUIRE(feed.size() == 5);
+        REQUIRE_FALSE(feed.load()); // second call
+    }
+
+    SECTION("load_with_error() returns same result as load_expected()") {
+        CsvData feed(CsvData::Params{.filename = "/tmp/stratforge_no_such_file2.csv", .columns = {}});
+        auto result = feed.load_with_error();
+        REQUIRE_FALSE(result.has_value());
+        REQUIRE(result.error() == DataError::FileNotFound);
+    }
+
+    SECTION("to_string covers all DataError values") {
+        REQUIRE(to_string(DataError::FileNotFound) == "file not found");
+        REQUIRE(to_string(DataError::EmptyFile) == "no data rows after filtering");
+        REQUIRE(to_string(DataError::HeaderOnly) == "header only, no data rows");
+        REQUIRE(to_string(DataError::AlreadyLoaded) == "data already loaded");
     }
 }

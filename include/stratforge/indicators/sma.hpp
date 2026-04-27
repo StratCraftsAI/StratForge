@@ -1,10 +1,10 @@
 #pragma once
 
 #include <stratforge/indicators/indicator.hpp>
+#include <stratforge/simd/simd_ops.hpp>
 
 #include <cstddef>
 #include <limits>
-#include <numeric>
 
 namespace stratforge {
 
@@ -22,10 +22,7 @@ public:
             return;
         }
 
-        double sum = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            sum += source_.data()[idx - i];
-        }
+        const double sum = simd::reduce_sum(&source_.data()[idx - period_ + 1], period_);
         line_.forward(sum / static_cast<double>(period_));
     }
 

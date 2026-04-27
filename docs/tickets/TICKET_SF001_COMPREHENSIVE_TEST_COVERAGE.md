@@ -25,7 +25,7 @@ AI-assisted codebases need the same (or more) rigor as hand-written code. Verifi
 | Indicators (golden master) | `test_indicator_golden.cpp` | 30+ |
 | Indicators (ATR) | `test_indicator_atr.cpp` | 5+ |
 | Indicators (Phase 8 series) | `test_indicator_phase8*.cpp` (5 files) | 50+ |
-| Indicators (TICKET_011) | `test_indicator_ticket011.cpp` | 10+ |
+| Indicators (oscillator variants) | `test_indicator_ticket011.cpp` | 10+ |
 | Indicators (candlestick) | `test_candlestick.cpp` | 10+ |
 | Indicators (TA-Lib cross) | `test_talib_cross_validation.cpp` | 20+ |
 | Broker | `test_broker.cpp` | 10+ |
@@ -170,20 +170,20 @@ Existing files to extend: `test_strategy.cpp`, `test_line.cpp`, indicator test f
 
 ## Development Workflow
 
-All test development happens in the **upstream** `nonabackTrader` repository, never directly in StratForge:
+All test development happens in the **upstream** repository, never directly in StratForge:
 
-1. **Write** — Create/edit test files in `nonabackTrader/tests/` using `nonabt` namespace and `<nonabt/...>` includes
-2. **Build & verify** — Compile and run via `nonabackTrader/build-gcc/bin/tests/nonabt_tests`
-3. **Sync** — Run `nonabackTrader/tools/sync_to_stratforge.sh` which performs one-way sync with automatic `nonabt` → `stratforge` namespace/include replacement
+1. **Write** — Create/edit test files in the upstream `tests/` directory using the upstream namespace and includes
+2. **Build & verify** — Compile and run via the upstream build system
+3. **Sync** — Run the sync script which performs one-way sync with automatic namespace/include replacement to `stratforge`
 4. **CI verify** — StratForge CI re-validates all tests under `stratforge` namespace
 
 **Rationale**: Single source of truth, unified build environment, consistent with existing 38 test files, sync script already handles tests/ directory and namespace transformation.
 
-**Important**: Test files must NOT reference `live/` headers, `serialization/` headers, `nonabt_engine.hpp`, or any other private-only components stripped from StratForge.
+**Important**: Test files must NOT reference `live/` headers, `serialization/` headers, or any other private-only components stripped from StratForge.
 
 ---
 
 ## References
 
 - [Why AI Code Needs the Same Rigor](https://dev.to/whetlan/why-ai-code-needs-the-same-rigor-we-should-have-been-using-all-along-1kk4)
-- Adapted from NexusFIX TICKET_462 convention
+- Adapted from internal test coverage conventions

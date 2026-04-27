@@ -99,7 +99,7 @@ public:
 
 private:
     std::vector<T> data_;
-    std::size_t idx_ = 0;
+    std::size_t idx_ = 0uz;
 };
 
 } // namespace stratforge

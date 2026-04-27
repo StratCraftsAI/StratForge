@@ -18,9 +18,9 @@ public:
     explicit UltimateOscillator(const Line<double>& high,
                                 const Line<double>& low,
                                 const Line<double>& close,
-                                std::size_t p1 = 7,
-                                std::size_t p2 = 14,
-                                std::size_t p3 = 28)
+                                std::size_t p1 = 7uz,
+                                std::size_t p2 = 14uz,
+                                std::size_t p3 = 28uz)
         : close_(close)
         , p1_(p1)
         , p2_(p2)

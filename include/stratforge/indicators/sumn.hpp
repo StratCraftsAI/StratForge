@@ -2,12 +2,12 @@
 
 #include <stratforge/indicators/periodn.hpp>
 
-#include <cmath>
 #include <limits>
 
 namespace stratforge {
 
 /// Sum of the trailing period using fsum-style precision.
+/// Note: scalar loop — typical period (5-50) is too small for SIMD benefit.
 class SumN : public PeriodN<SumN> {
 public:
     explicit SumN(const Line<double>& source, std::size_t period)
@@ -21,12 +21,10 @@ public:
         }
 
         const auto idx = source().index();
-        double total = 0.0;
-        for (std::size_t i = 0; i < period(); ++i) {
-            total += source().data()[idx - period() + 1 + i];
-        }
-
-        line_.forward(total);
+        const double* p = &source().data()[idx - period() + 1];
+        double sum = 0.0;
+        for (std::size_t i = 0; i < period(); ++i) { sum += p[i]; }
+        line_.forward(sum);
     }
 };
 

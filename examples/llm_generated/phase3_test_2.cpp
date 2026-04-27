@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: RSI Mean Reversion
 // Prompt: "Buy when RSI(14) drops below 30, sell when RSI rises above 70."
-// Phase: TICKET_004 Phase 3 -- End-to-End LLM Generation Test
+// Phase: internal reference -- End-to-End LLM Generation Test
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>

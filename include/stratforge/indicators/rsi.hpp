@@ -18,12 +18,12 @@ enum class RsiMovAv {
 class RSI : public Indicator<RSI> {
 public:
     explicit RSI(const Line<double>& source,
-                 std::size_t period = 14,
+                 std::size_t period = 14uz,
                  RsiMovAv movav = RsiMovAv::Smoothed,
                  bool safediv = false,
                  double safehigh = 100.0,
                  double safelow = 50.0,
-                 std::size_t lookback = 1)
+                 std::size_t lookback = 1uz)
         : source_(source)
         , period_(period == 0 ? 1 : period)
         , movav_(movav)
@@ -121,10 +121,9 @@ protected:
     }
 
     [[nodiscard]] double seed_average(const Line<double>& line) const noexcept {
+        const double* p = &line.data()[line.size() - period_];
         double sum = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            sum += line.data()[line.size() - period_ + i];
-        }
+        for (std::size_t i = 0; i < period_; ++i) { sum += p[i]; }
         return sum / static_cast<double>(period_);
     }
 
@@ -147,41 +146,41 @@ private:
 class RSI_Safe : public RSI {
 public:
     explicit RSI_Safe(const Line<double>& source,
-                      std::size_t period = 14,
+                      std::size_t period = 14uz,
                       RsiMovAv movav = RsiMovAv::Smoothed,
                       double safehigh = 100.0,
                       double safelow = 50.0,
-                      std::size_t lookback = 1)
+                      std::size_t lookback = 1uz)
         : RSI(source, period, movav, true, safehigh, safelow, lookback) {}
 };
 
 class RSI_SMA : public RSI {
 public:
     explicit RSI_SMA(const Line<double>& source,
-                     std::size_t period = 14,
+                     std::size_t period = 14uz,
                      bool safediv = false,
                      double safehigh = 100.0,
                      double safelow = 50.0,
-                     std::size_t lookback = 1)
+                     std::size_t lookback = 1uz)
         : RSI(source, period, RsiMovAv::Simple, safediv, safehigh, safelow, lookback) {}
 };
 
 class RSI_EMA : public RSI {
 public:
     explicit RSI_EMA(const Line<double>& source,
-                     std::size_t period = 14,
+                     std::size_t period = 14uz,
                      bool safediv = false,
                      double safehigh = 100.0,
                      double safelow = 50.0,
-                     std::size_t lookback = 1)
+                     std::size_t lookback = 1uz)
         : RSI(source, period, RsiMovAv::Exponential, safediv, safehigh, safelow, lookback) {}
 };
 
 class RelativeMomentumIndex : public RSI {
 public:
     explicit RelativeMomentumIndex(const Line<double>& source,
-                                   std::size_t period = 20,
-                                   std::size_t lookback = 5)
+                                   std::size_t period = 20uz,
+                                   std::size_t lookback = 5uz)
         : RSI(source, period, RsiMovAv::Smoothed, false, 100.0, 50.0, lookback) {}
 };
 

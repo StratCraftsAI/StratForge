@@ -10,7 +10,7 @@ namespace stratforge {
 
 class LaguerreRSI : public Indicator<LaguerreRSI> {
 public:
-    explicit LaguerreRSI(const Line<double>& source, double gamma = 0.5, std::size_t period = 6)
+    explicit LaguerreRSI(const Line<double>& source, double gamma = 0.5, std::size_t period = 6uz)
         : source_(source), gamma_(gamma), period_(period) {}
 
     void next_impl() {

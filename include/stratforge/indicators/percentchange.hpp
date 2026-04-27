@@ -10,7 +10,7 @@ namespace stratforge {
 /// Percentage change relative to N bars ago.
 class PercentChange : public Indicator<PercentChange> {
 public:
-    explicit PercentChange(const Line<double>& source, std::size_t period = 30)
+    explicit PercentChange(const Line<double>& source, std::size_t period = 30uz)
         : source_(source), period_(period) {}
 
     void next_impl() {

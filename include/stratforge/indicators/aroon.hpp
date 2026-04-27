@@ -11,7 +11,7 @@ namespace stratforge {
 /// Aroon Up.
 class AroonUp : public Indicator<AroonUp> {
 public:
-    AroonUp(const Line<double>& high, std::size_t period = 14)
+    AroonUp(const Line<double>& high, std::size_t period = 14uz)
         : high_(high), period_(period) {}
 
     void next_impl() {
@@ -57,7 +57,7 @@ private:
 /// Aroon Down.
 class AroonDown : public Indicator<AroonDown> {
 public:
-    AroonDown(const Line<double>& low, std::size_t period = 14)
+    AroonDown(const Line<double>& low, std::size_t period = 14uz)
         : low_(low), period_(period) {}
 
     void next_impl() {
@@ -103,7 +103,7 @@ private:
 /// Aroon indicator exposing up/down lines and oscillator in line().
 class Aroon : public Indicator<Aroon> {
 public:
-    Aroon(const Line<double>& high, const Line<double>& low, std::size_t period = 14)
+    Aroon(const Line<double>& high, const Line<double>& low, std::size_t period = 14uz)
         : high_(high), aroon_up_(high, period), aroon_down_(low, period) {}
 
     void next_impl() {
@@ -141,7 +141,7 @@ public:
 
 class AroonUpDown : public Indicator<AroonUpDown> {
 public:
-    AroonUpDown(const Line<double>& high, const Line<double>& low, std::size_t period = 14)
+    AroonUpDown(const Line<double>& high, const Line<double>& low, std::size_t period = 14uz)
         : high_(high), up_(high, period), down_(low, period) {}
 
     void next_impl() {
@@ -168,7 +168,7 @@ private:
 
 class AroonUpDownOscillator : public Indicator<AroonUpDownOscillator> {
 public:
-    AroonUpDownOscillator(const Line<double>& high, const Line<double>& low, std::size_t period = 14)
+    AroonUpDownOscillator(const Line<double>& high, const Line<double>& low, std::size_t period = 14uz)
         : high_(high), updown_(high, low, period), osc_(high, low, period) {}
 
     void next_impl() {

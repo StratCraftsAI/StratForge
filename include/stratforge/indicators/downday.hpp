@@ -11,7 +11,7 @@ namespace stratforge {
 /// Positive downward close change over the configured lookback.
 class DownDay : public Indicator<DownDay> {
 public:
-    explicit DownDay(const Line<double>& source, std::size_t period = 1)
+    explicit DownDay(const Line<double>& source, std::size_t period = 1uz)
         : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -37,7 +37,7 @@ private:
 /// Boolean down-day flag over the configured lookback.
 class DownDayBool : public Indicator<DownDayBool> {
 public:
-    explicit DownDayBool(const Line<double>& source, std::size_t period = 1)
+    explicit DownDayBool(const Line<double>& source, std::size_t period = 1uz)
         : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {

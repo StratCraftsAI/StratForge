@@ -104,3 +104,26 @@ endif()
 set_target_properties(memory_benchmarks PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/benchmarks
 )
+
+# SIMD benchmarks
+add_executable(simd_benchmarks
+    simd_benchmarks.cpp
+)
+
+target_link_libraries(simd_benchmarks PRIVATE
+    stratforge
+)
+
+target_compile_definitions(simd_benchmarks PRIVATE
+    SF_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
+)
+
+if(MSVC)
+    target_compile_options(simd_benchmarks PRIVATE /W4)
+else()
+    target_compile_options(simd_benchmarks PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+set_target_properties(simd_benchmarks PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/benchmarks
+)

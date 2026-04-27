@@ -12,7 +12,7 @@ namespace stratforge {
 class ExponentialSmoothing : public Indicator<ExponentialSmoothing> {
 public:
     explicit ExponentialSmoothing(const Line<double>& source,
-                                  std::size_t period = 1,
+                                  std::size_t period = 1uz,
                                   double alpha = std::numeric_limits<double>::quiet_NaN())
         : source_(source)
         , period_(period == 0 ? 1 : period)
@@ -65,7 +65,7 @@ class ExponentialSmoothingDynamic : public Indicator<ExponentialSmoothingDynamic
 public:
     explicit ExponentialSmoothingDynamic(const Line<double>& source,
                                          const Line<double>& alpha,
-                                         std::size_t period = 1)
+                                         std::size_t period = 1uz)
         : source_(source), alpha_(alpha), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {

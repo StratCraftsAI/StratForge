@@ -13,7 +13,7 @@ namespace stratforge {
 /// fitted value at the most recent bar.
 class LinearReg : public Indicator<LinearReg> {
 public:
-    explicit LinearReg(const Line<double>& source, std::size_t period = 14)
+    explicit LinearReg(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -77,7 +77,7 @@ using LinearRegression = LinearReg;
 /// Linear Regression Slope.
 class LinearRegSlope : public Indicator<LinearRegSlope> {
 public:
-    explicit LinearRegSlope(const Line<double>& source, std::size_t period = 14)
+    explicit LinearRegSlope(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), lr_(source, period) {}
 
     void next_impl() {
@@ -100,7 +100,7 @@ using LINEARREG_SLOPE = LinearRegSlope;
 /// Linear Regression Intercept.
 class LinearRegIntercept : public Indicator<LinearRegIntercept> {
 public:
-    explicit LinearRegIntercept(const Line<double>& source, std::size_t period = 14)
+    explicit LinearRegIntercept(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), lr_(source, period) {}
 
     void next_impl() {
@@ -123,7 +123,7 @@ using LINEARREG_INTERCEPT = LinearRegIntercept;
 /// Linear Regression Angle: atan(slope) in degrees.
 class LinearRegAngle : public Indicator<LinearRegAngle> {
 public:
-    explicit LinearRegAngle(const Line<double>& source, std::size_t period = 14)
+    explicit LinearRegAngle(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), lr_(source, period) {}
 
     void next_impl() {
@@ -152,7 +152,7 @@ using LINEARREG_ANGLE = LinearRegAngle;
 /// TSF = slope * period + intercept  (value at x = period, i.e. one bar ahead)
 class TSF : public Indicator<TSF> {
 public:
-    explicit TSF(const Line<double>& source, std::size_t period = 14)
+    explicit TSF(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), lr_(source, period), period_(period) {}
 
     void next_impl() {

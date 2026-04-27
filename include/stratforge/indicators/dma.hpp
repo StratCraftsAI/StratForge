@@ -14,9 +14,9 @@ namespace stratforge {
 class DicksonMovingAverage : public Indicator<DicksonMovingAverage> {
 public:
     explicit DicksonMovingAverage(const Line<double>& source,
-                                  std::size_t period = 20,
+                                  std::size_t period = 20uz,
                                   int gainlimit = 50,
-                                  std::size_t hperiod = 7)
+                                  std::size_t hperiod = 7uz)
         : source_(source), ec_(source, period, gainlimit), hma_(source, hperiod) {}
 
     void next_impl() {

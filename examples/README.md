@@ -1,11 +1,11 @@
-# nonabackTrader Example Strategies
+# StratForge Example Strategies
 
 Self-contained, production-quality example strategies demonstrating the stratforge:: API.
 
 These examples serve as:
 1. **Documentation** - Learn StratForge API usage patterns
 2. **Templates** - Starting points for your own strategies
-3. **LLM Training Data** - Reference implementations for code generation (TICKET_004)
+3. **LLM Training Data** - Reference implementations for code generation
 
 ## Building Examples
 
@@ -232,7 +232,7 @@ These examples follow strict coding standards for LLM template quality:
 
 ## LLM Code Generation
 
-These examples are designed to serve as templates for Claude Code (TICKET_005) and other LLM-based strategy generation systems (TICKET_004).
+These examples are designed to serve as templates for Claude Code and other LLM-based strategy generation systems.
 
 **Template Selection Criteria:**
 - SMA Crossover: Basic trend following
@@ -242,11 +242,11 @@ These examples are designed to serve as templates for Claude Code (TICKET_005) a
 - Multi-Timeframe: Complex multi-data trend filtering
 - Pairs Trading: Market-neutral statistical arbitrage
 
-See `docs/llm_generation_proof.md` (TICKET_003_10_10 Phase 10.3) for LLM generation test results.
+See `docs/llm_generation_proof.md` for LLM generation test results.
 
 ## Next Steps
 
 - Extend examples with more indicators (Stochastic, Ichimoku, etc.)
-- Add live trading examples (TICKET_002 scope)
+- Add live trading examples
 - Create optimization examples using `stratforge::Optimizer`
-- Add machine learning strategy examples (TICKET_004 scope)
+- Add machine learning strategy examples

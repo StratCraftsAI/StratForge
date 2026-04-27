@@ -15,8 +15,8 @@ class AwesomeOscillator : public Indicator<AwesomeOscillator> {
 public:
     explicit AwesomeOscillator(const Line<double>& high,
                                const Line<double>& low,
-                               std::size_t fast = 5,
-                               std::size_t slow = 34)
+                               std::size_t fast = 5uz,
+                               std::size_t slow = 34uz)
         : high_(high), low_(low), fast_sma_(median_, fast), slow_sma_(median_, slow) {}
 
     void next_impl() {
@@ -59,7 +59,7 @@ class AccelerationDecelerationOscillator : public Indicator<AccelerationDecelera
 public:
     explicit AccelerationDecelerationOscillator(const Line<double>& high,
                                                 const Line<double>& low,
-                                                std::size_t period = 5)
+                                                std::size_t period = 5uz)
         : high_(high), awesome_(high, low), average_(awesome_.line(), period) {}
 
     void next_impl() {

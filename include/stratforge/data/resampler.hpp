@@ -29,14 +29,17 @@ public:
         source_.preload();
         if (source_.size() == 0) return;
 
-        const auto n = source_.size();
-        datetime().data().reserve(n);
-        open().data().reserve(n);
-        high().data().reserve(n);
-        low().data().reserve(n);
-        close().data().reserve(n);
-        volume().data().reserve(n);
-        openinterest().data().reserve(n);
+        // Reserve estimated output size: source bars / compression ratio.
+        // Over-reserving wastes memory; under-reserving just triggers auto-grow.
+        const auto estimated = std::max(std::size_t{1},
+            source_.size() / static_cast<std::size_t>(target_compression_));
+        datetime().data().reserve(estimated);
+        open().data().reserve(estimated);
+        high().data().reserve(estimated);
+        low().data().reserve(estimated);
+        close().data().reserve(estimated);
+        volume().data().reserve(estimated);
+        openinterest().data().reserve(estimated);
 
         double o = 0, h = 0, l = 0, c = 0, v = 0;
         bool first = true;

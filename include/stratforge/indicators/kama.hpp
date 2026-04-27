@@ -12,9 +12,9 @@ namespace stratforge {
 class AdaptiveMovingAverage : public Indicator<AdaptiveMovingAverage> {
 public:
     explicit AdaptiveMovingAverage(const Line<double>& source,
-                                   std::size_t period = 30,
-                                   std::size_t fast = 2,
-                                   std::size_t slow = 30)
+                                   std::size_t period = 30uz,
+                                   std::size_t fast = 2uz,
+                                   std::size_t slow = 30uz)
         : source_(source)
         , period_(period)
         , fast_(2.0 / (static_cast<double>(fast) + 1.0))

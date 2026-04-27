@@ -12,7 +12,7 @@ namespace stratforge {
 /// MinMax: outputs both the minimum and maximum over a rolling period.
 class MinMax : public Indicator<MinMax> {
 public:
-    explicit MinMax(const Line<double>& source, std::size_t period = 14)
+    explicit MinMax(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), highest_(source, period), lowest_(source, period) {}
 
     void next_impl() {
@@ -47,7 +47,7 @@ using MINMAX = MinMax;
 /// MaxIndex: index (bars ago) of the maximum over a rolling period.
 class MaxIndex : public Indicator<MaxIndex> {
 public:
-    explicit MaxIndex(const Line<double>& source, std::size_t period = 14)
+    explicit MaxIndex(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), period_(period) {}
 
     void next_impl() {
@@ -85,7 +85,7 @@ using MAXINDEX = MaxIndex;
 /// MinIndex: index (bars ago) of the minimum over a rolling period.
 class MinIndex : public Indicator<MinIndex> {
 public:
-    explicit MinIndex(const Line<double>& source, std::size_t period = 14)
+    explicit MinIndex(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), period_(period) {}
 
     void next_impl() {
@@ -123,7 +123,7 @@ using MININDEX = MinIndex;
 /// MinMaxIndex: indices of both min and max over a rolling period.
 class MinMaxIndex : public Indicator<MinMaxIndex> {
 public:
-    explicit MinMaxIndex(const Line<double>& source, std::size_t period = 14)
+    explicit MinMaxIndex(const Line<double>& source, std::size_t period = 14uz)
         : source_(source), period_(period) {}
 
     void next_impl() {

@@ -13,7 +13,7 @@ namespace stratforge {
 /// Donchian channels with middle, top, and bottom lines.
 class DonchianChannels : public Indicator<DonchianChannels> {
 public:
-    DonchianChannels(const Line<double>& high, const Line<double>& low, std::size_t period = 20)
+    DonchianChannels(const Line<double>& high, const Line<double>& low, std::size_t period = 20uz)
         : high_(high), low_(low), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -68,7 +68,7 @@ public:
     KeltnerChannel(const Line<double>& high,
                    const Line<double>& low,
                    const Line<double>& close,
-                   std::size_t period = 20,
+                   std::size_t period = 20uz,
                    double devfactor = 2.0)
         : close_(close), mid_(close, period), atr_(high, low, close, period), devfactor_(devfactor) {}
 
@@ -119,7 +119,7 @@ using Keltner = KeltnerChannel;
 /// Ulcer Index over the trailing close window.
 class UlcerIndex : public Indicator<UlcerIndex> {
 public:
-    explicit UlcerIndex(const Line<double>& close, std::size_t period = 14)
+    explicit UlcerIndex(const Line<double>& close, std::size_t period = 14uz)
         : close_(close), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -159,8 +159,8 @@ class ChaikinVolatility : public Indicator<ChaikinVolatility> {
 public:
     ChaikinVolatility(const Line<double>& high,
                       const Line<double>& low,
-                      std::size_t ema_period = 10,
-                      std::size_t roc_period = 10)
+                      std::size_t ema_period = 10uz,
+                      std::size_t roc_period = 10uz)
         : high_(high), low_(low), ema_(range_line_, ema_period), roc_period_(roc_period == 0 ? 1 : roc_period) {}
 
     void next_impl() {

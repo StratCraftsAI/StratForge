@@ -23,21 +23,21 @@
 #endif
 
 // Allocation counting via global operator new/delete override
-// Thread-local counter — scoped regions track heap allocations
+// Thread-local counter --scoped regions track heap allocations
 
 namespace stratforge::bench {
 
 // ============================================================================
-// RDTSC Timing (adapted from NexusFix — TICKET_015)
+// RDTSC Timing
 // ============================================================================
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
-#define NBT_HAS_RDTSC 1
+#define SF_HAS_RDTSC 1
 #else
-#define NBT_HAS_RDTSC 0
+#define SF_HAS_RDTSC 0
 #endif
 
-#if NBT_HAS_RDTSC
+#if SF_HAS_RDTSC
 
 /// Read Time Stamp Counter (basic, lfence-serialized)
 [[nodiscard]] inline std::uint64_t rdtsc() noexcept {
@@ -72,7 +72,7 @@ namespace stratforge::bench {
     return (hi << 32) | lo;
 }
 
-/// RDTSCP — includes processor ID, partial ordering guarantee
+/// RDTSCP --includes processor ID, partial ordering guarantee
 [[nodiscard]] inline std::uint64_t rdtscp(std::uint32_t* processor_id = nullptr) noexcept {
     std::uint32_t lo, hi, aux;
     asm volatile ("rdtscp" : "=a"(lo), "=d"(hi), "=c"(aux));
@@ -80,9 +80,9 @@ namespace stratforge::bench {
     return (static_cast<std::uint64_t>(hi) << 32) | lo;
 }
 
-#endif // NBT_HAS_RDTSC
+#endif // SF_HAS_RDTSC
 
-/// Compiler barrier — prevent reordering around measurements
+/// Compiler barrier --prevent reordering around measurements
 inline void compiler_barrier() noexcept {
 #if defined(__GNUC__) || defined(__clang__)
     asm volatile("" ::: "memory");
@@ -100,7 +100,7 @@ inline void compiler_barrier() noexcept {
     return static_cast<double>(cycles) / freq_ghz;
 }
 
-#if NBT_HAS_RDTSC
+#if SF_HAS_RDTSC
 
 /// Estimate CPU frequency in GHz (sleep-based, may underestimate under throttling)
 [[nodiscard]] inline double estimate_cpu_freq_ghz() noexcept {
@@ -127,7 +127,7 @@ inline void compiler_barrier() noexcept {
     return static_cast<double>(end_cycles - start_cycles) / elapsed_ns;
 }
 
-#endif // NBT_HAS_RDTSC
+#endif // SF_HAS_RDTSC
 
 // ============================================================================
 // CPU Affinity & Scheduling
@@ -244,8 +244,8 @@ struct LatencyStats {
 // Scoped Timers
 // ============================================================================
 
-#if NBT_HAS_RDTSC
-/// RAII timer using RDTSC — writes elapsed cycles to output
+#if SF_HAS_RDTSC
+/// RAII timer using RDTSC --writes elapsed cycles to output
 class ScopedRdtscTimer {
 public:
     explicit ScopedRdtscTimer(std::uint64_t& output) noexcept
@@ -262,7 +262,7 @@ private:
 };
 #endif
 
-/// RAII timer using chrono — writes elapsed nanoseconds
+/// RAII timer using chrono --writes elapsed nanoseconds
 class ScopedChronoTimer {
 public:
     using Clock = std::chrono::steady_clock;
@@ -403,11 +403,11 @@ struct AllocationCounter {
     }
 };
 
-#define NBT_BENCH_ZERO_ALLOC_REGION(label) \
-    stratforge::bench::AllocationCounter NBT_CONCAT(_alloc_counter_, __LINE__)(label)
+#define SF_BENCH_ZERO_ALLOC_REGION(label) \
+    stratforge::bench::AllocationCounter SF_CONCAT(_alloc_counter_, __LINE__)(label)
 
-#define NBT_CONCAT(a, b) NBT_CONCAT_IMPL(a, b)
-#define NBT_CONCAT_IMPL(a, b) a ## b
+#define SF_CONCAT(a, b) SF_CONCAT_IMPL(a, b)
+#define SF_CONCAT_IMPL(a, b) a ## b
 
 // --- Sample Summary -------------------------------------------------------
 
@@ -448,7 +448,7 @@ inline SampleSummary summarize_samples(std::vector<double> samples_ns) {
 template <typename Fn>
 inline SampleSummary run_benchmark(std::size_t iterations, Fn&& fn,
                                    std::size_t warmup = 3) {
-    // Warmup phase — run but discard
+    // Warmup phase --run but discard
     for (std::size_t i = 0; i < warmup; ++i) {
         fn();
     }

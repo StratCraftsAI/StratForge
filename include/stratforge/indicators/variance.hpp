@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stratforge/indicators/indicator.hpp>
+#include <stratforge/simd/simd_ops.hpp>
 
 #include <cstddef>
 #include <limits>
@@ -10,7 +11,7 @@ namespace stratforge {
 /// Population variance over the trailing period.
 class Variance : public Indicator<Variance> {
 public:
-    explicit Variance(const Line<double>& source, std::size_t period = 5)
+    explicit Variance(const Line<double>& source, std::size_t period = 5uz)
         : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -21,19 +22,9 @@ public:
             return;
         }
 
-        double sum = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            sum += source_.data()[idx - i];
-        }
-        const double mean = sum / static_cast<double>(period_);
-
-        double variance_sum = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            const double delta = source_.data()[idx - i] - mean;
-            variance_sum += delta * delta;
-        }
-
-        line_.forward(variance_sum / static_cast<double>(period_));
+        const auto [mean, variance] = simd::reduce_mean_variance(
+            &source_.data()[idx - period_ + 1], period_);
+        line_.forward(variance);
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {

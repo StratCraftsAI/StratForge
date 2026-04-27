@@ -1,10 +1,13 @@
 #pragma once
 
+#include <stratforge/core/error.hpp>
 #include <stratforge/core/line.hpp>
 #include <stratforge/data/timeframe.hpp>
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
+#include <expected>
 #include <memory>
 #include <string>
 
@@ -12,6 +15,18 @@ namespace stratforge {
 
 /// DateTime type alias using system_clock
 using DateTime = std::chrono::system_clock::time_point;
+
+/// Post-load validation result for data feed audit.
+/// Read-only diagnostic — does NOT modify data.
+struct ValidationResult {
+    bool has_duplicates = false;
+    bool is_monotonic = true;
+    bool has_nan = false;
+    bool has_negative_prices = false;
+    std::size_t duplicate_count = 0;
+    std::size_t nan_count = 0;
+    std::size_t negative_price_count = 0;
+};
 
 /// DataFeed - Base data feed with standard OHLCV + datetime lines.
 /// Derived classes implement load() to provide data from various sources.
@@ -28,6 +43,15 @@ public:
     /// Load next bar into lines. Returns false when no more data.
     [[nodiscard]] virtual bool load() = 0;
 
+    /// Load with explicit error reporting via std::expected.
+    /// Default: delegates to load(). Returns success for both true and false —
+    /// load() returning false is normal termination (no more data), not an error.
+    /// Override in subclasses (e.g. CsvData) for richer error diagnostics.
+    [[nodiscard]] virtual std::expected<void, DataError> load_with_error() {
+        load();
+        return {};
+    }
+
     /// Clone this data feed (creates a fresh, independent copy from the same source).
     /// Override in derived classes to enable use with the optimizer.
     [[nodiscard]] virtual std::unique_ptr<DataFeed> clone() const { return nullptr; }
@@ -42,6 +66,53 @@ public:
         close_.home();
         volume_.home();
         openinterest_.home();
+    }
+
+    /// Post-load validation: audit data for common issues.
+    /// Does NOT modify data — read-only diagnostic.
+    [[nodiscard]] ValidationResult validate() const noexcept {
+        ValidationResult result;
+        const auto& ts = datetime_.data();
+        const auto sz = ts.size();
+
+        // Timestamp checks
+        for (std::size_t i = 1; i < sz; ++i) {
+            if (ts[i] == ts[i - 1]) {
+                result.has_duplicates = true;
+                ++result.duplicate_count;
+            } else if (ts[i] < ts[i - 1]) {
+                result.is_monotonic = false;
+            }
+        }
+
+        // OHLCV value checks
+        auto check_line = [&](const Line<double>& line) {
+            for (const auto& val : line.data()) {
+                if (std::isnan(val) || std::isinf(val)) {
+                    result.has_nan = true;
+                    ++result.nan_count;
+                }
+            }
+        };
+        check_line(open_);
+        check_line(high_);
+        check_line(low_);
+        check_line(close_);
+        check_line(volume_);
+
+        // Negative price checks (OHLC only, volume excluded)
+        auto check_negative = [&](const Line<double>& line) {
+            for (const auto& val : line.data()) {
+                if (val < 0.0) ++result.negative_price_count;
+            }
+        };
+        check_negative(open_);
+        check_negative(high_);
+        check_negative(low_);
+        check_negative(close_);
+        result.has_negative_prices = result.negative_price_count > 0;
+
+        return result;
     }
 
     /// Advance all lines to next bar

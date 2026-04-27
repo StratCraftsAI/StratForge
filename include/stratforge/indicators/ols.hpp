@@ -12,7 +12,7 @@ namespace stratforge {
 
 class OLS_Slope_InterceptN : public Indicator<OLS_Slope_InterceptN> {
 public:
-    OLS_Slope_InterceptN(const Line<double>& data0, const Line<double>& data1, std::size_t period = 10)
+    OLS_Slope_InterceptN(const Line<double>& data0, const Line<double>& data1, std::size_t period = 10uz)
         : data0_(data0), data1_(data1), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -71,7 +71,7 @@ private:
 
 class OLS_TransformationN : public Indicator<OLS_TransformationN> {
 public:
-    OLS_TransformationN(const Line<double>& data0, const Line<double>& data1, std::size_t period = 10)
+    OLS_TransformationN(const Line<double>& data0, const Line<double>& data1, std::size_t period = 10uz)
         : data0_(data0)
         , data1_(data1)
         , period_(period == 0 ? 1 : period)
@@ -147,7 +147,7 @@ private:
 
 class OLS_BetaN : public Indicator<OLS_BetaN> {
 public:
-    OLS_BetaN(const Line<double>& data0, const Line<double>& data1, std::size_t period = 10)
+    OLS_BetaN(const Line<double>& data0, const Line<double>& data1, std::size_t period = 10uz)
         : data0_(data0), regression_(data0, data1, period) {}
 
     void next_impl() {

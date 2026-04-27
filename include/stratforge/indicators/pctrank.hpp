@@ -10,7 +10,7 @@ namespace stratforge {
 /// Fraction of values in the trailing window that are strictly below the current value.
 class PercentRank : public PeriodN<PercentRank> {
 public:
-    explicit PercentRank(const Line<double>& source, std::size_t period = 50)
+    explicit PercentRank(const Line<double>& source, std::size_t period = 50uz)
         : PeriodN(source, period) {}
 
     void next_impl() {

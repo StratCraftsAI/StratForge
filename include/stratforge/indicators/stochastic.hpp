@@ -14,9 +14,9 @@ public:
     Stochastic(const Line<double>& high,
                const Line<double>& low,
                const Line<double>& close,
-               std::size_t period = 14,
-               std::size_t period_dfast = 3,
-               std::size_t period_dslow = 3)
+               std::size_t period = 14uz,
+               std::size_t period_dfast = 3uz,
+               std::size_t period_dslow = 3uz)
         : high_(high)
         , low_(low)
         , close_(close)
@@ -113,9 +113,9 @@ public:
     StochasticFull(const Line<double>& high,
                    const Line<double>& low,
                    const Line<double>& close,
-                   std::size_t period = 14,
-                   std::size_t period_dfast = 3,
-                   std::size_t period_dslow = 3)
+                   std::size_t period = 14uz,
+                   std::size_t period_dfast = 3uz,
+                   std::size_t period_dslow = 3uz)
         : high_(high)
         , low_(low)
         , close_(close)
@@ -205,9 +205,9 @@ public:
     StochasticFast(const Line<double>& high,
                    const Line<double>& low,
                    const Line<double>& close,
-                   std::size_t period = 14,
-                   std::size_t period_dfast = 3)
-        : close_(close), full_(high, low, close, period, period_dfast, 1) {}
+                   std::size_t period = 14uz,
+                   std::size_t period_dfast = 3uz)
+        : close_(close), full_(high, low, close, period, period_dfast, 1uz) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] {
@@ -241,9 +241,9 @@ public:
     KDJ(const Line<double>& high,
         const Line<double>& low,
         const Line<double>& close,
-        std::size_t period = 9,
-        std::size_t period_dfast = 3,
-        std::size_t period_dslow = 3)
+        std::size_t period = 9uz,
+        std::size_t period_dfast = 3uz,
+        std::size_t period_dslow = 3uz)
         : close_(close), stochastic_(high, low, close, period, period_dfast, period_dslow) {}
 
     void next_impl() {

@@ -11,7 +11,7 @@ namespace stratforge {
 /// Positive close change over the configured lookback.
 class UpDay : public Indicator<UpDay> {
 public:
-    explicit UpDay(const Line<double>& source, std::size_t period = 1)
+    explicit UpDay(const Line<double>& source, std::size_t period = 1uz)
         : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {
@@ -37,7 +37,7 @@ private:
 /// Boolean up-day flag over the configured lookback.
 class UpDayBool : public Indicator<UpDayBool> {
 public:
-    explicit UpDayBool(const Line<double>& source, std::size_t period = 1)
+    explicit UpDayBool(const Line<double>& source, std::size_t period = 1uz)
         : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {

@@ -13,7 +13,7 @@ namespace stratforge {
 /// Simplified: computed directly as weighted window.
 class TRIMA : public Indicator<TRIMA> {
 public:
-    explicit TRIMA(const Line<double>& source, std::size_t period = 20)
+    explicit TRIMA(const Line<double>& source, std::size_t period = 20uz)
         : source_(source), period_(period == 0 ? 1 : period) {}
 
     void next_impl() {

@@ -1,6 +1,6 @@
 // LLM-Generated Strategy: EMA + ATR Trailing Stop
 // Prompt: "Buy when price is above EMA(20), use 2x ATR(14) as trailing stop distance."
-// Phase: TICKET_004 Phase 3 -- End-to-End LLM Generation Test
+// Phase: internal reference -- End-to-End LLM Generation Test
 // Date: 2026-04-21
 
 #include <stratforge/analyzers/trade_analyzer.hpp>

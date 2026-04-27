@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stratforge/indicators/indicator.hpp>
+#include <stratforge/simd/simd_ops.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -11,8 +12,8 @@ namespace stratforge {
 /// Bollinger Bands with middle, top, and bottom output lines.
 class BollingerBands : public Indicator<BollingerBands> {
 public:
-    explicit BollingerBands(const Line<double>& source, std::size_t period = 20, double devfactor = 2.0)
-        : source_(source), period_(period), devfactor_(devfactor) {}
+    explicit BollingerBands(const Line<double>& source, std::size_t period = 20uz, double devfactor = 2.0)
+        : source_(source), period_(period == 0 ? 1 : period), devfactor_(devfactor) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] {
@@ -30,19 +31,9 @@ public:
             return;
         }
 
-        double sum = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            sum += source_.data()[idx - i];
-        }
-        const double mean = sum / static_cast<double>(period_);
-
-        double variance_sum = 0.0;
-        for (std::size_t i = 0; i < period_; ++i) {
-            const double delta = source_.data()[idx - i] - mean;
-            variance_sum += delta * delta;
-        }
-
-        const double stddev = std::sqrt(variance_sum / static_cast<double>(period_));
+        const auto [mean, variance] = simd::reduce_mean_variance(
+            &source_.data()[idx - period_ + 1], period_);
+        const double stddev = std::sqrt(variance);
         line_.forward(mean);
         top_.forward(mean + devfactor_ * stddev);
         bottom_.forward(mean - devfactor_ * stddev);

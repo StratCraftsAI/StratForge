@@ -68,7 +68,7 @@ TEST_CASE("Resampler matches backtrader golden reference (Daily to Weekly)", "[d
     for (std::size_t i = 0; i < resampled.size(); ++i) {
         // Compare timestamps (ignoring microseconds mismatch)
         REQUIRE(to_iso_string(resampled.datetime().data()[i]) == fixture.outputs.datetime[i].substr(0, 19));
-        
+
         REQUIRE_THAT(resampled.open().data()[i], WithinRel(fixture.outputs.open[i], 1e-6));
         REQUIRE_THAT(resampled.high().data()[i], WithinRel(fixture.outputs.high[i], 1e-6));
         REQUIRE_THAT(resampled.low().data()[i], WithinRel(fixture.outputs.low[i], 1e-6));

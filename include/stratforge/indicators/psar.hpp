@@ -22,7 +22,7 @@ public:
     ParabolicSAR(const Line<double>& high,
                  const Line<double>& low,
                  const Line<double>& close,
-                 std::size_t period = 2,
+                 std::size_t period = 2uz,
                  double af = 0.02,
                  double afmax = 0.20)
         : high_(high), low_(low), close_(close), period_(period), af_step_(af), af_max_(afmax) {}

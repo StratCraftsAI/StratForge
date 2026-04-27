@@ -16,7 +16,7 @@ public:
     explicit Vortex(const Line<double>& high,
                     const Line<double>& low,
                     const Line<double>& close,
-                    std::size_t period = 14)
+                    std::size_t period = 14uz)
         : high_(high)
         , low_(low)
         , close_(close)

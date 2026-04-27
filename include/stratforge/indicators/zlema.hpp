@@ -13,7 +13,7 @@ namespace stratforge {
 /// Zero-lag exponential moving average.
 class ZeroLagExponentialMovingAverage : public Indicator<ZeroLagExponentialMovingAverage> {
 public:
-    explicit ZeroLagExponentialMovingAverage(const Line<double>& source, std::size_t period = 30)
+    explicit ZeroLagExponentialMovingAverage(const Line<double>& source, std::size_t period = 30uz)
         : source_(source)
         , period_(period)
         , lag_((period > 0 ? (period - 1) : 0) / 2)
