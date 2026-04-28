@@ -131,7 +131,7 @@ TEST_CASE("Optimizer runs strategy with different parameters", "[optimizer]") {
         return std::make_unique<SimpleMAStrategy>();
     };
 
-    auto extractor = [](const Cerebro& cerebro, const ParamMap& params) -> OptResult {
+    auto extractor = [](const Cerebro& cerebro, [[maybe_unused]] const ParamMap& params) -> OptResult {
         OptResult result;
         result.final_value = cerebro.broker().portfolio_value({});
         return result;
