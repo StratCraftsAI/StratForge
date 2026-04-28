@@ -122,7 +122,7 @@ TEST_CASE("Optimizer extractor populates sharpe/drawdown/trades", "[optimizer][r
         return std::make_unique<SimpleMAStrategy>();
     };
 
-    auto extractor = [](const Cerebro& cerebro, const ParamMap& params) -> OptResult {
+    auto extractor = [](const Cerebro& cerebro, [[maybe_unused]] const ParamMap& params) -> OptResult {
         OptResult result;
         result.final_value = cerebro.broker().cash();
         // Populate extra fields from broker data
