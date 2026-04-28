@@ -489,7 +489,8 @@ TEST_CASE("Pivot point variants match their textbook formulas", "[indicator][piv
 }
 
 TEST_CASE("Laguerre indicators track recursive filter state", "[indicator][laguerre]") {
-    auto source = make_line({10.0, 11.0, 13.0, 12.0, 15.0});
+    // LaguerreRSI default period=6, need at least 6 bars for first non-NaN output
+    auto source = make_line({10.0, 11.0, 13.0, 12.0, 15.0, 14.0, 16.0});
 
     stratforge::LaguerreRSI lrsi(source);
     stratforge::LaguerreFilter lagf(source);
@@ -503,6 +504,7 @@ TEST_CASE("Laguerre indicators track recursive filter state", "[indicator][lague
     REQUIRE(!std::isnan(lrsi.line().data()[5]));
     REQUIRE(lagf.line().data()[0] == Approx(0.3125));
     REQUIRE(lagf.line().data()[4] == Approx(4.74609375));
+    REQUIRE(lagf.line().data()[6] != 0.0);  // verify 7th bar produces output
 }
 
 TEST_CASE("haDelta computes Heikin-Ashi body and SMA smoothing", "[indicator][hadelta]") {
