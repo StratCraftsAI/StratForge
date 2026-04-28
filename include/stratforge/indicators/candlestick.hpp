@@ -87,8 +87,8 @@ private:
 /// Output: +100 bullish engulfing, -100 bearish engulfing, 0 no pattern.
 class CDLEngulfing : public Indicator<CDLEngulfing> {
 public:
-    CDLEngulfing(const Line<double>& open, const Line<double>& high,
-                 const Line<double>& low, const Line<double>& close)
+    CDLEngulfing(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                 [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -218,8 +218,8 @@ private:
 /// Output: +100 bullish harami, -100 bearish harami, 0 no pattern.
 class CDLHarami : public Indicator<CDLHarami> {
 public:
-    CDLHarami(const Line<double>& open, const Line<double>& high,
-              const Line<double>& low, const Line<double>& close)
+    CDLHarami(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+              [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -406,8 +406,8 @@ private:
 /// Output: +100 if pattern detected, 0 otherwise.
 class CDLThreeWhiteSoldiers : public Indicator<CDLThreeWhiteSoldiers> {
 public:
-    CDLThreeWhiteSoldiers(const Line<double>& open, const Line<double>& high,
-                          const Line<double>& low, const Line<double>& close)
+    CDLThreeWhiteSoldiers(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                          [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -438,8 +438,8 @@ private:
 /// Output: -100 if pattern detected, 0 otherwise.
 class CDLThreeBlackCrows : public Indicator<CDLThreeBlackCrows> {
 public:
-    CDLThreeBlackCrows(const Line<double>& open, const Line<double>& high,
-                       const Line<double>& low, const Line<double>& close)
+    CDLThreeBlackCrows(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                       [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -470,8 +470,8 @@ private:
 /// Output: +100 if pattern detected, 0 otherwise.
 class CDLPiercingLine : public Indicator<CDLPiercingLine> {
 public:
-    CDLPiercingLine(const Line<double>& open, const Line<double>& high,
-                    const Line<double>& low, const Line<double>& close)
+    CDLPiercingLine(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                    [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -499,8 +499,8 @@ private:
 /// Output: -100 if pattern detected, 0 otherwise.
 class CDLDarkCloudCover : public Indicator<CDLDarkCloudCover> {
 public:
-    CDLDarkCloudCover(const Line<double>& open, const Line<double>& high,
-                      const Line<double>& low, const Line<double>& close)
+    CDLDarkCloudCover(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                      [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -570,8 +570,8 @@ private:
 /// Output: +100 bullish, -100 bearish, 0 no pattern.
 class CDLThreeInside : public Indicator<CDLThreeInside> {
 public:
-    CDLThreeInside(const Line<double>& open, const Line<double>& high,
-                   const Line<double>& low, const Line<double>& close)
+    CDLThreeInside(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                   [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -612,8 +612,8 @@ private:
 /// Output: +100 bullish, -100 bearish, 0 no pattern.
 class CDLThreeOutside : public Indicator<CDLThreeOutside> {
 public:
-    CDLThreeOutside(const Line<double>& open, const Line<double>& high,
-                    const Line<double>& low, const Line<double>& close)
+    CDLThreeOutside(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                    [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -782,8 +782,8 @@ private:
 /// Output: +100 if pattern detected, 0 otherwise.
 class CDLHomingPigeon : public Indicator<CDLHomingPigeon> {
 public:
-    CDLHomingPigeon(const Line<double>& open, const Line<double>& high,
-                    const Line<double>& low, const Line<double>& close)
+    CDLHomingPigeon(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                    [[maybe_unused]] const Line<double>& low, const Line<double>& close)
         : open_(open), close_(close) {}
 
     void next_impl() {
@@ -812,8 +812,8 @@ private:
 /// Output: +100 if pattern detected (bullish reversal), 0 otherwise.
 class CDLMatchingLow : public Indicator<CDLMatchingLow> {
 public:
-    CDLMatchingLow(const Line<double>& open, const Line<double>& high,
-                   const Line<double>& low, const Line<double>& close,
+    CDLMatchingLow(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
+                   [[maybe_unused]] const Line<double>& low, const Line<double>& close,
                    double tolerance = 0.001)
         : open_(open), close_(close),
           tolerance_(tolerance) {}

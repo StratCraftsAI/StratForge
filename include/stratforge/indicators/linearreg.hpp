@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <numbers>
 
 namespace stratforge {
 
@@ -134,7 +135,7 @@ public:
             line_.forward(std::numeric_limits<double>::quiet_NaN());
             return;
         }
-        line_.forward(std::atan(s) * (180.0 / M_PI));
+        line_.forward(std::atan(s) * (180.0 / std::numbers::pi));
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
