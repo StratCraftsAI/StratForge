@@ -7,7 +7,7 @@
 
 ## Problem
 
-GitHub Actions CI fails on the **Linux Clang 18** job (`-stdlib=libc++ -Werror`). Two compilation errors:
+GitHub Actions CI fails on the **Linux Clang 18** job (`-stdlib=libc++ -Werror`). Three compilation errors due to incomplete libc++ 18 standard library coverage:
 
 ### Error 1: `[[nodiscard]]` return value discarded — `data_feed.hpp:51`
 
@@ -16,6 +16,10 @@ GitHub Actions CI fails on the **Linux Clang 18** job (`-stdlib=libc++ -Werror`)
 ### Error 2: `std::from_chars` for `double` deleted in libc++ 18 — `csv_data.hpp:267`
 
 libc++ 18 does **not** implement `std::from_chars` for floating-point types. Fix: use `std::strtod` fallback.
+
+### Error 3: `std::jthread` not available in libc++ 18 — `optimizer.hpp:143`
+
+libc++ 18 does **not** implement `std::jthread`. Fix: use `std::thread` + explicit `join()`.
 
 ## Fix
 

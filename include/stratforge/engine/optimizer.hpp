@@ -59,7 +59,7 @@ struct ParamRange {
 }
 
 /// Optimizer - runs strategy with different parameter combinations in parallel.
-/// Uses std::jthread for parallel execution with independent data feed clones.
+/// Uses std::thread for parallel execution with independent data feed clones.
 class Optimizer {
 public:
     /// Strategy factory type: creates a strategy given parameters
@@ -140,14 +140,13 @@ public:
         };
 
         // Launch worker threads
-        std::vector<std::jthread> threads;
+        std::vector<std::thread> threads;
         threads.reserve(std::min(num_threads, grid.size()));
         for (std::size_t t = 0; t < std::min(num_threads, grid.size()); ++t) {
             threads.emplace_back(worker);
         }
 
-        // jthreads auto-join on destruction
-        threads.clear();
+        for (auto& t : threads) t.join();
 
         return results;
     }
