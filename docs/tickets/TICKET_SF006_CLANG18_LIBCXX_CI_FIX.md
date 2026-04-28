@@ -37,6 +37,17 @@ GitHub Actions CI fails on **Linux Clang 18** (`-stdlib=libc++ -Werror`) and **W
 | 11 | `feed.load()` = false | 3 test files | `/tmp/` doesn't exist on Windows |
 | 12 | SIMD tests unmatched | `test_simd_ops.cpp` | Em-dash `—` corrupted by CTest on Windows |
 
+### Phase 4: Coverage & Sanitizer CI Failures
+
+| # | Error | File | Job |
+|---|-------|------|-----|
+| 13 | gcovr crashes on Catch2 `.gcda` | `ci.yml` | Coverage |
+| 14 | gcov version mismatch (exit code 3) | `ci.yml` | Coverage |
+| 15 | gcov negative hit count ([gcc #68080](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68080)) | `ci.yml` | Coverage |
+| 16 | Global `-Werror` leaks to Catch2 (false `-Wmaybe-uninitialized`) | `CMakeLists.txt` | ASan |
+| 17 | LaguerreRSI test heap-buffer-overflow (`data()[5]` on 5-element vector) | `test_indicator_phase8.cpp` | ASan |
+| 18 | Signed integer overflow in 100K row date generation (year 2293) | `test_data_robustness.cpp` | UBSan |
+
 ## Fix
 
 All fixes applied upstream in nonabackTrader, synced via `tools/publish_stratforge.sh`.
@@ -55,6 +66,12 @@ All fixes applied upstream in nonabackTrader, synced via `tools/publish_stratfor
 | 10 | `std::numbers::pi` replaces `M_PI` |
 | 11 | `std::filesystem::temp_directory_path()` replaces `/tmp/` |
 | 12 | ASCII ` -` replaces em-dash `—` in TEST_CASE names |
+| 13 | `--gcov-exclude-directories 'build/_deps'` skips Catch2 `.gcda` scanning |
+| 14 | `--gcov-executable gcov-14` matches gcc-14 `.gcda` format |
+| 15 | `--gcov-ignore-parse-errors=negative_hits.warn_once_per_file` tolerates gcc bug |
+| 16 | Move `-Werror`/`/WX` from global `add_compile_options` to `target_compile_options` on test target only |
+| 17 | Expand LaguerreRSI test source from 5 to 7 elements (need ≥6 for `period=6`) |
+| 18 | Hourly increments (100K hours ≈ 11.4 years) instead of daily |
 
 ## Commits
 
@@ -70,3 +87,9 @@ All fixes applied upstream in nonabackTrader, synced via `tools/publish_stratfor
 | `8a71504` | Fix 9 + Fix 10: candlestick params + M_PI |
 | `3b7469a` | Fix 8b: test_coverage_engine lambda params |
 | `5b64869` | Fix 11 + Fix 12: temp paths + CTest Unicode |
+| `03028f7` | Fix 13: gcov-exclude-directories for Catch2 .gcda |
+| `ac0fcad` | Fix 14: gcov-executable gcov-14 |
+| `3a89791` | Fix 15: gcov-ignore-parse-errors negative_hits |
+| `852ece1` | Fix 16: move -Werror/WX to test target only |
+| `8361787` | Fix 17: LaguerreRSI test OOB fix |
+| `a01d40d` | Fix 18: UBSan 100K row date overflow |
