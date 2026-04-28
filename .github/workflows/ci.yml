@@ -205,13 +205,13 @@ jobs:
       - name: Generate coverage report
         run: |
           gcovr --root . \
+            --gcov-executable gcov-14 \
             --filter 'include/stratforge/' \
             --exclude 'build/_deps/' \
             --exclude 'tests/' \
             --exclude 'benchmarks/' \
             --exclude 'examples/' \
             --gcov-exclude-directories 'build/_deps' \
-            --gcov-ignore-errors=all \
             --xml -o build/coverage.xml \
             --html-details -o build/coverage.html \
             --print-summary
