@@ -52,11 +52,11 @@ target_compile_definitions(stratforge_tests PRIVATE
 )
 
 if(MSVC)
-    target_compile_options(stratforge_tests PRIVATE /W4)
+    target_compile_options(stratforge_tests PRIVATE /W4 /WX)
 else()
     # -Wno-missing-field-initializers: GCC false positive with designated
     # initializers on structs containing std::optional fields with defaults
-    target_compile_options(stratforge_tests PRIVATE -Wall -Wextra -Wpedantic -Wno-missing-field-initializers)
+    target_compile_options(stratforge_tests PRIVATE -Wall -Wextra -Wpedantic -Werror -Wno-missing-field-initializers)
 endif()
 
 include(CTest)

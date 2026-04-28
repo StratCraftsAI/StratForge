@@ -23,7 +23,6 @@ include(FetchContent)
 if(MSVC)
     add_compile_options(
         /W4
-        /WX
         /permissive-
         /Zc:__cplusplus
         /utf-8
@@ -44,7 +43,6 @@ else()
         -Wall
         -Wextra
         -Wpedantic
-        -Werror
         -Wno-unused-parameter
     )
 
