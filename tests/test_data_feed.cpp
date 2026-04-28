@@ -5,6 +5,7 @@
 #include <stratforge/data/csv_data.hpp>
 #include <stratforge/data/timeframe.hpp>
 
+#include <filesystem>
 #include <fstream>
 #include <string>
 
@@ -13,9 +14,13 @@ using Catch::Matchers::WithinRel;
 
 namespace {
 
+std::string tmp_path(const std::string& filename) {
+    return (std::filesystem::temp_directory_path() / filename).string();
+}
+
 // Helper: create a temporary CSV file for testing
 std::string create_test_csv(const std::string& filename) {
-    std::string path = "/tmp/" + filename;
+    std::string path = tmp_path(filename);
     std::ofstream file(path);
     file << "Date,Open,High,Low,Close,Volume\n"
          << "2024-01-02,100.0,105.0,99.0,103.0,1000\n"
@@ -88,7 +93,7 @@ TEST_CASE("CsvData loading", "[data][csv]") {
     }
 
     SECTION("Missing file returns false") {
-        CsvData feed(CsvData::Params{.filename = "/tmp/nonexistent_file.csv", .columns = {}});
+        CsvData feed(CsvData::Params{.filename = tmp_path("nonexistent_file.csv"), .columns = {}});
         REQUIRE_FALSE(feed.load());
     }
 
@@ -99,7 +104,7 @@ TEST_CASE("CsvData loading", "[data][csv]") {
     }
 
     SECTION("Custom separator") {
-        std::string tsv_path = "/tmp/test_tsv.csv";
+        std::string tsv_path = tmp_path("test_tsv.csv");
         std::ofstream file(tsv_path);
         file << "Date\tOpen\tHigh\tLow\tClose\tVolume\n"
              << "2024-01-02\t100.0\t105.0\t99.0\t103.0\t1000\n";
@@ -123,7 +128,7 @@ TEST_CASE("CsvData loading", "[data][csv]") {
 
 TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
     SECTION("FileNotFound — nonexistent path") {
-        CsvData feed(CsvData::Params{.filename = "/tmp/stratforge_no_such_file.csv", .columns = {}});
+        CsvData feed(CsvData::Params{.filename = tmp_path("nbt_test_no_such_file.csv"), .columns = {}});
         auto result = feed.load_expected();
         REQUIRE_FALSE(result.has_value());
         REQUIRE(result.error() == DataError::FileNotFound);
@@ -141,7 +146,7 @@ TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
     }
 
     SECTION("HeaderOnly — header-only CSV") {
-        std::string path = "/tmp/stratforge_header_only.csv";
+        std::string path = tmp_path("nbt_test_header_only.csv");
         {
             std::ofstream f(path);
             f << "Date,Open,High,Low,Close,Volume\n";
@@ -153,7 +158,7 @@ TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
     }
 
     SECTION("EmptyFile — empty file with has_headers=false") {
-        std::string path = "/tmp/stratforge_empty.csv";
+        std::string path = tmp_path("nbt_test_empty.csv");
         {
             std::ofstream f(path);
             // write nothing
@@ -181,7 +186,7 @@ TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
     }
 
     SECTION("load_with_error() returns same result as load_expected()") {
-        CsvData feed(CsvData::Params{.filename = "/tmp/stratforge_no_such_file2.csv", .columns = {}});
+        CsvData feed(CsvData::Params{.filename = tmp_path("nbt_test_no_such_file2.csv"), .columns = {}});
         auto result = feed.load_with_error();
         REQUIRE_FALSE(result.has_value());
         REQUIRE(result.error() == DataError::FileNotFound);

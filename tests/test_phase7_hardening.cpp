@@ -13,6 +13,7 @@
 #include <stratforge/indicators/sma.hpp>
 #include <stratforge/indicators/stddev.hpp>
 
+#include <filesystem>
 #include <fstream>
 #include <stdexcept>
 #include <string>
@@ -22,8 +23,12 @@ using Catch::Matchers::WithinRel;
 
 namespace {
 
+std::string tmp_path(const std::string& filename) {
+    return (std::filesystem::temp_directory_path() / filename).string();
+}
+
 std::string create_test_csv(const std::string& filename, const std::vector<std::string>& rows) {
-    const std::string path = "/tmp/" + filename;
+    const std::string path = tmp_path(filename);
     std::ofstream file(path);
     file << "Date,Open,High,Low,Close,Volume,OpenInterest\n";
     for (const auto& row : rows) {
@@ -236,7 +241,7 @@ TEST_CASE(": Line<T> bounds checking rejects out-of-range access",
 
 TEST_CASE(": LoadDiagnostics counters accumulate correctly",
           "[ticket025][boundary][data]") {
-    const std::string path = "/tmp/ticket025_diag.csv";
+    const std::string path = tmp_path("ticket025_diag.csv");
     {
         std::ofstream file(path);
         file << "Date,Open,High,Low,Close,Volume,OI\n";
@@ -276,7 +281,7 @@ TEST_CASE(": Broker order vectors auto-grow past initial reserve",
 TEST_CASE(": Resampler reserve uses estimated output size",
           "[ticket025][boundary][resampler]") {
     // Create a minute-level CSV with 100 bars
-    const std::string path = "/tmp/ticket025_resample.csv";
+    const std::string path = tmp_path("ticket025_resample.csv");
     {
         std::ofstream file(path);
         file << "Date,Open,High,Low,Close,Volume,OI\n";

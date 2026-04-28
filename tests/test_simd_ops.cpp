@@ -26,7 +26,7 @@ using Catch::Matchers::WithinAbs;
 // Runtime Dispatch Verification
 // ============================================================================
 
-TEST_CASE("simd::dispatched_arch_name — returns non-empty ISA name", "[simd][dispatch]") {
+TEST_CASE("simd::dispatched_arch_name  - returns non-empty ISA name", "[simd][dispatch]") {
     const char* name = stratforge::simd::dispatched_arch_name();
     REQUIRE(name != nullptr);
     REQUIRE(std::strlen(name) > 0);
@@ -60,24 +60,24 @@ TEST_CASE("simd::dispatched_arch_name — returns non-empty ISA name", "[simd][d
 // SIMD Primitive Unit Tests
 // ============================================================================
 
-TEST_CASE("simd::reduce_sum — basic correctness", "[simd]") {
+TEST_CASE("simd::reduce_sum  - basic correctness", "[simd]") {
     const std::vector<double> data = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
     REQUIRE_THAT(stratforge::simd::reduce_sum(data.data(), data.size()),
                  WithinAbs(36.0, 1e-12));
 }
 
-TEST_CASE("simd::reduce_sum — single element", "[simd]") {
+TEST_CASE("simd::reduce_sum  - single element", "[simd]") {
     const double val = 42.5;
     REQUIRE_THAT(stratforge::simd::reduce_sum(&val, 1), WithinAbs(42.5, 1e-12));
 }
 
-TEST_CASE("simd::reduce_sum — count not multiple of batch size", "[simd]") {
+TEST_CASE("simd::reduce_sum  - count not multiple of batch size", "[simd]") {
     const std::vector<double> data = {1.0, 2.0, 3.0, 4.0, 5.0};
     REQUIRE_THAT(stratforge::simd::reduce_sum(data.data(), data.size()),
                  WithinAbs(15.0, 1e-12));
 }
 
-TEST_CASE("simd::reduce_sum — large array matches std::accumulate", "[simd]") {
+TEST_CASE("simd::reduce_sum  - large array matches std::accumulate", "[simd]") {
     std::vector<double> data(1000);
     for (std::size_t i = 0; i < data.size(); ++i) {
         data[i] = static_cast<double>(i) * 0.1;
@@ -87,17 +87,17 @@ TEST_CASE("simd::reduce_sum — large array matches std::accumulate", "[simd]") 
                  WithinRel(expected, 1e-10));
 }
 
-TEST_CASE("simd::reduce_min — basic correctness", "[simd]") {
+TEST_CASE("simd::reduce_min  - basic correctness", "[simd]") {
     const std::vector<double> data = {5.0, 3.0, 8.0, 1.0, 7.0, 2.0, 9.0, 4.0};
     REQUIRE(stratforge::simd::reduce_min(data.data(), data.size()) == 1.0);
 }
 
-TEST_CASE("simd::reduce_min — single element", "[simd]") {
+TEST_CASE("simd::reduce_min  - single element", "[simd]") {
     const double val = 42.5;
     REQUIRE(stratforge::simd::reduce_min(&val, 1) == 42.5);
 }
 
-TEST_CASE("simd::reduce_min — large array", "[simd]") {
+TEST_CASE("simd::reduce_min  - large array", "[simd]") {
     std::vector<double> data(500);
     for (std::size_t i = 0; i < data.size(); ++i) {
         data[i] = static_cast<double>(i) + 100.0;
@@ -106,17 +106,17 @@ TEST_CASE("simd::reduce_min — large array", "[simd]") {
     REQUIRE(stratforge::simd::reduce_min(data.data(), data.size()) == 0.5);
 }
 
-TEST_CASE("simd::reduce_max — basic correctness", "[simd]") {
+TEST_CASE("simd::reduce_max  - basic correctness", "[simd]") {
     const std::vector<double> data = {5.0, 3.0, 8.0, 1.0, 7.0, 2.0, 9.0, 4.0};
     REQUIRE(stratforge::simd::reduce_max(data.data(), data.size()) == 9.0);
 }
 
-TEST_CASE("simd::reduce_max — single element", "[simd]") {
+TEST_CASE("simd::reduce_max  - single element", "[simd]") {
     const double val = 42.5;
     REQUIRE(stratforge::simd::reduce_max(&val, 1) == 42.5);
 }
 
-TEST_CASE("simd::reduce_max — large array", "[simd]") {
+TEST_CASE("simd::reduce_max  - large array", "[simd]") {
     std::vector<double> data(500);
     for (std::size_t i = 0; i < data.size(); ++i) {
         data[i] = static_cast<double>(i);
@@ -125,14 +125,14 @@ TEST_CASE("simd::reduce_max — large array", "[simd]") {
     REQUIRE(stratforge::simd::reduce_max(data.data(), data.size()) == 9999.0);
 }
 
-TEST_CASE("simd::reduce_mean_variance — basic correctness", "[simd]") {
+TEST_CASE("simd::reduce_mean_variance  - basic correctness", "[simd]") {
     const std::vector<double> data = {2.0, 4.0, 4.0, 4.0, 5.0, 5.0, 7.0, 9.0};
     const auto [mean, variance] = stratforge::simd::reduce_mean_variance(data.data(), data.size());
     REQUIRE_THAT(mean, WithinAbs(5.0, 1e-12));
     REQUIRE_THAT(variance, WithinAbs(4.0, 1e-12));
 }
 
-TEST_CASE("simd::reduce_mean_variance — single element", "[simd]") {
+TEST_CASE("simd::reduce_mean_variance  - single element", "[simd]") {
     const double val = 7.0;
     const auto [mean, variance] = stratforge::simd::reduce_mean_variance(&val, 1);
     REQUIRE_THAT(mean, WithinAbs(7.0, 1e-12));
@@ -144,25 +144,25 @@ TEST_CASE("simd::reduce_mean_variance — single element", "[simd]") {
 // Exhaustive edge-case coverage for SIMD/scalar boundary transitions.
 // ============================================================================
 
-TEST_CASE("simd::reduce_sum — boundary: count = 0", "[simd][boundary]") {
+TEST_CASE("simd::reduce_sum  - boundary: count = 0", "[simd][boundary]") {
     const double dummy = 0.0;
     REQUIRE(stratforge::simd::reduce_sum(&dummy, 0) == 0.0);
     REQUIRE(stratforge::simd::scalar::reduce_sum(&dummy, 0) == 0.0);
 }
 
-TEST_CASE("simd::reduce_min — boundary: count = 0", "[simd][boundary]") {
+TEST_CASE("simd::reduce_min  - boundary: count = 0", "[simd][boundary]") {
     const double dummy = 0.0;
     REQUIRE(stratforge::simd::reduce_min(&dummy, 0) == 0.0);
     REQUIRE(stratforge::simd::scalar::reduce_min(&dummy, 0) == 0.0);
 }
 
-TEST_CASE("simd::reduce_max — boundary: count = 0", "[simd][boundary]") {
+TEST_CASE("simd::reduce_max  - boundary: count = 0", "[simd][boundary]") {
     const double dummy = 0.0;
     REQUIRE(stratforge::simd::reduce_max(&dummy, 0) == 0.0);
     REQUIRE(stratforge::simd::scalar::reduce_max(&dummy, 0) == 0.0);
 }
 
-TEST_CASE("simd — boundary sweep: all ops cross-validated at critical sizes", "[simd][boundary]") {
+TEST_CASE("simd  - boundary sweep: all ops cross-validated at critical sizes", "[simd][boundary]") {
     // Test all critical boundaries for every possible double batch size
     // {2 (SSE), 4 (AVX), 8 (AVX-512)}: bs-1, bs, bs+1, 2*bs-1, 2*bs, 2*bs+1
     std::vector<std::size_t> critical_sizes = {0, 1};
@@ -220,7 +220,7 @@ TEST_CASE("simd — boundary sweep: all ops cross-validated at critical sizes", 
     }
 }
 
-TEST_CASE("simd — boundary: min/max value in scalar tail", "[simd][boundary]") {
+TEST_CASE("simd  - boundary: min/max value in scalar tail", "[simd][boundary]") {
     // Place the extreme value in the scalar tail (last element of a non-multiple-of-bs array)
     // to verify the scalar tail path actually processes those elements.
     for (std::size_t bs : {2u, 4u, 8u}) {
@@ -239,7 +239,7 @@ TEST_CASE("simd — boundary: min/max value in scalar tail", "[simd][boundary]")
     }
 }
 
-TEST_CASE("simd — boundary: sum contribution from scalar tail", "[simd][boundary]") {
+TEST_CASE("simd  - boundary: sum contribution from scalar tail", "[simd][boundary]") {
     // Verify the scalar tail's contribution is included in the sum.
     for (std::size_t bs : {2u, 4u, 8u}) {
         const std::size_t count = bs + 1;
@@ -256,7 +256,7 @@ TEST_CASE("simd — boundary: sum contribution from scalar tail", "[simd][bounda
 // SIMD vs Scalar cross-validation
 // ============================================================================
 
-TEST_CASE("simd::reduce_min — bit-identical to scalar", "[simd][cross]") {
+TEST_CASE("simd::reduce_min  - bit-identical to scalar", "[simd][cross]") {
     std::vector<double> data(500);
     for (std::size_t i = 0; i < data.size(); ++i) {
         data[i] = 1000.0 - static_cast<double>(i) * 1.7 + static_cast<double>(i % 17);
@@ -265,7 +265,7 @@ TEST_CASE("simd::reduce_min — bit-identical to scalar", "[simd][cross]") {
             == stratforge::simd::scalar::reduce_min(data.data(), data.size()));
 }
 
-TEST_CASE("simd::reduce_max — bit-identical to scalar", "[simd][cross]") {
+TEST_CASE("simd::reduce_max  - bit-identical to scalar", "[simd][cross]") {
     std::vector<double> data(500);
     for (std::size_t i = 0; i < data.size(); ++i) {
         data[i] = 1000.0 - static_cast<double>(i) * 1.7 + static_cast<double>(i % 17);
@@ -274,7 +274,7 @@ TEST_CASE("simd::reduce_max — bit-identical to scalar", "[simd][cross]") {
             == stratforge::simd::scalar::reduce_max(data.data(), data.size()));
 }
 
-TEST_CASE("simd::reduce_sum — within ULP tolerance of scalar", "[simd][cross]") {
+TEST_CASE("simd::reduce_sum  - within ULP tolerance of scalar", "[simd][cross]") {
     // Financial-scale data: sums of ~100-valued doubles over windows of 20-200
     std::vector<double> data(1000);
     for (std::size_t i = 0; i < data.size(); ++i) {
@@ -286,7 +286,7 @@ TEST_CASE("simd::reduce_sum — within ULP tolerance of scalar", "[simd][cross]"
     REQUIRE_THAT(simd_result, WithinRel(scalar_result, 1e-12));
 }
 
-TEST_CASE("simd::reduce_mean_variance — within ULP tolerance of scalar", "[simd][cross]") {
+TEST_CASE("simd::reduce_mean_variance  - within ULP tolerance of scalar", "[simd][cross]") {
     std::vector<double> data(200);
     for (std::size_t i = 0; i < data.size(); ++i) {
         data[i] = 100.0 + static_cast<double>(i % 50) * 0.37;
@@ -298,7 +298,7 @@ TEST_CASE("simd::reduce_mean_variance — within ULP tolerance of scalar", "[sim
 }
 
 // ============================================================================
-// Indicator Integration Tests — verify SIMD indicators match scalar reference
+// Indicator Integration Tests  - verify SIMD indicators match scalar reference
 // ============================================================================
 
 namespace {
