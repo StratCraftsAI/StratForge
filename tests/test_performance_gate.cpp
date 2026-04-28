@@ -19,8 +19,8 @@
 #if !defined(NDEBUG)
 
 // Debug builds: single passing placeholder prevents non-zero exit code.
-TEST_CASE("Performance gates — Debug build placeholder", "[performance]") {
-    SUCCEED("Performance gates compiled out in Debug — nothing to run");
+TEST_CASE("Performance gates - Debug build placeholder", "[performance]") {
+    SUCCEED("Performance gates compiled out in Debug - nothing to run");
 }
 
 #else  // Release build — real performance gates below

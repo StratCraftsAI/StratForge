@@ -373,7 +373,7 @@ TEST_CASE("CSV reload yields identical OHLCV buffers", "[property][regression][d
 //   I2: Output index P-1 is the first non-NaN value.
 //   I3: minimum_period() reports P.
 //
-TEST_CASE("Indicator warmup invariant — first P-1 outputs are NaN", "[property][regression][indicator]") {
+TEST_CASE("Indicator warmup invariant - first P-1 outputs are NaN", "[property][regression][indicator]") {
     std::mt19937 rng(kSeed + 4);
     std::uniform_int_distribution<std::size_t> period_dist(2, 50);
 

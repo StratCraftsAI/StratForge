@@ -25,7 +25,7 @@ struct CommCase {
 
 } // namespace
 
-TEST_CASE("Commission percentage scheme — table-driven", "[broker][commission][regression]") {
+TEST_CASE("Commission percentage scheme - table-driven", "[broker][commission][regression]") {
     CommissionInfo info{
         .type = CommissionType::Percentage,
         .commission = 0.001, // 0.1%
@@ -46,7 +46,7 @@ TEST_CASE("Commission percentage scheme — table-driven", "[broker][commission]
     }
 }
 
-TEST_CASE("Commission fixed scheme — size-invariant", "[broker][commission][regression]") {
+TEST_CASE("Commission fixed scheme - size-invariant", "[broker][commission][regression]") {
     CommissionInfo info{
         .type = CommissionType::Fixed,
         .commission = 9.99,
@@ -57,7 +57,7 @@ TEST_CASE("Commission fixed scheme — size-invariant", "[broker][commission][re
     REQUIRE_THAT(info.calculate(size, 50.0), WithinRel(9.99, 0.001));
 }
 
-TEST_CASE("Commission per-share scheme — table-driven", "[broker][commission][regression]") {
+TEST_CASE("Commission per-share scheme - table-driven", "[broker][commission][regression]") {
     CommissionInfo info{
         .type = CommissionType::PerShare,
         .commission = 0.005, // $0.005 per share
@@ -72,7 +72,7 @@ TEST_CASE("Commission per-share scheme — table-driven", "[broker][commission][
     REQUIRE_THAT(info.calculate(c.size, c.price), WithinRel(c.expected, 0.001));
 }
 
-TEST_CASE("Commission minimum — applied when below threshold", "[broker][commission][regression]") {
+TEST_CASE("Commission minimum - applied when below threshold", "[broker][commission][regression]") {
     CommissionInfo info{
         .type = CommissionType::PerShare,
         .commission = 0.005,
@@ -88,7 +88,7 @@ TEST_CASE("Commission minimum — applied when below threshold", "[broker][commi
     REQUIRE_THAT(info.calculate(c.size, c.price), WithinRel(c.expected, 0.001));
 }
 
-TEST_CASE("TieredCommission per-share tiers — table-driven", "[broker][commission][tiered][regression]") {
+TEST_CASE("TieredCommission per-share tiers - table-driven", "[broker][commission][tiered][regression]") {
     TieredCommission tiered;
     tiered.tier_type = CommissionType::PerShare;
     tiered.tiers = {
@@ -125,7 +125,7 @@ TEST_CASE("TieredCommission honors minimum commission", "[broker][commission][ti
     REQUIRE_THAT(tiered.calculate(10.0, 50.0), WithinRel(5.0, 0.001));
 }
 
-TEST_CASE("IBCommission per-share with min/max — table-driven", "[broker][commission][ib][regression]") {
+TEST_CASE("IBCommission per-share with min/max - table-driven", "[broker][commission][ib][regression]") {
     IBCommission ib;
     ib.per_share = 0.005;
     ib.min_per_order = 1.0;
