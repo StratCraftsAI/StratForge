@@ -210,6 +210,8 @@ jobs:
             --exclude 'tests/' \
             --exclude 'benchmarks/' \
             --exclude 'examples/' \
+            --gcov-exclude-directories 'build/_deps' \
+            --gcov-ignore-errors=all \
             --xml -o build/coverage.xml \
             --html-details -o build/coverage.html \
             --print-summary
