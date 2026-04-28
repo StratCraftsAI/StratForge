@@ -4,31 +4,20 @@
 #include <stratforge/core/line.hpp>
 #include <stratforge/indicators/candlestick.hpp>
 
+#include "test_helpers.hpp"
+
 #include <vector>
 
 using Catch::Approx;
+using stratforge::test::make_line;
 
-namespace {
-
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double v : values) line.forward(v);
-    line.home();
-    return line;
-}
-
+// Local alias: candlestick tests previously used `run_ohlc`; map it to the
+// canonical `run_indicator_ohlc` from test_helpers.hpp.
 template <typename Ind>
-void run_ohlc(stratforge::Line<double>& o, stratforge::Line<double>& h,
-              stratforge::Line<double>& l, stratforge::Line<double>& c, Ind& ind) {
-    for (std::size_t i = 0; i < c.size(); ++i) {
-        ind.next();
-        if (i + 1 < c.size()) {
-            o.advance(); h.advance(); l.advance(); c.advance();
-        }
-    }
+inline void run_ohlc(::stratforge::Line<double>& o, ::stratforge::Line<double>& h,
+                     ::stratforge::Line<double>& l, ::stratforge::Line<double>& c, Ind& ind) {
+    ::stratforge::test::run_indicator_ohlc(o, h, l, c, ind);
 }
-
-} // namespace
 
 // ============================================================
 // CDLDoji

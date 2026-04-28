@@ -5,63 +5,16 @@
 #include <stratforge/engine/optimizer.hpp>
 #include <stratforge/analyzers/trade_analyzer.hpp>
 
-#include <chrono>
+#include "test_helpers.hpp"
+
 #include <memory>
 #include <vector>
 
 using namespace stratforge;
 using Catch::Matchers::WithinRel;
+using StaticFeed = stratforge::test::StaticFeed;
 
 namespace {
-
-class StaticFeed final : public DataFeed {
-public:
-    struct Bar {
-        double open;
-        double high;
-        double low;
-        double close;
-    };
-
-    explicit StaticFeed(std::vector<Bar> bars, std::string feed_name = "")
-        : bars_(std::move(bars)) {
-        if (!feed_name.empty()) set_name(feed_name);
-    }
-
-    [[nodiscard]] bool load() override {
-        if (loaded_) return false;
-        const auto base = std::chrono::system_clock::time_point{};
-        for (std::size_t i = 0; i < bars_.size(); ++i) {
-            const auto& bar = bars_[i];
-            datetime().forward(base + std::chrono::hours(24 * static_cast<int>(i)));
-            open().forward(bar.open);
-            high().forward(bar.high);
-            low().forward(bar.low);
-            close().forward(bar.close);
-            volume().forward(1000.0);
-            openinterest().forward(0.0);
-        }
-        datetime().home();
-        open().home();
-        high().home();
-        low().home();
-        close().home();
-        volume().home();
-        openinterest().home();
-        loaded_ = true;
-        return !bars_.empty();
-    }
-
-    [[nodiscard]] std::unique_ptr<DataFeed> clone() const override {
-        auto cloned = std::make_unique<StaticFeed>(bars_);
-        cloned->set_name(name());
-        return cloned;
-    }
-
-private:
-    std::vector<Bar> bars_;
-    bool loaded_ = false;
-};
 
 class SimpleMAStrategy : public Strategy {
 public:

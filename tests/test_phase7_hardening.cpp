@@ -13,6 +13,8 @@
 #include <stratforge/indicators/sma.hpp>
 #include <stratforge/indicators/stddev.hpp>
 
+#include "test_helpers.hpp"
+
 #include <filesystem>
 #include <fstream>
 #include <stdexcept>
@@ -20,13 +22,13 @@
 #include <vector>
 
 using Catch::Matchers::WithinRel;
+using stratforge::test::make_line;
+using stratforge::test::tmp_path;
 
 namespace {
 
-std::string tmp_path(const std::string& filename) {
-    return (std::filesystem::temp_directory_path() / filename).string();
-}
-
+// Phase7-specific CSV builder: writes OHLCV header automatically.
+// Distinct from the generic write_csv() in test_helpers.hpp.
 std::string create_test_csv(const std::string& filename, const std::vector<std::string>& rows) {
     const std::string path = tmp_path(filename);
     std::ofstream file(path);
@@ -35,15 +37,6 @@ std::string create_test_csv(const std::string& filename, const std::vector<std::
         file << row << '\n';
     }
     return path;
-}
-
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double value : values) {
-        line.forward(value);
-    }
-    line.home();
-    return line;
 }
 
 } // namespace

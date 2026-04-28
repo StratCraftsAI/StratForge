@@ -4,23 +4,21 @@
 #include <stratforge/core/line.hpp>
 #include <stratforge/indicators/mavp.hpp>
 
+#include "test_helpers.hpp"
+
 #include <cmath>
 #include <vector>
 
 using Catch::Approx;
+using stratforge::test::make_line;
 
 namespace {
 
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double v : values) line.forward(v);
-    line.home();
-    return line;
-}
-
+// MAVP-specific drive loop: takes both source and period lines and returns the
+// per-bar output vector. Distinct signature from run_indicator() in helpers.
 template <typename Ind>
-std::vector<double> run_indicator(stratforge::Line<double>& src,
-                                  stratforge::Line<double>& per, Ind& ind) {
+std::vector<double> run_indicator(::stratforge::Line<double>& src,
+                                  ::stratforge::Line<double>& per, Ind& ind) {
     std::vector<double> results;
     for (std::size_t i = 0; i < src.size(); ++i) {
         ind.next();

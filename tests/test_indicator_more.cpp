@@ -29,33 +29,14 @@
 #include <stratforge/indicators/zerolag.hpp>
 #include <stratforge/indicators/zlema.hpp>
 
+#include "test_helpers.hpp"
+
 #include <cmath>
 #include <vector>
 
 using Catch::Approx;
-
-namespace {
-
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double value : values) {
-        line.forward(value);
-    }
-    line.home();
-    return line;
-}
-
-template <typename IndicatorType>
-void run_indicator(stratforge::Line<double>& source, IndicatorType& indicator) {
-    for (std::size_t i = 0; i < source.size(); ++i) {
-        indicator.next();
-        if (i + 1 < source.size()) {
-            source.advance();
-        }
-    }
-}
-
-} // namespace
+using stratforge::test::make_line;
+using stratforge::test::run_indicator;
 
 TEST_CASE("Momentum emits NaN during warmup then trailing differences", "[indicator][momentum]") {
     auto source = make_line({10.0, 11.0, 13.0, 12.0, 15.0});

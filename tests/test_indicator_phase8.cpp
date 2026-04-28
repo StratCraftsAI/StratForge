@@ -13,6 +13,7 @@
 #include <stratforge/indicators/hurst.hpp>
 
 #include "golden_reference.hpp"
+#include "test_helpers.hpp"
 
 #include <cmath>
 #include <filesystem>
@@ -21,6 +22,8 @@
 
 using Catch::Matchers::WithinRel;
 using Catch::Approx;
+using stratforge::test::make_line;
+using stratforge::test::run_indicator;
 
 namespace {
 
@@ -28,23 +31,10 @@ std::string source_path(const std::string& relative) {
     return (std::filesystem::path(SF_SOURCE_DIR) / relative).string();
 }
 
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double value : values) {
-        line.forward(value);
-    }
-    line.home();
-    return line;
-}
-
+// Backward-compat alias: previous local helper called this `run_single_line_indicator`
 template <typename IndicatorType>
-void run_single_line_indicator(stratforge::Line<double>& source, IndicatorType& indicator) {
-    for (std::size_t i = 0; i < source.size(); ++i) {
-        indicator.next();
-        if (i + 1 < source.size()) {
-            source.advance();
-        }
-    }
+inline void run_single_line_indicator(::stratforge::Line<double>& source, IndicatorType& indicator) {
+    ::stratforge::test::run_indicator(source, indicator);
 }
 
 struct IchimokuGoldenReference {

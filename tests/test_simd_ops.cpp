@@ -1,4 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+#include <catch2/generators/catch_generators_range.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <stratforge/simd/simd_ops.hpp>
@@ -12,6 +14,9 @@
 #include <stratforge/indicators/rsi.hpp>
 #include <stratforge/indicators/statistics.hpp>
 
+#include "test_helpers.hpp"
+
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <limits>
@@ -21,6 +26,7 @@
 
 using Catch::Matchers::WithinRel;
 using Catch::Matchers::WithinAbs;
+using stratforge::test::make_line;
 
 // ============================================================================
 // Runtime Dispatch Verification
@@ -303,14 +309,6 @@ TEST_CASE("simd::reduce_mean_variance  - within ULP tolerance of scalar", "[simd
 
 namespace {
 
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (const auto& v : values) {
-        line.forward(v);
-    }
-    return line;
-}
-
 template <typename Indicator>
 void run_all(stratforge::Line<double>& source, Indicator& ind) {
     source.home();
@@ -457,4 +455,238 @@ TEST_CASE("Correlation with SIMD matches scalar reference", "[simd][indicator]")
     for (std::size_t i = period - 1; i < test_data.size(); ++i) {
         REQUIRE_THAT(corr.line().data()[i], WithinAbs(1.0, 1e-10));
     }
+}
+
+// ============================================================================
+//  Phase D: Systematic SIMD scalar/vector consistency tests.
+//
+// Coverage: every indicator that delegates a hot-path window reduction to
+// `stratforge::simd::*` is cross-validated against the `stratforge::simd::scalar::*`
+// reference across a parametric size sweep that targets SSE/AVX/AVX-512
+// batch boundaries (upstream Pattern 4).
+//
+// Audit (2026-04-28): seven SIMD-using indicators identified — SMA,
+// BollingerBands, StdDev, Variance, Highest, Lowest, Correlation. All seven
+// are covered below.  Other moving averages (EMA/WMA/DEMA/TEMA) and
+// momentum / range indicators (ATR, RSI, MACD, ROC, LinearReg, OLS) use
+// scalar inner loops and are intentionally not part of this matrix.
+// ============================================================================
+
+namespace {
+
+/// Parametric size set covering SSE2 (bs=2), AVX2 (bs=4), AVX-512 (bs=8)
+/// scalar-tail boundaries plus a few non-power-of-two values that also
+/// exercise the multi-batch path.  Each size must be ≥ the smallest period
+/// used below (we use period=5).
+constexpr std::array<std::size_t, 13> kPhaseDBoundarySizes = {
+    5, 7, 8, 9, 15, 16, 17, 31, 32, 33, 64, 127, 256
+};
+
+/// Deterministic OHLCV-shaped synthetic series; sufficient variation for
+/// min/max/sum/variance to differ across windows.
+inline std::vector<double> phase_d_series(std::size_t count) {
+    std::vector<double> v;
+    v.reserve(count);
+    for (std::size_t i = 0; i < count; ++i) {
+        const double t = static_cast<double>(i);
+        v.push_back(100.0 + std::sin(t * 0.37) * 5.0 + std::cos(t * 0.13) * 2.5
+                    + (i % 17 == 0 ? 1.5 : 0.0));
+    }
+    return v;
+}
+
+} // namespace
+
+TEST_CASE("Phase D SMA: scalar reference parity across boundary sizes",
+          "[simd][indicator][sma][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const std::size_t period = 5;
+    const auto data = phase_d_series(count);
+    auto source = make_line(data);
+
+    stratforge::SMA sma(source, period);
+    run_all(source, sma);
+
+    INFO("count=" << count << " period=" << period);
+    for (std::size_t i = period - 1; i < count; ++i) {
+        const double expected =
+            stratforge::simd::scalar::reduce_sum(&data[i - period + 1], period)
+            / static_cast<double>(period);
+        REQUIRE_THAT(sma.line().data()[i], WithinRel(expected, 1e-12));
+    }
+}
+
+TEST_CASE("Phase D BollingerBands: scalar reference parity across boundary sizes",
+          "[simd][indicator][bollinger][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const std::size_t period = 5;
+    constexpr double devfactor = 2.0;
+    const auto data = phase_d_series(count);
+    auto source = make_line(data);
+
+    stratforge::BollingerBands bb(source, period, devfactor);
+    run_all(source, bb);
+
+    INFO("count=" << count << " period=" << period);
+    for (std::size_t i = period - 1; i < count; ++i) {
+        const auto [mean, var] =
+            stratforge::simd::scalar::reduce_mean_variance(&data[i - period + 1], period);
+        const double sd = std::sqrt(var);
+        REQUIRE_THAT(bb.mid().data()[i], WithinRel(mean, 1e-12));
+        REQUIRE_THAT(bb.top().data()[i], WithinRel(mean + devfactor * sd, 1e-12));
+        REQUIRE_THAT(bb.bottom().data()[i], WithinRel(mean - devfactor * sd, 1e-12));
+    }
+}
+
+TEST_CASE("Phase D StdDev: scalar reference parity across boundary sizes",
+          "[simd][indicator][stddev][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const std::size_t period = 5;
+    const auto data = phase_d_series(count);
+    auto source = make_line(data);
+
+    stratforge::StdDev sd(source, period);
+    run_all(source, sd);
+
+    INFO("count=" << count << " period=" << period);
+    for (std::size_t i = period - 1; i < count; ++i) {
+        const auto [mean, var] =
+            stratforge::simd::scalar::reduce_mean_variance(&data[i - period + 1], period);
+        REQUIRE_THAT(sd.line().data()[i], WithinRel(std::sqrt(var), 1e-12));
+    }
+}
+
+TEST_CASE("Phase D Variance: scalar reference parity across boundary sizes",
+          "[simd][indicator][variance][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const std::size_t period = 5;
+    const auto data = phase_d_series(count);
+    auto source = make_line(data);
+
+    stratforge::Variance v(source, period);
+    run_all(source, v);
+
+    INFO("count=" << count << " period=" << period);
+    for (std::size_t i = period - 1; i < count; ++i) {
+        const auto [mean, expected_var] =
+            stratforge::simd::scalar::reduce_mean_variance(&data[i - period + 1], period);
+        REQUIRE_THAT(v.line().data()[i], WithinRel(expected_var, 1e-12));
+    }
+}
+
+TEST_CASE("Phase D Highest: scalar reference parity across boundary sizes",
+          "[simd][indicator][highest][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const std::size_t period = 5;
+    const auto data = phase_d_series(count);
+    auto source = make_line(data);
+
+    stratforge::Highest h(source, period);
+    run_all(source, h);
+
+    INFO("count=" << count << " period=" << period);
+    for (std::size_t i = period - 1; i < count; ++i) {
+        const double expected =
+            stratforge::simd::scalar::reduce_max(&data[i - period + 1], period);
+        REQUIRE(h.line().data()[i] == expected);
+    }
+}
+
+TEST_CASE("Phase D Lowest: scalar reference parity across boundary sizes",
+          "[simd][indicator][lowest][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const std::size_t period = 5;
+    const auto data = phase_d_series(count);
+    auto source = make_line(data);
+
+    stratforge::Lowest l(source, period);
+    run_all(source, l);
+
+    INFO("count=" << count << " period=" << period);
+    for (std::size_t i = period - 1; i < count; ++i) {
+        const double expected =
+            stratforge::simd::scalar::reduce_min(&data[i - period + 1], period);
+        REQUIRE(l.line().data()[i] == expected);
+    }
+}
+
+TEST_CASE("Phase D Correlation: scalar reference parity across boundary sizes",
+          "[simd][indicator][correlation][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const std::size_t period = 5;
+    const auto data0 = phase_d_series(count);
+    std::vector<double> data1;
+    data1.reserve(count);
+    for (double v : data0) { data1.push_back(v * 1.5 + 10.0); }
+
+    auto source0 = make_line(data0);
+    auto source1 = make_line(data1);
+    stratforge::Correlation corr(source0, source1, period);
+
+    source0.home();
+    source1.home();
+    for (std::size_t i = 0; i < count; ++i) {
+        corr.next();
+        if (i + 1 < count) {
+            source0.advance();
+            source1.advance();
+        }
+    }
+
+    INFO("count=" << count << " period=" << period);
+    // Perfectly linear relationship => correlation == 1.0 (within ULP slop).
+    for (std::size_t i = period - 1; i < count; ++i) {
+        REQUIRE_THAT(corr.line().data()[i], WithinAbs(1.0, 1e-10));
+    }
+}
+
+// ----------------------------------------------------------------------------
+// Phase D primitive-level GENERATE boundary sweep
+// ----------------------------------------------------------------------------
+//
+// Replaces the loop-driven sweep in the legacy
+// "simd  - boundary sweep" block with a Catch2 GENERATE so each boundary size
+// is reported as an independent run-time test instance — failures pinpoint
+// the offending size directly in the test runner output.
+//
+// The legacy loop-based sweep above is retained because it also asserts at
+// count={2*bs, 2*bs+1, ...} which depend on the active SIMD ISA detected at
+// runtime; this GENERATE pass is the human-auditable subset.
+
+TEST_CASE("Phase D primitive parity: reduce_sum at every boundary size",
+          "[simd][boundary][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const auto data = phase_d_series(count);
+    INFO("count=" << count);
+    REQUIRE_THAT(stratforge::simd::reduce_sum(data.data(), count),
+                 WithinRel(stratforge::simd::scalar::reduce_sum(data.data(), count), 1e-12));
+}
+
+TEST_CASE("Phase D primitive parity: reduce_min at every boundary size",
+          "[simd][boundary][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const auto data = phase_d_series(count);
+    INFO("count=" << count);
+    REQUIRE(stratforge::simd::reduce_min(data.data(), count)
+            == stratforge::simd::scalar::reduce_min(data.data(), count));
+}
+
+TEST_CASE("Phase D primitive parity: reduce_max at every boundary size",
+          "[simd][boundary][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const auto data = phase_d_series(count);
+    INFO("count=" << count);
+    REQUIRE(stratforge::simd::reduce_max(data.data(), count)
+            == stratforge::simd::scalar::reduce_max(data.data(), count));
+}
+
+TEST_CASE("Phase D primitive parity: reduce_mean_variance at every boundary size",
+          "[simd][boundary][regression]") {
+    const std::size_t count = GENERATE(from_range(kPhaseDBoundarySizes));
+    const auto data = phase_d_series(count);
+    INFO("count=" << count);
+    const auto [s_mean, s_var] = stratforge::simd::scalar::reduce_mean_variance(data.data(), count);
+    const auto [v_mean, v_var] = stratforge::simd::reduce_mean_variance(data.data(), count);
+    REQUIRE_THAT(v_mean, WithinRel(s_mean, 1e-12));
+    REQUIRE_THAT(v_var,  WithinRel(s_var,  1e-10));
 }

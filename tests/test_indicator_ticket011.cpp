@@ -20,61 +20,16 @@
 #include <stratforge/indicators/linearreg.hpp>
 #include <stratforge/indicators/macdext.hpp>
 
+#include "test_helpers.hpp"
+
 #include <cmath>
 #include <vector>
 
 using Catch::Approx;
-
-namespace {
-
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double value : values) {
-        line.forward(value);
-    }
-    line.home();
-    return line;
-}
-
-template <typename IndicatorType>
-void run_indicator(stratforge::Line<double>& source, IndicatorType& indicator) {
-    for (std::size_t i = 0; i < source.size(); ++i) {
-        indicator.next();
-        if (i + 1 < source.size()) {
-            source.advance();
-        }
-    }
-}
-
-template <typename IndicatorType>
-void run_indicator_ohlc(stratforge::Line<double>& open, stratforge::Line<double>& high,
-                        stratforge::Line<double>& low, stratforge::Line<double>& close,
-                        IndicatorType& indicator) {
-    for (std::size_t i = 0; i < close.size(); ++i) {
-        indicator.next();
-        if (i + 1 < close.size()) {
-            open.advance();
-            high.advance();
-            low.advance();
-            close.advance();
-        }
-    }
-}
-
-template <typename IndicatorType>
-void run_indicator_hlc(stratforge::Line<double>& high, stratforge::Line<double>& low,
-                       stratforge::Line<double>& close, IndicatorType& indicator) {
-    for (std::size_t i = 0; i < close.size(); ++i) {
-        indicator.next();
-        if (i + 1 < close.size()) {
-            high.advance();
-            low.advance();
-            close.advance();
-        }
-    }
-}
-
-} // namespace
+using stratforge::test::make_line;
+using stratforge::test::run_indicator;
+using stratforge::test::run_indicator_hlc;
+using stratforge::test::run_indicator_ohlc;
 
 // --- AvgPrice ---
 

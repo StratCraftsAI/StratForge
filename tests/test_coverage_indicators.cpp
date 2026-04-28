@@ -11,76 +11,18 @@
 #include <stratforge/indicators/oscillator.hpp>
 #include <stratforge/indicators/oscillator_extra.hpp>
 
+#include "test_helpers.hpp"
+
 #include <cmath>
 #include <vector>
 
 using Catch::Approx;
-
-namespace {
-
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double value : values) {
-        line.forward(value);
-    }
-    line.home();
-    return line;
-}
-
-template <typename IndicatorType>
-void run_indicator(stratforge::Line<double>& source, IndicatorType& indicator) {
-    for (std::size_t i = 0; i < source.size(); ++i) {
-        indicator.next();
-        if (i + 1 < source.size()) {
-            source.advance();
-        }
-    }
-}
-
-template <typename IndicatorType>
-void run_indicator_hl(stratforge::Line<double>& high, stratforge::Line<double>& low,
-                      IndicatorType& indicator) {
-    for (std::size_t i = 0; i < high.size(); ++i) {
-        indicator.next();
-        if (i + 1 < high.size()) {
-            high.advance();
-            low.advance();
-        }
-    }
-}
-
-template <typename IndicatorType>
-void run_indicator_hlc(stratforge::Line<double>& high, stratforge::Line<double>& low,
-                       stratforge::Line<double>& close, IndicatorType& indicator) {
-    for (std::size_t i = 0; i < close.size(); ++i) {
-        indicator.next();
-        if (i + 1 < close.size()) {
-            high.advance();
-            low.advance();
-            close.advance();
-        }
-    }
-}
-
-std::vector<double> generate_sine_data(std::size_t count, double base = 100.0, double amplitude = 10.0) {
-    std::vector<double> values;
-    values.reserve(count);
-    for (std::size_t i = 0; i < count; ++i) {
-        values.push_back(base + std::sin(static_cast<double>(i) * 0.3) * amplitude);
-    }
-    return values;
-}
-
-std::vector<double> generate_trend_data(std::size_t count, double start = 100.0, double step = 1.0) {
-    std::vector<double> values;
-    values.reserve(count);
-    for (std::size_t i = 0; i < count; ++i) {
-        values.push_back(start + static_cast<double>(i) * step);
-    }
-    return values;
-}
-
-} // namespace
+using stratforge::test::generate_sine_data;
+using stratforge::test::generate_trend_data;
+using stratforge::test::make_line;
+using stratforge::test::run_indicator;
+using stratforge::test::run_indicator_hl;
+using stratforge::test::run_indicator_hlc;
 
 // =============================================================================
 // StochasticSlow (alias for Stochastic)

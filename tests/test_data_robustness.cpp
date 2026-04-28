@@ -5,9 +5,9 @@
 #include <stratforge/data/replay.hpp>
 #include <stratforge/data/resampler.hpp>
 
+#include "test_helpers.hpp"
+
 #include <cmath>
-#include <filesystem>
-#include <fstream>
 #include <iomanip>
 #include <limits>
 #include <sstream>
@@ -15,60 +15,15 @@
 
 using namespace stratforge;
 using Catch::Matchers::WithinRel;
+using InMemoryFeed = stratforge::test::InMemoryFeed;
+using stratforge::test::tmp_path;
 
 namespace {
 
-std::string tmp_path(const std::string& filename) {
-    return (std::filesystem::temp_directory_path() / filename).string();
-}
-
-/// Write content to a temp CSV file and return the path
+/// Write content to a temp CSV file and return the path (preserves legacy "nbt_test_robustness_" prefix).
 std::string write_csv(const std::string& name, const std::string& content) {
-    std::string path = tmp_path("nbt_test_robustness_" + name + ".csv");
-    std::ofstream f(path);
-    f << content;
-    f.close();
-    return path;
+    return stratforge::test::write_csv(name + ".csv", content, "nbt_test_robustness_");
 }
-
-/// Create a programmatic DataFeed with injected values (no file I/O)
-class InMemoryFeed : public DataFeed {
-public:
-    struct Bar {
-        DateTime dt;
-        double o, h, l, c, v;
-    };
-
-    explicit InMemoryFeed(std::vector<Bar> bars) : bars_(std::move(bars)) {}
-
-    [[nodiscard]] bool load() override {
-        if (loaded_) return false;
-        loaded_ = true;
-        for (const auto& b : bars_) {
-            datetime_.forward(b.dt);
-            open_.forward(b.o);
-            high_.forward(b.h);
-            low_.forward(b.l);
-            close_.forward(b.c);
-            volume_.forward(b.v);
-            openinterest_.forward(0.0);
-        }
-        datetime_.home();
-        open_.home();
-        high_.home();
-        low_.home();
-        close_.home();
-        volume_.home();
-        openinterest_.home();
-        return !bars_.empty();
-    }
-
-    [[nodiscard]] std::unique_ptr<DataFeed> clone() const override { return nullptr; }
-
-private:
-    std::vector<Bar> bars_;
-    bool loaded_ = false;
-};
 
 DateTime make_dt(int year, int mon, int day) {
     std::tm tm = {};

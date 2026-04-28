@@ -3,21 +3,12 @@
 #include <stratforge/core/line.hpp>
 #include <stratforge/indicators/truerange.hpp>
 
+#include "test_helpers.hpp"
+
 #include <cmath>
 #include <vector>
 
-namespace {
-
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double value : values) {
-        line.forward(value);
-    }
-    line.home();
-    return line;
-}
-
-} // namespace
+using stratforge::test::make_line;
 
 TEST_CASE("TrueRange emits NaN on first bar and then max of range and gap distances", "[indicator][truerange]") {
     auto high = make_line({10.0, 13.0, 14.0});

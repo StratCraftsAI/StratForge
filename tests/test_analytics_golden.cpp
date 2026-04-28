@@ -10,8 +10,8 @@
 #include <stratforge/observers/value.hpp>
 
 #include "golden_reference.hpp"
+#include "test_helpers.hpp"
 
-#include <chrono>
 #include <cmath>
 #include <limits>
 #include <memory>
@@ -20,56 +20,13 @@
 
 using namespace stratforge;
 using Catch::Matchers::WithinRel;
+using StaticFeed = stratforge::test::StaticFeed;
 
 namespace {
 
 std::string source_path(const std::string& relative) {
     return std::string(SF_SOURCE_DIR) + "/" + relative;
 }
-
-class StaticFeed final : public DataFeed {
-public:
-    struct Bar {
-        double open;
-        double high;
-        double low;
-        double close;
-    };
-
-    explicit StaticFeed(std::vector<Bar> bars) : bars_(std::move(bars)) {}
-
-    [[nodiscard]] bool load() override {
-        if (loaded_) {
-            return false;
-        }
-
-        const auto base = std::chrono::system_clock::time_point{};
-        for (std::size_t i = 0; i < bars_.size(); ++i) {
-            const auto& bar = bars_[i];
-            datetime().forward(base + std::chrono::hours(24 * static_cast<int>(i)));
-            open().forward(bar.open);
-            high().forward(bar.high);
-            low().forward(bar.low);
-            close().forward(bar.close);
-            volume().forward(1000.0);
-            openinterest().forward(0.0);
-        }
-
-        datetime().home();
-        open().home();
-        high().home();
-        low().home();
-        close().home();
-        volume().home();
-        openinterest().home();
-        loaded_ = true;
-        return !bars_.empty();
-    }
-
-private:
-    std::vector<Bar> bars_;
-    bool loaded_ = false;
-};
 
 class AnalyticsStrategy final : public Strategy {
 public:
@@ -106,7 +63,7 @@ TEST_CASE("Phase 6 analytics match backtrader golden reference", "[golden][analy
         {110.0, 111.0, 109.0, 110.5},
         {90.0, 91.0, 89.0, 90.5},
         {120.0, 121.0, 119.0, 120.5},
-    }), "main");
+    }, "main", 1000.0, 0.0));
     cerebro.add_strategy<AnalyticsStrategy>();
 
     auto& trade_analyzer = cerebro.add_analyzer<TradeAnalyzer>();

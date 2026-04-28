@@ -5,23 +5,13 @@
 #include <stratforge/indicators/pattern.hpp>
 #include <stratforge/indicators/volume.hpp>
 
+#include "test_helpers.hpp"
+
 #include <cmath>
 #include <vector>
 
 using Catch::Approx;
-
-namespace {
-
-stratforge::Line<double> make_line(const std::vector<double>& values) {
-    stratforge::Line<double> line;
-    for (double value : values) {
-        line.forward(value);
-    }
-    line.home();
-    return line;
-}
-
-} // namespace
+using stratforge::test::make_line;
 
 TEST_CASE("Klinger oscillator produces finite oscillator and signal outputs after initialization", "[indicator][phase8][klinger]") {
     auto high = make_line({10, 11, 12, 13, 12, 11, 13, 15, 14, 16});

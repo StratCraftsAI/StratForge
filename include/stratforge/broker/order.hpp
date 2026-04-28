@@ -82,39 +82,41 @@ struct Order {
         return !is_alive();
     }
 
-    /// Submit the order
-    void submit() noexcept { status = OrderStatus::Submitted; }
+    /// Submit the order (no-op if already in terminal state)
+    void submit() noexcept { if (!is_complete()) status = OrderStatus::Submitted; }
 
-    /// Accept the order
-    void accept() noexcept { status = OrderStatus::Accepted; }
+    /// Accept the order (no-op if already in terminal state)
+    void accept() noexcept { if (!is_complete()) status = OrderStatus::Accepted; }
 
-    /// Execute (fill) the order
+    /// Execute (fill) the order (no-op if already in terminal state)
     void execute(double fill_price, double fill_size, double comm) noexcept {
+        if (is_complete()) return;
         executed_price = fill_price;
         executed_size = fill_size;
         commission = comm;
         status = OrderStatus::Completed;
     }
 
-    /// Partially fill the order
+    /// Partially fill the order (no-op if already in terminal state)
     void partial_fill(double fill_price, double fill_size, double comm) noexcept {
+        if (is_complete()) return;
         executed_price = fill_price;
         executed_size += fill_size;
         commission += comm;
         status = OrderStatus::Partial;
     }
 
-    /// Cancel the order
-    void cancel() noexcept { status = OrderStatus::Canceled; }
+    /// Cancel the order (no-op if already in terminal state)
+    void cancel() noexcept { if (!is_complete()) status = OrderStatus::Canceled; }
 
-    /// Reject the order
-    void reject() noexcept { status = OrderStatus::Rejected; }
+    /// Reject the order (no-op if already in terminal state)
+    void reject() noexcept { if (!is_complete()) status = OrderStatus::Rejected; }
 
-    /// Mark as expired
-    void expire() noexcept { status = OrderStatus::Expired; }
+    /// Mark as expired (no-op if already in terminal state)
+    void expire() noexcept { if (!is_complete()) status = OrderStatus::Expired; }
 
-    /// Mark as margin call
-    void margin() noexcept { status = OrderStatus::Margin; }
+    /// Mark as margin call (no-op if already in terminal state)
+    void margin() noexcept { if (!is_complete()) status = OrderStatus::Margin; }
 };
 
 } // namespace stratforge

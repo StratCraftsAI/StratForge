@@ -3,58 +3,14 @@
 
 #include <stratforge/broker/broker.hpp>
 
+#include "test_helpers.hpp"
+
 #include <chrono>
 #include <vector>
 
 using namespace stratforge;
 using Catch::Matchers::WithinRel;
-
-namespace {
-
-class StaticFeed final : public DataFeed {
-public:
-    struct Bar {
-        double open;
-        double high;
-        double low;
-        double close;
-    };
-
-    explicit StaticFeed(std::vector<Bar> bars) : bars_(std::move(bars)) {}
-
-    [[nodiscard]] bool load() override {
-        if (loaded_) {
-            return false;
-        }
-
-        const auto base = std::chrono::system_clock::time_point{};
-        for (std::size_t i = 0; i < bars_.size(); ++i) {
-            const auto& bar = bars_[i];
-            datetime().forward(base + std::chrono::hours(24 * static_cast<int>(i)));
-            open().forward(bar.open);
-            high().forward(bar.high);
-            low().forward(bar.low);
-            close().forward(bar.close);
-            volume().forward(1000.0);
-            openinterest().forward(0.0);
-        }
-        datetime().home();
-        open().home();
-        high().home();
-        low().home();
-        close().home();
-        volume().home();
-        openinterest().home();
-        loaded_ = true;
-        return !bars_.empty();
-    }
-
-private:
-    std::vector<Bar> bars_;
-    bool loaded_ = false;
-};
-
-} // namespace
+using StaticFeed = stratforge::test::StaticFeed;
 
 TEST_CASE("Position update matches long-short lifecycle semantics", "[broker][position]") {
     Position position;
