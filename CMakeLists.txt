@@ -13,6 +13,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(SF_BUILD_TESTS "Build tests" ON)
 option(SF_BUILD_EXAMPLES "Build examples" ON)
 option(SF_BUILD_BENCHMARKS "Build benchmarks" ON)
+option(SF_ENABLE_SIMD "Enable SIMD optimizations (AVX2)" OFF)
+option(SF_ENABLE_COVERAGE "Enable coverage instrumentation (GCC/Clang)" OFF)
 
 # Dependencies via FetchContent
 include(FetchContent)
@@ -70,6 +72,25 @@ target_include_directories(stratforge INTERFACE
     $<INSTALL_INTERFACE:include>
 )
 target_compile_features(stratforge INTERFACE cxx_std_23)
+
+# SIMD flags (consumer-facing via INTERFACE)
+if(SF_ENABLE_SIMD)
+    if(MSVC)
+        target_compile_options(stratforge INTERFACE /arch:AVX2)
+    else()
+        target_compile_options(stratforge INTERFACE -mavx2)
+    endif()
+endif()
+
+# Coverage instrumentation
+if(SF_ENABLE_COVERAGE)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(--coverage -fprofile-arcs -ftest-coverage -fno-inline -O0)
+        add_link_options(--coverage)
+    else()
+        message(WARNING "SF_ENABLE_COVERAGE only supported with GCC/Clang")
+    endif()
+endif()
 
 # Tests
 if(SF_BUILD_TESTS)

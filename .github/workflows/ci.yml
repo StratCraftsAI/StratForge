@@ -191,8 +191,7 @@ jobs:
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_CXX_FLAGS="--coverage -fprofile-arcs -ftest-coverage -O0" \
-            -DCMAKE_EXE_LINKER_FLAGS="--coverage" \
+            -DSF_ENABLE_COVERAGE=ON \
             -DSF_BUILD_TESTS=ON \
             -DSF_BUILD_BENCHMARKS=OFF \
             -DSF_BUILD_EXAMPLES=OFF
@@ -224,6 +223,15 @@ jobs:
             build/coverage.html
             build/coverage.*.html
           retention-days: 30
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: build/coverage.xml
+          flags: unittests
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   # ---------------------------------------------------------------------------
   # Sanitizer builds (Linux GCC)
