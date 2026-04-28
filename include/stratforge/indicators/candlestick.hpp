@@ -89,7 +89,7 @@ class CDLEngulfing : public Indicator<CDLEngulfing> {
 public:
     CDLEngulfing(const Line<double>& open, const Line<double>& high,
                  const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -120,8 +120,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -222,7 +220,7 @@ class CDLHarami : public Indicator<CDLHarami> {
 public:
     CDLHarami(const Line<double>& open, const Line<double>& high,
               const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -253,8 +251,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -412,7 +408,7 @@ class CDLThreeWhiteSoldiers : public Indicator<CDLThreeWhiteSoldiers> {
 public:
     CDLThreeWhiteSoldiers(const Line<double>& open, const Line<double>& high,
                           const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -435,8 +431,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -446,7 +440,7 @@ class CDLThreeBlackCrows : public Indicator<CDLThreeBlackCrows> {
 public:
     CDLThreeBlackCrows(const Line<double>& open, const Line<double>& high,
                        const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -469,8 +463,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -480,7 +472,7 @@ class CDLPiercingLine : public Indicator<CDLPiercingLine> {
 public:
     CDLPiercingLine(const Line<double>& open, const Line<double>& high,
                     const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -500,8 +492,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -511,7 +501,7 @@ class CDLDarkCloudCover : public Indicator<CDLDarkCloudCover> {
 public:
     CDLDarkCloudCover(const Line<double>& open, const Line<double>& high,
                       const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -531,8 +521,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -584,7 +572,7 @@ class CDLThreeInside : public Indicator<CDLThreeInside> {
 public:
     CDLThreeInside(const Line<double>& open, const Line<double>& high,
                    const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -617,8 +605,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -628,7 +614,7 @@ class CDLThreeOutside : public Indicator<CDLThreeOutside> {
 public:
     CDLThreeOutside(const Line<double>& open, const Line<double>& high,
                     const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -661,8 +647,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -800,7 +784,7 @@ class CDLHomingPigeon : public Indicator<CDLHomingPigeon> {
 public:
     CDLHomingPigeon(const Line<double>& open, const Line<double>& high,
                     const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
+        : open_(open), close_(close) {}
 
     void next_impl() {
         if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
@@ -821,8 +805,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
 };
 
@@ -833,7 +815,7 @@ public:
     CDLMatchingLow(const Line<double>& open, const Line<double>& high,
                    const Line<double>& low, const Line<double>& close,
                    double tolerance = 0.001)
-        : open_(open), high_(high), low_(low), close_(close),
+        : open_(open), close_(close),
           tolerance_(tolerance) {}
 
     void next_impl() {
@@ -856,8 +838,6 @@ public:
 
 private:
     const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
     const Line<double>& close_;
     double tolerance_;
 };
