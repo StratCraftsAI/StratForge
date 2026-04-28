@@ -22,7 +22,12 @@ std::string to_iso_string(stratforge::DateTime dt) {
     using namespace std::chrono;
     auto s = duration_cast<seconds>(dt.time_since_epoch()).count();
     std::time_t t = static_cast<std::time_t>(s);
+#ifdef _MSC_VER
+    std::tm tm{};
+    gmtime_s(&tm, &t);
+#else
     std::tm tm = *std::gmtime(&t);
+#endif
     std::ostringstream oss;
     oss << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S");
     return oss.str();

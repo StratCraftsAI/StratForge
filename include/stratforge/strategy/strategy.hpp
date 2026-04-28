@@ -53,10 +53,11 @@ public:
     // --- Notification callbacks ---
 
     /// Called when an order changes status
-    virtual void notify_order(const Order& order) {}
+    virtual void notify_order([[maybe_unused]] const Order& order) {}
 
     /// Called when a trade changes status
-    virtual void notify_trade(const Trade& trade, double original_size) {}
+    virtual void notify_trade([[maybe_unused]] const Trade& trade,
+                              [[maybe_unused]] double original_size) {}
 
     // --- Sizer ---
 
