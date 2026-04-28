@@ -3,6 +3,7 @@ build/
 build-gcc/
 cmake-build-*/
 out/
+test/
 
 # IDE files
 .idea/

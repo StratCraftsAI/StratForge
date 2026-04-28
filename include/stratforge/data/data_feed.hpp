@@ -48,7 +48,7 @@ public:
     /// load() returning false is normal termination (no more data), not an error.
     /// Override in subclasses (e.g. CsvData) for richer error diagnostics.
     [[nodiscard]] virtual std::expected<void, DataError> load_with_error() {
-        load();
+        (void)load();
         return {};
     }
 

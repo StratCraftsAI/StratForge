@@ -3,9 +3,9 @@
 #include <stratforge/data/data_feed.hpp>
 
 #include <algorithm>
-#include <charconv>
 #include <chrono>
 #include <cstddef>
+#include <cstdlib>
 #include <expected>
 #include <fstream>
 #include <iterator>
@@ -240,7 +240,7 @@ private:
         const char* begin = s.data();
         const char* end = s.data() + s.size();
 
-        // Skip leading whitespace (from_chars does not tolerate it)
+        // Skip leading whitespace
         while (begin < end && (*begin == ' ' || *begin == '\t')) {
             ++begin;
         }
@@ -255,7 +255,7 @@ private:
             return 0.0;
         }
 
-        // Skip leading '+' — from_chars rejects it, but Python float() accepts it
+        // Skip leading '+' — strtod handles it, but be explicit for clarity
         // (backtrader compat: "+1.5", "+inf" are valid numeric inputs)
         if (*begin == '+') ++begin;
         if (begin == end) {
@@ -263,23 +263,20 @@ private:
             return 0.0;
         }
 
-        double val = 0.0;
-        auto [ptr, ec] = std::from_chars(begin, end, val);
+        // Use strtod — std::from_chars for double is not available in libc++ 18
+        char* endptr = nullptr;
+        double val = std::strtod(begin, &endptr);
 
-        if (ec == std::errc::invalid_argument || ptr == begin) {
-            ++diag_.fields_malformed_numeric;
-            return 0.0;
-        }
-        if (ec == std::errc::result_out_of_range) {
+        if (endptr == begin) {
             ++diag_.fields_malformed_numeric;
             return 0.0;
         }
 
         // Partial parse: trailing non-whitespace junk (e.g. "123abc", "1.2foo")
         // Still return the parsed value (backtrader compat), but count as malformed
-        if (ptr != end) {
+        if (endptr != end) {
             bool only_whitespace = true;
-            for (const char* p = ptr; p != end; ++p) {
+            for (const char* p = endptr; p != end; ++p) {
                 if (*p != ' ' && *p != '\t') {
                     only_whitespace = false;
                     break;
