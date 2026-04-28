@@ -607,14 +607,20 @@ TEST_CASE("CSV robustness: synthetic 100K row file loads correctly", "[data][rob
     {
         std::ofstream f(path);
         f << "Date,Open,High,Low,Close,Volume\n";
-        // Start from 2020-01-01 and increment daily
-        auto base = std::chrono::sys_days{std::chrono::year{2020}/std::chrono::January/1};
+        // Start from 2000-01-01 and increment hourly (100K hours ≈ 11.4 years)
+        // to stay within system_clock nanosecond range (max ~year 2262)
+        auto base = std::chrono::sys_days{std::chrono::year{2000}/std::chrono::January/1};
         for (int i = 0; i < 100000; ++i) {
-            auto day = base + std::chrono::days(i);
-            std::chrono::year_month_day ymd{day};
+            auto tp = base + std::chrono::hours(i);
+            auto day_point = std::chrono::floor<std::chrono::days>(tp);
+            std::chrono::year_month_day ymd{day_point};
+            auto tod = std::chrono::hh_mm_ss{tp - day_point};
             f << static_cast<int>(ymd.year()) << '-'
               << std::setfill('0') << std::setw(2) << static_cast<unsigned>(ymd.month()) << '-'
-              << std::setfill('0') << std::setw(2) << static_cast<unsigned>(ymd.day()) << ','
+              << std::setfill('0') << std::setw(2) << static_cast<unsigned>(ymd.day()) << ' '
+              << std::setfill('0') << std::setw(2) << tod.hours().count() << ':'
+              << std::setfill('0') << std::setw(2) << tod.minutes().count() << ':'
+              << std::setfill('0') << std::setw(2) << tod.seconds().count() << ','
               << (100.0 + i * 0.01) << ','
               << (101.0 + i * 0.01) << ','
               << (99.0 + i * 0.01) << ','
