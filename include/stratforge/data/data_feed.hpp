@@ -170,6 +170,12 @@ public:
 protected:
     static constexpr std::size_t cache_line = 64;
 
+    // MSVC C4324: "structure was padded due to alignment specifier" — intentional
+    // cache-line alignment for hot-path performance. Suppress under /WX.
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4324)
+#endif
     alignas(cache_line) Line<DateTime> datetime_;
     alignas(cache_line) Line<double> open_;
     alignas(cache_line) Line<double> high_;
@@ -177,6 +183,9 @@ protected:
     alignas(cache_line) Line<double> close_;
     alignas(cache_line) Line<double> volume_;
     alignas(cache_line) Line<double> openinterest_;
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 private:
     std::string name_;
