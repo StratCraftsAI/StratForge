@@ -32,6 +32,8 @@ public:
     }
 
     void next() override {
+        bbands_->next();
+
         if (bbands_->top().size() == 0 || bbands_->bottom().size() == 0) {
             return;
         }
@@ -43,7 +45,7 @@ public:
 
         // Entry: Price touches or breaks below lower band (oversold)
         if (!position().size && price <= lower_band) {
-            const double size = 100.0;
+            const double size = 2.0;
             const double stop_price = price * 0.95; // 5% stop-loss
 
             (void)buy(size);

@@ -48,6 +48,8 @@ public:
     }
 
     void next() override {
+        rsi_->next();
+
         if (rsi_->line().size() == 0) {
             return;
         }
@@ -103,8 +105,8 @@ int main() {
     cerebro.add_strategy_with_params<RSI_MeanReversionStrategy>(
         stratforge::ParamMap{
             {"rsi_period", stratforge::ParamValue{std::int64_t{14}}},
-            {"oversold", stratforge::ParamValue{25.0}},    // More aggressive
-            {"overbought", stratforge::ParamValue{75.0}},  // More aggressive
+            {"oversold", stratforge::ParamValue{35.0}},    // Tuned for sample dataset
+            {"overbought", stratforge::ParamValue{65.0}},  // Tuned for sample dataset
         }
     );
 

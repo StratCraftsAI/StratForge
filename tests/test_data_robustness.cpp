@@ -20,9 +20,9 @@ using stratforge::test::tmp_path;
 
 namespace {
 
-/// Write content to a temp CSV file and return the path (preserves legacy "nbt_test_robustness_" prefix).
+/// Write content to a temp CSV file and return the path.
 std::string write_csv(const std::string& name, const std::string& content) {
-    return stratforge::test::write_csv(name + ".csv", content, "nbt_test_robustness_");
+    return stratforge::test::write_csv(name + ".csv", content, "sf_test_robustness_");
 }
 
 DateTime make_dt(int year, int mon, int day) {
@@ -558,7 +558,7 @@ TEST_CASE("CSV robustness: separate time column with midnight boundary", "[data]
 
 TEST_CASE("CSV robustness: synthetic 100K row file loads correctly", "[data][robustness]") {
     // Generate a synthetic 100K row CSV programmatically
-    std::string path = tmp_path("nbt_test_robustness_100k.csv");
+    std::string path = tmp_path("sf_test_robustness_100k.csv");
     {
         std::ofstream f(path);
         f << "Date,Open,High,Low,Close,Volume\n";

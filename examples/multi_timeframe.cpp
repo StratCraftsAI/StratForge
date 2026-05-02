@@ -37,6 +37,9 @@ public:
     }
 
     void next() override {
+        daily_ema_->next();
+        weekly_ema_->next();
+
         // Check if indicators have valid values
         if (daily_ema_->line().size() == 0 || weekly_ema_->line().size() == 0) {
             return;
@@ -51,7 +54,7 @@ public:
 
         // Entry: Daily price crosses above daily EMA, and weekly trend is up
         if (!position().size && daily_price > daily_ema && weekly_uptrend) {
-            (void)buy(50.0);
+            (void)buy(2.0);
             std::cout << "BUY at bar " << data(0).index()
                       << ": price=" << daily_price
                       << " daily_ema=" << daily_ema

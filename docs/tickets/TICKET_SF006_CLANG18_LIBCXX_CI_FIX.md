@@ -50,7 +50,7 @@ GitHub Actions CI fails on **Linux Clang 18** (`-stdlib=libc++ -Werror`) and **W
 
 ## Fix
 
-All fixes applied upstream in nonabackTrader, synced via `tools/publish_stratforge.sh`.
+All fixes applied upstream, synced via `tools/publish_stratforge.sh`.
 
 | # | Fix |
 |---|-----|

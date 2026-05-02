@@ -31,6 +31,9 @@ public:
     }
 
     void next() override {
+        sma_fast_->next();
+        sma_slow_->next();
+
         // Wait until both SMAs have valid values
         if (sma_fast_->line().size() == 0 || sma_slow_->line().size() == 0) {
             return;
@@ -41,7 +44,7 @@ public:
 
         // Entry signal: fast crosses above slow
         if (!position().size && fast > slow) {
-            const double size = 100.0; // Fixed position size
+            const double size = 2.0; // Fixed position size
             (void)buy(size);
             std::cout << "BUY signal at bar " << data().index()
                       << ": fast=" << fast << " slow=" << slow << "\n";

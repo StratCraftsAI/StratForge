@@ -42,7 +42,7 @@ public:
         const double slow = sma_slow_->line()[0];
 
         if (!position().size && fast > slow) {
-            (void)buy(100.0);
+            (void)buy(2.0);
         } else if (position().size > 0 && fast < slow) {
             (void)close();
         }

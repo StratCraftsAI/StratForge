@@ -128,7 +128,7 @@ TEST_CASE("CsvData loading", "[data][csv]") {
 
 TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
     SECTION("FileNotFound — nonexistent path") {
-        CsvData feed(CsvData::Params{.filename = tmp_path("nbt_test_no_such_file.csv"), .columns = {}});
+        CsvData feed(CsvData::Params{.filename = tmp_path("sf_test_no_such_file.csv"), .columns = {}});
         auto result = feed.load_expected();
         REQUIRE_FALSE(result.has_value());
         REQUIRE(result.error() == DataError::FileNotFound);
@@ -146,7 +146,7 @@ TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
     }
 
     SECTION("HeaderOnly — header-only CSV") {
-        std::string path = tmp_path("nbt_test_header_only.csv");
+        std::string path = tmp_path("sf_test_header_only.csv");
         {
             std::ofstream f(path);
             f << "Date,Open,High,Low,Close,Volume\n";
@@ -158,7 +158,7 @@ TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
     }
 
     SECTION("EmptyFile — empty file with has_headers=false") {
-        std::string path = tmp_path("nbt_test_empty.csv");
+        std::string path = tmp_path("sf_test_empty.csv");
         {
             std::ofstream f(path);
             // write nothing
@@ -186,7 +186,7 @@ TEST_CASE("CsvData load_expected error reporting", "[data][csv][expected]") {
     }
 
     SECTION("load_with_error() returns same result as load_expected()") {
-        CsvData feed(CsvData::Params{.filename = tmp_path("nbt_test_no_such_file2.csv"), .columns = {}});
+        CsvData feed(CsvData::Params{.filename = tmp_path("sf_test_no_such_file2.csv"), .columns = {}});
         auto result = feed.load_with_error();
         REQUIRE_FALSE(result.has_value());
         REQUIRE(result.error() == DataError::FileNotFound);

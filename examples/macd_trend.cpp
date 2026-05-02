@@ -31,6 +31,8 @@ public:
     }
 
     void next() override {
+        macd_->next();
+
         if (macd_->macd().size() == 0 || macd_->signal().size() == 0) {
             return;
         }
@@ -41,7 +43,7 @@ public:
 
         // Entry: MACD crosses above signal (bullish)
         if (!position().size && macd_line > signal_line && histogram > 0) {
-            const double size = 50.0;
+            const double size = 2.0;
             (void)buy(size);
             std::cout << "BUY signal at bar " << data().index()
                       << ": MACD=" << macd_line << " signal=" << signal_line

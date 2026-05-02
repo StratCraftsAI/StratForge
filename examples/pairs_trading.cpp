@@ -22,29 +22,32 @@ std::string source_path(const std::string& relative) {
 #include <memory>
 
 // Strategy: Trade the spread between two correlated assets
-// Note: This example uses the same asset data twice for demonstration purposes
-// In production, you would load two different correlated assets
+// This example loads the same data file for both assets and applies a synthetic
+// multiplier (1.02x) to asset2 to simulate a correlated-but-different instrument.
+// In production, you would load two genuinely different correlated assets.
 class PairsTradingStrategy : public stratforge::Strategy {
 public:
     void init() override {
-        // Calculate spread: asset1 - asset2
-        // For indicators, we'll track both assets separately
         asset1_sma_ = std::make_unique<stratforge::SMA>(data(0).close(), 20);
         asset2_sma_ = std::make_unique<stratforge::SMA>(data(1).close(), 20);
 
         std::cout << "Strategy initialized: Pairs Trading\n";
         std::cout << "  Asset 1: " << data_name(0) << "\n";
-        std::cout << "  Asset 2: " << data_name(1) << "\n";
+        std::cout << "  Asset 2: " << data_name(1) << " (synthetic 1.02x multiplier)\n";
         std::cout << "  Spread threshold: " << spread_threshold_ << " std deviations\n";
     }
 
     void next() override {
+        asset1_sma_->next();
+        asset2_sma_->next();
+
         if (asset1_sma_->line().size() == 0 || asset2_sma_->line().size() == 0) {
             return;
         }
 
         const double price1 = data(0).close()[0];
-        const double price2 = data(1).close()[0];
+        // Synthetic multiplier to simulate a correlated-but-different asset
+        const double price2 = data(1).close()[0] * 1.02;
         const double spread = price1 - price2;
 
         // Calculate spread mean and std dev over recent history
@@ -62,30 +65,32 @@ public:
         for (double s : spread_history_) {
             mean += s;
         }
-        mean /= spread_history_.size();
+        mean /= static_cast<double>(spread_history_.size());
 
         double variance = 0.0;
         for (double s : spread_history_) {
             variance += (s - mean) * (s - mean);
         }
-        const double stddev = std::sqrt(variance / spread_history_.size());
+        const double stddev = std::sqrt(variance / static_cast<double>(spread_history_.size()));
 
-        const double z_score = (spread - mean) / (stddev + 1e-10);
+        if (stddev < 1e-10) return;
+
+        const double z_score = (spread - mean) / stddev;
 
         // Entry: Spread diverges beyond threshold
         if (!position(0).size && !position(1).size) {
             // Spread too high: short asset1, long asset2
             if (z_score > spread_threshold_) {
-                (void)sell(10.0, 0.0, stratforge::OrderType::Market, 0); // Short asset1
-                (void)buy(10.0, 0.0, stratforge::OrderType::Market, 1);  // Long asset2
+                (void)sell(1.0, 0.0, stratforge::OrderType::Market, 0); // Short asset1
+                (void)buy(1.0, 0.0, stratforge::OrderType::Market, 1);  // Long asset2
                 std::cout << "OPEN pair trade at bar " << data(0).index()
                           << ": spread=" << spread << " z=" << z_score
                           << " (short asset1, long asset2)\n";
             }
             // Spread too low: long asset1, short asset2
             else if (z_score < -spread_threshold_) {
-                (void)buy(10.0, 0.0, stratforge::OrderType::Market, 0);  // Long asset1
-                (void)sell(10.0, 0.0, stratforge::OrderType::Market, 1); // Short asset2
+                (void)buy(1.0, 0.0, stratforge::OrderType::Market, 0);  // Long asset1
+                (void)sell(1.0, 0.0, stratforge::OrderType::Market, 1); // Short asset2
                 std::cout << "OPEN pair trade at bar " << data(0).index()
                           << ": spread=" << spread << " z=" << z_score
                           << " (long asset1, short asset2)\n";
@@ -123,8 +128,8 @@ int main() {
         .todate = std::nullopt,
     });
 
-    // Load second asset (in this example, same data for demonstration)
-    // In production, use different correlated assets
+    // Load second asset (same data file; strategy applies synthetic multiplier)
+    // In production, use different correlated assets (e.g., GLD vs SLV)
     auto feed2 = std::make_unique<stratforge::CsvData>(stratforge::CsvData::Params{
         .filename = source_path("tools/golden_extract/datas/2006-day-001.txt"),
         .columns = {},
@@ -153,8 +158,8 @@ int main() {
     cerebro.set_commission(stratforge::CommissionInfo{.commission = 0.001});
 
     std::cout << "Starting cash: $" << cerebro.broker().cash() << "\n\n";
-    std::cout << "Note: This example uses the same data for both assets.\n";
-    std::cout << "      In production, use two different correlated assets.\n\n";
+    std::cout << "Note: This demo applies a 1.02x multiplier to asset2 prices.\n";
+    std::cout << "      In production, load two genuinely different correlated assets.\n\n";
 
     cerebro.run();
 

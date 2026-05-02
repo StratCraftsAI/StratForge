@@ -3,6 +3,7 @@
 #include <stratforge/broker/broker.hpp>
 #include <stratforge/broker/sizer.hpp>
 #include <stratforge/core/params.hpp>
+#include <stratforge/core/transparent_hash.hpp>
 #include <stratforge/data/data_feed.hpp>
 
 #include <cstddef>
@@ -137,14 +138,18 @@ public:
         return *data_feeds_.at(index);
     }
 
-    /// Access data feed by name
+    /// Access data feed by name (heterogeneous lookup, no temporary allocation).
     [[nodiscard]] const DataFeed& data(std::string_view name) const {
-        return *data_lookup_.at(std::string(name));
+        auto it = data_lookup_.find(name);
+        if (it == data_lookup_.end()) {
+            throw std::out_of_range("DataFeed not found: " + std::string(name));
+        }
+        return *it->second;
     }
 
-    /// Check whether a named data feed exists
+    /// Check whether a named data feed exists (heterogeneous lookup).
     [[nodiscard]] bool has_data(std::string_view name) const {
-        return data_lookup_.contains(std::string(name));
+        return data_lookup_.find(name) != data_lookup_.end();
     }
 
     /// Return the configured name for a data feed by index
@@ -243,7 +248,7 @@ private:
     BackBroker* broker_ = nullptr;
     std::vector<DataFeed*> data_feeds_;
     std::vector<std::string> data_names_;
-    std::unordered_map<std::string, DataFeed*> data_lookup_;
+    std::unordered_map<std::string, DataFeed*, TransparentStringHash, TransparentStringEqual> data_lookup_;
     ParamMap params_;
     bool params_initialized_ = false;
     std::size_t minimum_period_ = 1;

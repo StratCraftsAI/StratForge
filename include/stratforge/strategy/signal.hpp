@@ -11,8 +11,8 @@ enum class Signal : int {
     Buy = 1,
 };
 
-/// Convert a numeric value to a Signal
-[[nodiscard]] inline Signal to_signal(double value) noexcept {
+/// Convert a numeric value to a Signal (constexpr for compile-time use).
+[[nodiscard]] constexpr Signal to_signal(double value) noexcept {
     if (value > 0) return Signal::Buy;
     if (value < 0) return Signal::Sell;
     return Signal::Neutral;

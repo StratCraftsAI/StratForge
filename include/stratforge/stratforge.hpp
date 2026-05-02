@@ -6,6 +6,7 @@
 #include <stratforge/core/line_series.hpp>
 #include <stratforge/core/params.hpp>
 #include <stratforge/core/period_validate.hpp>
+#include <stratforge/core/transparent_hash.hpp>
 
 // Data
 #include <stratforge/data/timeframe.hpp>
@@ -25,6 +26,14 @@
 // Strategy
 #include <stratforge/strategy/signal.hpp>
 #include <stratforge/strategy/strategy.hpp>
+#include <stratforge/strategy/entry_signal.hpp>
+#include <stratforge/strategy/regime_detector_strategy.hpp>
+#include <stratforge/strategy/regime_entry_strategy.hpp>
+#include <stratforge/strategy/signal_entry_strategy.hpp>
+#include <stratforge/strategy/ai_signal_entry_strategy.hpp>
+#include <stratforge/strategy/ai_libero_strategy.hpp>
+#include <stratforge/strategy/exit_strategy.hpp>
+#include <stratforge/strategy/observer_strategy.hpp>
 
 // Indicators
 #include <stratforge/indicators/accum.hpp>
