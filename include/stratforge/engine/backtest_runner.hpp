@@ -7,7 +7,6 @@
 #include <stratforge/data/csv_data.hpp>
 #include <stratforge/engine/cerebro.hpp>
 #include <stratforge/observers/cash_value.hpp>
-#include <stratforge/serialization/result_serializer.hpp>
 #include <stratforge/strategy/strategy.hpp>
 
 #include <chrono>
