@@ -28,7 +28,7 @@ public:
 
 protected:
     /// Default execution flow: close-then-open each bar.
-    /// Subclasses may override for custom execution semantics.
+    /// Subclasses may override for custom execution semantics
     void next() override {
         // Close first
         if (position().size != 0.0 && check_close_conditions()) {

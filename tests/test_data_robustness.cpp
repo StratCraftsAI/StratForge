@@ -20,7 +20,7 @@ using stratforge::test::tmp_path;
 
 namespace {
 
-/// Write content to a temp CSV file and return the path.
+/// Write content to a temp CSV file and return the path (preserves legacy "sf_test_robustness_" prefix).
 std::string write_csv(const std::string& name, const std::string& content) {
     return stratforge::test::write_csv(name + ".csv", content, "sf_test_robustness_");
 }

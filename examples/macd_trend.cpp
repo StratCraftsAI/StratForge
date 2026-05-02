@@ -16,7 +16,6 @@ std::string source_path(const std::string& relative) {
 }
 } // namespace
 
-
 #include <iostream>
 #include <memory>
 
