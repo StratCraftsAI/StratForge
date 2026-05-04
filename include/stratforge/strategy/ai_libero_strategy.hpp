@@ -24,12 +24,17 @@ public:
     /// Collect current indicator values for LLM agent input.
     [[nodiscard]] virtual IndicatorValues get_indicator_values() = 0;
 
+    /// Called each bar before business logic. Override to advance indicators.
+    virtual void update_indicators() {}
+
 private:
     void init() final {
         initialize_indicators();
     }
 
     void next() final {
+        update_indicators();
+
         [[maybe_unused]] auto values = get_indicator_values();
     }
 };

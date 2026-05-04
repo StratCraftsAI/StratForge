@@ -23,12 +23,17 @@ public:
     /// Check whether exit conditions are met. Returns true to trigger close.
     [[nodiscard]] virtual bool check_exit_signal() = 0;
 
+    /// Called each bar before business logic. Override to advance indicators.
+    virtual void update_indicators() {}
+
 private:
     void init() final {
         initialize_indicators();
     }
 
     void next() final {
+        update_indicators();
+
         if (position().size != 0.0 && check_exit_signal()) {
             (void)close();
         }

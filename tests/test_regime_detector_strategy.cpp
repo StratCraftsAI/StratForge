@@ -43,6 +43,32 @@ public:
     }
 };
 
+/// Strategy that tracks update_indicators() call ordering.
+class TestRegimeDetectorWithIndicators final : public RegimeDetectorStrategy {
+public:
+    int update_count = 0;
+    int trend_checks = 0;
+    bool update_before_trend = true;
+
+    void initialize_indicators() override {}
+
+    [[nodiscard]] std::size_t get_base_warmup_period() const override {
+        return 1;
+    }
+
+    void update_indicators() override {
+        ++update_count;
+    }
+
+    [[nodiscard]] double calculate_trend_strength() override {
+        ++trend_checks;
+        if (update_count < trend_checks) {
+            update_before_trend = false;
+        }
+        return 0.0;
+    }
+};
+
 /// Minimal strategy that only implements required pure virtuals.
 class MinimalRegimeDetector final : public RegimeDetectorStrategy {
 public:
@@ -153,4 +179,26 @@ TEST_CASE("RegimeDetectorStrategy optional defaults return false", "[strategy][r
 
     // All optional detectors return false -> LowVolatility
     REQUIRE(strategy.current_state() == RegimeState::LowVolatility);
+}
+
+TEST_CASE("RegimeDetectorStrategy update_indicators called before business logic", "[strategy][regime_detector]") {
+    Cerebro cerebro;
+    cerebro.set_cash(10000.0);
+    cerebro.add_data(std::make_unique<StaticFeed>(std::vector<StaticFeed::Bar>{
+        {100.0, 101.0, 99.0, 100.5},
+        {101.0, 102.0, 100.0, 101.5},
+        {102.0, 103.0, 101.0, 102.5},
+    }), "main");
+
+    auto& strategy = cerebro.add_strategy<TestRegimeDetectorWithIndicators>();
+    cerebro.run();
+
+    SECTION("update_indicators called each bar after warmup") {
+        // 3 bars, warmup=1: nextstart on bar 0 + next on bars 1,2 = 3 calls
+        REQUIRE(strategy.update_count == 3);
+    }
+
+    SECTION("update_indicators called before calculate_trend_strength") {
+        REQUIRE(strategy.update_before_trend);
+    }
 }

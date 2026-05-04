@@ -29,12 +29,17 @@ public:
     /// Check whether conditions to close a position are met.
     [[nodiscard]] virtual bool check_close_conditions() = 0;
 
+    /// Called each bar before business logic. Override to advance indicators.
+    virtual void update_indicators() {}
+
 private:
     void init() final {
         initialize_indicators();
     }
 
     void next() final {
+        update_indicators();
+
         // Collect indicator snapshot (available to subclass for decision-making)
         [[maybe_unused]] auto values = get_indicator_values();
 

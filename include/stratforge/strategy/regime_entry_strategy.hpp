@@ -34,6 +34,9 @@ public:
     /// Check whether conditions to close a position are met.
     [[nodiscard]] virtual bool check_close_conditions() = 0;
 
+    /// Called each bar before business logic. Override to advance indicators.
+    virtual void update_indicators() {}
+
 private:
     void init() final {
         initialize_indicators();
@@ -41,6 +44,8 @@ private:
     }
 
     void next() final {
+        update_indicators();
+
         // Close first
         if (position().size != 0.0 && check_close_conditions()) {
             (void)close();

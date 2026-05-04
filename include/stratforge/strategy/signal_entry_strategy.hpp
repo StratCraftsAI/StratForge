@@ -26,10 +26,15 @@ public:
     /// Check whether conditions to close a position are met.
     [[nodiscard]] virtual bool check_close_conditions() = 0;
 
+    /// Called each bar before business logic. Override to advance indicators.
+    virtual void update_indicators() {}
+
 protected:
     /// Default execution flow: close-then-open each bar.
     /// Subclasses may override for custom execution semantics
     void next() override {
+        update_indicators();
+
         // Close first
         if (position().size != 0.0 && check_close_conditions()) {
             (void)close();

@@ -48,6 +48,9 @@ public:
     /// Current regime state (updated each bar by next()).
     [[nodiscard]] RegimeState current_state() const noexcept { return current_state_; }
 
+    /// Called each bar before business logic. Override to advance indicators.
+    virtual void update_indicators() {}
+
 protected:
     RegimeState current_state_ = RegimeState::Unknown;
 
@@ -58,6 +61,8 @@ private:
     }
 
     void next() final {
+        update_indicators();
+
         auto trend = calculate_trend_strength();
         auto range = calculate_range_strength();
         bool high_vol = get_volatility_state();
