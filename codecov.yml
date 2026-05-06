@@ -1,0 +1,48 @@
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  precision: 2
+  round: down
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 2%
+    patch:
+      default:
+        target: 70%
+
+flags:
+  indicators:
+    paths:
+      - include/stratforge/indicators/
+    carryforward: true
+  broker:
+    paths:
+      - include/stratforge/broker/
+    carryforward: true
+  engine:
+    paths:
+      - include/stratforge/engine/
+    carryforward: true
+  data:
+    paths:
+      - include/stratforge/data/
+    carryforward: true
+  strategy:
+    paths:
+      - include/stratforge/strategy/
+    carryforward: true
+  analyzers:
+    paths:
+      - include/stratforge/analyzers/
+    carryforward: true
+  core:
+    paths:
+      - include/stratforge/core/
+    carryforward: true
+  simd:
+    paths:
+      - include/stratforge/simd/
+    carryforward: true

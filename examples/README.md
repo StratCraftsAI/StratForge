@@ -1,39 +1,42 @@
-# StratForge Example Strategies
+# Example Strategies
 
-Self-contained, production-quality example strategies demonstrating the stratforge:: API.
+Self-contained example strategies demonstrating the `stratforge::` API.
 
 These examples serve as:
-1. **Documentation** - Learn StratForge API usage patterns
-2. **Templates** - Starting points for your own strategies
-3. **LLM Training Data** - Reference implementations for code generation
 
-## Building Examples
+1. Documentation for common engine usage patterns
+2. Starting templates for new strategies
+3. Regression coverage for public-facing sample code
+4. Reference implementations for LLM-assisted code generation
+
+## Quick Start
 
 ```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target examples
-```
-
-Executables are output to: `build/bin/examples/`
-
-## Running Examples
-
-```bash
-# Individual examples
 ./build/bin/examples/sma_crossover
-./build/bin/examples/rsi_mean_reversion
-./build/bin/examples/macd_trend
-./build/bin/examples/bollinger_bands
-./build/bin/examples/multi_timeframe
-./build/bin/examples/pairs_trading
-
-# Run all examples
-for exe in ./build/bin/examples/*; do
-    echo "=== Running $exe ==="
-    $exe
-    echo
-done
 ```
+
+Executables are written to `build/bin/examples/`.
+
+All examples use the bundled sample dataset at `tools/golden_extract/datas/2006-day-001.txt`.
+
+## First Run Order
+
+If you only want to inspect two or three files first:
+
+- Start with `sma_crossover.cpp` for the smallest end-to-end strategy
+- Move to `macd_trend.cpp` for multi-line indicators and analyzer usage
+- Use `optimizer_example.cpp` when you want parameter sweeps
+
+## Expected Behavior
+
+These examples are expected to produce real trades on the bundled dataset. If an example loads bars successfully but reports zero trades, check:
+
+- Position size versus available cash
+- Whether indicators are advanced with `indicator->next()`
+- Commission or slippage settings
+- That you are running a `Release` build if you are comparing timings
 
 ## Example Catalog
 
@@ -140,6 +143,20 @@ done
 
 ---
 
+### 7. `optimizer_example.cpp`
+**Demonstrates:** Parameter grid search, analyzer collection, strategy ranking
+
+**Strategy:** Sweeps multiple parameter combinations and reports the best-performing configuration on the sample dataset.
+
+**Key API:**
+- `stratforge::Optimizer` - Grid-based parameter search
+- `stratforge::Strategy::default_params()` - Declares tunable parameters
+- `stratforge::ParamMap` / `ParamView` - Passes strategy configuration
+
+**Use this when:** You want to explore parameter sensitivity or build an offline tuning workflow.
+
+---
+
 ## Common Patterns
 
 ### Loading Data
@@ -172,12 +189,14 @@ public:
     }
 
     void next() override {
+        indicator_->next();
+
         // Check indicator validity
         if (indicator_->line().size() == 0) return;
 
         // Trading logic here
         if (!position().size && /* entry condition */) {
-            (void)buy(100.0);
+            (void)buy(2.0);
         }
         else if (position().size > 0 && /* exit condition */) {
             (void)close();
@@ -219,6 +238,12 @@ All examples use: `tools/golden_extract/datas/2006-day-001.txt`
 - Frequency: Daily
 - Period: Full year 2006
 - Bars: 255
+
+## Related Docs
+
+- `benchmarks/README.md` for performance methodology
+- `docs/api_reference.md` for the larger public API surface
+- `tools/golden_extract/datas/README.md` for the bundled datasets
 
 ## Code Style Guidelines
 

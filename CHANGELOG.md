@@ -15,6 +15,8 @@ The format is based on Keep a Changelog and the project follows Semantic Version
 ### Changed
 
 - README expanded to better document validation, distribution, and community entry points
+- Added `docs/API_QUICK_START.md` and linked it from the public README
+- Examples and benchmark docs now include first-run guidance and troubleshooting context
 - Release installs now include repository metadata files in addition to public headers
 
 ### Fixed
