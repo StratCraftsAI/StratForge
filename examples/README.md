@@ -245,6 +245,12 @@ All examples use: `tools/golden_extract/datas/2006-day-001.txt`
 - `tools/golden_extract/datas/README.md` for the bundled datasets
 - Bars: 255
 
+## Related Docs
+
+- `benchmarks/README.md` for performance methodology
+- `docs/api_reference.md` for the larger public API surface
+- `tools/golden_extract/datas/README.md` for the bundled datasets
+
 ## Code Style Guidelines
 
 These examples follow strict coding standards for LLM template quality:
