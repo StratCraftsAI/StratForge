@@ -141,7 +141,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build
+          sudo apt-get install -y ninja-build jq
 
       - name: Configure
         env:
@@ -160,8 +160,17 @@ jobs:
       - name: Test
         run: ctest --test-dir build --output-on-failure
 
+      - name: Run benchmarks
+        run: |
+          for bench in indicator_benchmarks strategy_benchmarks optimization_benchmarks memory_benchmarks cold_start_benchmark csv_parse_benchmark line_series_benchmark order_routing_benchmark; do
+            if [ -x "./build/bin/benchmarks/${bench}" ]; then
+              echo "Running ${bench}..."
+              "./build/bin/benchmarks/${bench}"
+            fi
+          done
+
   # ---------------------------------------------------------------------------
-  # Coverage (Linux GCC)
+  # Coverage (Linux GCC) + Codecov upload
   # ---------------------------------------------------------------------------
   coverage:
     runs-on: ubuntu-24.04
@@ -217,6 +226,15 @@ jobs:
             --html-details -o build/coverage.html \
             --print-summary
 
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: build/coverage.xml
+          flags: indicators,broker,engine,data,strategy,analyzers,core,simd
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v7
         with:
@@ -227,17 +245,8 @@ jobs:
             build/coverage.*.html
           retention-days: 30
 
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: build/coverage.xml
-          flags: unittests
-          fail_ci_if_error: false
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
   # ---------------------------------------------------------------------------
-  # Sanitizer builds (Linux GCC)
+  # Sanitizer builds (GCC 14 + Clang 18 matrix)
   # ---------------------------------------------------------------------------
   sanitizers:
     runs-on: ubuntu-24.04
@@ -247,14 +256,38 @@ jobs:
       matrix:
         include:
           - sanitizer: address
+            compiler: gcc
+            cc: gcc-14
+            cxx: g++-14
             flags: "-fsanitize=address -fno-omit-frame-pointer -O1"
-            name: AddressSanitizer
+            name: ASan (GCC 14)
             env_var: ASAN_OPTIONS
             env_val: "detect_leaks=1:halt_on_error=1"
 
           - sanitizer: undefined
+            compiler: gcc
+            cc: gcc-14
+            cxx: g++-14
             flags: "-fsanitize=undefined -fno-omit-frame-pointer -O1"
-            name: UndefinedBehaviorSanitizer
+            name: UBSan (GCC 14)
+            env_var: UBSAN_OPTIONS
+            env_val: "print_stacktrace=1:halt_on_error=1"
+
+          - sanitizer: address
+            compiler: clang
+            cc: clang-18
+            cxx: clang++-18
+            flags: "-fsanitize=address -fno-omit-frame-pointer -O1"
+            name: ASan (Clang 18)
+            env_var: ASAN_OPTIONS
+            env_val: "detect_leaks=1:halt_on_error=1"
+
+          - sanitizer: undefined
+            compiler: clang
+            cc: clang-18
+            cxx: clang++-18
+            flags: "-fsanitize=undefined -fno-omit-frame-pointer -O1"
+            name: UBSan (Clang 18)
             env_var: UBSAN_OPTIONS
             env_val: "print_stacktrace=1:halt_on_error=1"
 
@@ -268,22 +301,28 @@ jobs:
         uses: actions/cache@v5
         with:
           path: build/_deps
-          key: ubuntu-gcc-${{ matrix.sanitizer }}-deps-${{ hashFiles('CMakeLists.txt') }}
+          key: ubuntu-${{ matrix.compiler }}-${{ matrix.sanitizer }}-deps-${{ hashFiles('CMakeLists.txt') }}
           restore-keys: |
-            ubuntu-gcc-${{ matrix.sanitizer }}-deps-
+            ubuntu-${{ matrix.compiler }}-${{ matrix.sanitizer }}-deps-
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
+      - name: Install libc++ (Clang)
+        if: matrix.compiler == 'clang'
+        run: |
+          sudo apt-get install -y libc++-18-dev libc++abi-18-dev
+
       - name: Configure
         env:
-          CC: gcc-14
-          CXX: g++-14
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
         run: |
           cmake -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
+            -DSF_ENABLE_SANITIZERS=ON \
             -DCMAKE_CXX_FLAGS="${{ matrix.flags }}" \
             -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=${{ matrix.sanitizer }}" \
             -DSF_BUILD_TESTS=ON \
@@ -297,3 +336,24 @@ jobs:
         env:
           ${{ matrix.env_var }}: ${{ matrix.env_val }}
         run: ctest --test-dir build --output-on-failure
+
+  # ---------------------------------------------------------------------------
+  # Gate: All required jobs must pass before PR merge
+  # ---------------------------------------------------------------------------
+  ci-gate:
+    runs-on: ubuntu-24.04
+    name: CI Gate
+    needs: [build, sanitizers]
+    if: always()
+    steps:
+      - name: Check required jobs
+        run: |
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "Build matrix failed"
+            exit 1
+          fi
+          if [ "${{ needs.sanitizers.result }}" != "success" ]; then
+            echo "Sanitizer matrix failed"
+            exit 1
+          fi
+          echo "All required jobs passed"

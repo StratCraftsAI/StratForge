@@ -418,6 +418,7 @@ struct SampleSummary {
     double p50_ns = 0.0;
     double p99_ns = 0.0;
     double p999_ns = 0.0;
+    double jitter_ns = 0.0;  // P99 - P50
     std::size_t sample_count = 0;
 };
 
@@ -439,6 +440,7 @@ inline SampleSummary summarize_samples(std::vector<double> samples_ns) {
     summary.p50_ns = samples_ns[percentile_index(0.50)];
     summary.p99_ns = samples_ns[percentile_index(0.99)];
     summary.p999_ns = samples_ns[percentile_index(0.999)];
+    summary.jitter_ns = summary.p99_ns - summary.p50_ns;
     return summary;
 }
 
@@ -561,6 +563,7 @@ inline void write_json_entry(std::ostream& out,
         << "      \"p999_ns\": " << summary.p999_ns << ",\n"
         << "      \"min_ns\": " << summary.min_ns << ",\n"
         << "      \"max_ns\": " << summary.max_ns << ",\n"
+        << "      \"jitter_ns\": " << summary.jitter_ns << ",\n"
         << "      \"samples\": " << summary.sample_count << ",\n"
         << "      \"bars_per_iteration\": " << bars_per_iteration << ",\n"
         << "      \"bars_per_sec\": " << bars_per_sec;
@@ -625,6 +628,108 @@ private:
 
     std::vector<Entry> entries_;
 };
+
+// --- RDTSC-based Benchmark Runners ----------------------------------------
+
+#if SF_HAS_RDTSC
+
+/// Cached CPU frequency for RDTSC conversion (calibrated once on first call)
+[[nodiscard]] inline double cached_cpu_freq_ghz() {
+    static const double freq = estimate_cpu_freq_ghz_busy();
+    return freq;
+}
+
+/// RDTSC-based benchmark runner. Same interface as run_benchmark() but uses
+/// rdtsc_vm_safe() for cycle-accurate timing.
+template <typename Fn>
+inline SampleSummary run_benchmark_rdtsc(std::size_t iterations, Fn&& fn,
+                                          std::size_t warmup = 3) {
+    const double freq_ghz = cached_cpu_freq_ghz();
+
+    for (std::size_t i = 0; i < warmup; ++i) {
+        fn();
+    }
+
+    std::vector<double> samples_ns;
+    samples_ns.reserve(iterations);
+
+    for (std::size_t i = 0; i < iterations; ++i) {
+        compiler_barrier();
+        const auto start = rdtsc_vm_safe();
+        fn();
+        const auto end = rdtsc_vm_safe();
+        compiler_barrier();
+        samples_ns.push_back(cycles_to_ns(end - start, freq_ghz));
+    }
+
+    return summarize_samples(std::move(samples_ns));
+}
+
+/// RDTSC-based per-bar benchmark runner. Same interface as run_perbar_benchmark().
+template <typename SetupFn, typename PerBarFn>
+inline SampleSummary run_perbar_benchmark_rdtsc(std::size_t num_bars,
+                                                 SetupFn&& setup,
+                                                 PerBarFn&& per_bar,
+                                                 std::size_t warmup_bars = 50) {
+    const double freq_ghz = cached_cpu_freq_ghz();
+    setup();
+
+    std::vector<double> samples_ns;
+    samples_ns.reserve(num_bars);
+
+    for (std::size_t bar = 0; bar < num_bars; ++bar) {
+        compiler_barrier();
+        const auto start = rdtsc_vm_safe();
+        per_bar(bar);
+        const auto end = rdtsc_vm_safe();
+        compiler_barrier();
+
+        if (bar >= warmup_bars) {
+            samples_ns.push_back(cycles_to_ns(end - start, freq_ghz));
+        }
+    }
+
+    return summarize_samples(std::move(samples_ns));
+}
+
+#endif // SF_HAS_RDTSC
+
+// --- Benchmark Environment Setup ------------------------------------------
+
+struct BenchmarkEnv {
+    double freq_ghz = 0.0;
+    bool core_bound = false;
+    bool rdtsc_available = false;
+};
+
+/// One-call setup for benchmark main() functions.
+/// Binds to core 1 (Linux), calibrates CPU frequency, prints environment info.
+inline BenchmarkEnv setup_benchmark_env() {
+    BenchmarkEnv env;
+
+#ifdef __linux__
+    env.core_bound = bind_to_core(1);
+#endif
+
+#if SF_HAS_RDTSC
+    env.rdtsc_available = true;
+    env.freq_ghz = cached_cpu_freq_ghz();
+#endif
+
+    std::cout << "[bench-env] RDTSC: " << (env.rdtsc_available ? "available" : "unavailable")
+              << " | CPU freq: " << std::fixed << std::setprecision(3) << env.freq_ghz << " GHz"
+              << " | Core bound: " << (env.core_bound ? "core 1" : "no")
+#if defined(__x86_64__)
+              << " | Arch: x86_64"
+#elif defined(__aarch64__)
+              << " | Arch: aarch64"
+#else
+              << " | Arch: unknown"
+#endif
+              << '\n';
+
+    return env;
+}
 
 // --- Cold/Warm Comparison --------------------------------------------------
 

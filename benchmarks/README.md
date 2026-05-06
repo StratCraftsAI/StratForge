@@ -1,6 +1,6 @@
-# StratForge Benchmark Suite
+# Benchmark Suite
 
-Performance benchmarks for the StratForge engine with proper methodology:
+Performance benchmarks for the engine with proper methodology:
 warmup phases, I/O-isolated timing, per-bar micro-benchmarks, allocation
 counting, and machine-parseable JSON output.
 
@@ -10,7 +10,9 @@ counting, and machine-parseable JSON output.
 # Build all benchmarks (Release mode required for meaningful results)
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target gen_bench_data indicator_benchmarks \
-    strategy_benchmarks optimization_benchmarks memory_benchmarks
+    strategy_benchmarks optimization_benchmarks memory_benchmarks \
+    csv_parse_benchmark line_series_benchmark order_routing_benchmark \
+    cold_start_benchmark
 
 # Generate synthetic 100K-bar dataset
 ./build/bin/benchmarks/gen_bench_data
@@ -20,7 +22,13 @@ cmake --build build --target gen_bench_data indicator_benchmarks \
 ./build/bin/benchmarks/strategy_benchmarks
 ./build/bin/benchmarks/optimization_benchmarks
 ./build/bin/benchmarks/memory_benchmarks
+./build/bin/benchmarks/csv_parse_benchmark
+./build/bin/benchmarks/line_series_benchmark
+./build/bin/benchmarks/order_routing_benchmark
+./build/bin/benchmarks/cold_start_benchmark
 ```
+
+If you only want one first signal, run `indicator_benchmarks` and `memory_benchmarks`. Together they tell you whether latency and allocation behavior moved in the right direction.
 
 ## Benchmark Executables
 
@@ -71,6 +79,57 @@ Dedicated allocation audit for all indicators and strategy:
 - 60-bar warmup to exclude initial vector growth
 - Verifies zero-alloc hot-path target per design spec
 
+### `csv_parse_benchmark`
+
+Benchmarks CSV data feed ingestion throughput:
+
+- Full disk I/O + parse at 1K, 10K, 100K rows
+- In-memory tokenization throughput (MB/s)
+- Per-row amortized latency
+- Real dataset (golden extract) throughput
+
+### `line_series_benchmark`
+
+Benchmarks the core `Line<T>` and `LineSeries<T>` data structures:
+
+- `Line::forward` append at 512, 10K, 100K elements (with/without reserve)
+- Random lookback access (`operator[]` with negative offsets)
+- Sequential access (simulating indicator iteration)
+- `LineSeries` OHLCV multi-line access patterns
+- Allocation audit (reserved vs unreserved growth)
+
+### `order_routing_benchmark`
+
+Benchmarks broker order creation → fill pipeline:
+
+- Market order flood (order every bar)
+- Limit order strategy (complex fill logic)
+- Cold/warm comparison
+- Allocation audit for order lifecycle
+
+### `cold_start_benchmark`
+
+Measures first-execution penalty vs steady-state:
+
+- CSV load cold/warm ratio
+- Indicator pipeline cold/warm ratio
+- Full backtest cold/warm ratio
+- Summary table of all cold/warm ratios
+
+## How to Read the Results
+
+- `avg` is useful for broad trend tracking
+- `P50` is the main target for typical hot-path latency
+- `P99` and `P999` catch tail regressions hidden by averages
+- Allocation counts matter even when latency looks stable, because hidden heap traffic usually reappears later as jitter
+
+Prefer comparing like-for-like runs:
+
+- Same compiler and standard library
+- Same build type
+- Same benchmark dataset
+- Same CPU scaling and affinity conditions
+
 ## Methodology
 
 ### Timing
@@ -101,6 +160,8 @@ See [BASELINE.md](BASELINE.md) for the full baseline report.
 - MACD: 22 ns/bar (42M bars/sec)
 - Ichimoku: 67 ns/bar (15M bars/sec) — only zero-alloc indicator
 - All indicators meet <100ns P50 target
+
+These figures are repository baselines, not universal promises. Re-run them on your own hardware before drawing conclusions about cross-machine comparisons.
 
 ## Performance Targets
 
@@ -148,3 +209,9 @@ python3 tools/bench_regression.py --suite indicator_benchmarks
 |---------|------|--------|
 | 512-bar daily | 512 | `tools/golden_extract/datas/2005-2006-day-001.txt` |
 | 100K synthetic | 100,000 | `build/bench_data/synthetic_100k.csv` (generated) |
+
+## Related Docs
+
+- `examples/README.md` for end-to-end strategy behavior
+- `docs/performance_results.md` for historical benchmark discussion
+- `tools/golden_extract/datas/README.md` for sample dataset details

@@ -50,6 +50,9 @@ void run_indicator(stratforge::CsvData& feed, Indicator& indicator) {
     }
 }
 
+// --- Global flag: set via --no-rdtsc CLI arg
+bool g_use_rdtsc = SF_HAS_RDTSC;
+
 // --- Whole-run benchmark: load data ONCE, clone per iteration ---------
 
 template <typename IndicatorFactory>
@@ -60,14 +63,23 @@ SampleSummary benchmark_indicator_run(const std::string& label,
                                       JsonReport& report) {
     const auto bars = preloaded_feed.size();
 
-    // Clone feed for each iteration -- no disk I/O in timing loop
-    const auto summary = run_benchmark(iterations, [&]() {
+    auto bench_fn = [&]() {
         auto feed_ptr = preloaded_feed.clone();
         auto& feed = static_cast<stratforge::CsvData&>(*feed_ptr);
         feed.load();
         auto indicator = make_indicator(feed);
         run_indicator(feed, indicator);
-    });
+    };
+
+    SampleSummary summary;
+#if SF_HAS_RDTSC
+    if (g_use_rdtsc) {
+        summary = run_benchmark_rdtsc(iterations, bench_fn);
+    } else
+#endif
+    {
+        summary = run_benchmark(iterations, bench_fn);
+    }
 
     print_summary(label, summary, iterations, bars);
 
@@ -93,17 +105,32 @@ SampleSummary benchmark_indicator_perbar(const std::string& label,
 
     const auto bars = feed.size();
 
-    const auto summary = run_perbar_benchmark(
-        bars,
-        [&]() { /* setup already done */ },
-        [&](std::size_t bar) {
-            indicator.next();
-            if (bar + 1 < bars) {
-                feed.advance();
-            }
-        },
-        /* warmup_bars= */ 50
-    );
+    auto per_bar_fn = [&](std::size_t bar) {
+        indicator.next();
+        if (bar + 1 < bars) {
+            feed.advance();
+        }
+    };
+
+    SampleSummary summary;
+#if SF_HAS_RDTSC
+    if (g_use_rdtsc) {
+        summary = run_perbar_benchmark_rdtsc(
+            bars,
+            [&]() { /* setup already done */ },
+            per_bar_fn,
+            /* warmup_bars= */ 50
+        );
+    } else
+#endif
+    {
+        summary = run_perbar_benchmark(
+            bars,
+            [&]() { /* setup already done */ },
+            per_bar_fn,
+            /* warmup_bars= */ 50
+        );
+    }
 
     print_perbar_summary("  " + label + " [per-bar]", summary);
 
@@ -190,13 +217,24 @@ void full_indicator_benchmark(const std::string& label,
 
 } // namespace
 
-int main() {
+int main(int argc, char* argv[]) {
+    // Parse CLI flags
+    for (int i = 1; i < argc; ++i) {
+        if (std::string(argv[i]) == "--no-rdtsc") {
+            g_use_rdtsc = false;
+        }
+    }
+
     constexpr std::size_t iterations = 50;
     const std::string dataset_512 = "tools/golden_extract/datas/2005-2006-day-001.txt";
     const std::string dataset_100k = "build/bench_data/synthetic_100k.csv";
 
     std::cout << "=== StratForge Indicator Benchmarks ===\n";
+
+    auto env = setup_benchmark_env();
+    std::cout << "Timing: " << (g_use_rdtsc ? "RDTSC" : "std::chrono") << '\n';
     std::cout << "Iterations: " << iterations << " (with 3 warmup)\n\n";
+    (void)env;
 
     // Load datasets ONCE
     auto feed_512 = load_feed(dataset_512);
@@ -239,6 +277,27 @@ int main() {
         run_indicator(f, sma);
     });
     std::cout << '\n';
+
+    // --- RDTSC vs Chrono Comparison (SMA only) ----------------------------
+#if SF_HAS_RDTSC
+    if (g_use_rdtsc) {
+        std::cout << "--- RDTSC vs Chrono Comparison [SMA(30)] ---\n";
+        auto sma_bench = [&]() {
+            auto fp = feed_512.clone();
+            auto& f = static_cast<stratforge::CsvData&>(*fp);
+            f.load();
+            auto sma = stratforge::SMA(f.close(), 30);
+            run_indicator(f, sma);
+        };
+        auto rdtsc_result = run_benchmark_rdtsc(iterations, sma_bench);
+        auto chrono_result = run_benchmark(iterations, sma_bench);
+        std::cout << "  RDTSC:  P50=" << rdtsc_result.p50_ns << " ns  P99=" << rdtsc_result.p99_ns
+                  << " ns  jitter=" << rdtsc_result.jitter_ns << " ns\n";
+        std::cout << "  Chrono: P50=" << chrono_result.p50_ns << " ns  P99=" << chrono_result.p99_ns
+                  << " ns  jitter=" << chrono_result.jitter_ns << " ns\n";
+        std::cout << '\n';
+    }
+#endif
 
     // --- Moving Averages ---------------------------------------------------
     std::cout << "--- Moving Averages ---\n";
