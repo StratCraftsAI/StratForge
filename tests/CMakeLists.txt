@@ -40,6 +40,8 @@ add_executable(stratforge_tests
     test_stats_hurst_rs.cpp
     test_stats_garch11.cpp
     test_stats_hmm2.cpp
+    test_bar.cpp
+    test_stats_result.cpp
 )
 
 target_link_libraries(stratforge_tests PRIVATE
