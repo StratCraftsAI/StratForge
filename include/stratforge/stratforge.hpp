@@ -2,6 +2,7 @@
 
 // Core
 #include <stratforge/analytics/extended_metrics.hpp>
+#include <stratforge/bar.hpp>
 #include <stratforge/core/line.hpp>
 #include <stratforge/core/line_series.hpp>
 #include <stratforge/core/params.hpp>
@@ -135,3 +136,8 @@
 #include <stratforge/stats/hurst_rs.hpp>
 #include <stratforge/stats/garch11.hpp>
 #include <stratforge/stats/hmm2.hpp>
+// : HypothesisResult POD + alias headers for LLM-friendly spellings.
+#include <stratforge/stats/result.hpp>
+#include <stratforge/stats/garch.hpp>
+#include <stratforge/stats/hmm.hpp>
+#include <stratforge/stats/hurst.hpp>
