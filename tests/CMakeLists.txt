@@ -36,6 +36,10 @@ add_executable(stratforge_tests
     test_coverage_engine.cpp
     test_data_robustness.cpp
     test_simd_ops.cpp
+    test_stats_adf.cpp
+    test_stats_hurst_rs.cpp
+    test_stats_garch11.cpp
+    test_stats_hmm2.cpp
 )
 
 target_link_libraries(stratforge_tests PRIVATE

@@ -128,3 +128,10 @@
 // Engine
 #include <stratforge/engine/cerebro.hpp>
 #include <stratforge/engine/optimizer.hpp>
+
+// Statistical operators — batch APIs for Signal Discovery
+// hypothesis tests. Distinct from streaming indicator APIs above.
+#include <stratforge/stats/adf.hpp>
+#include <stratforge/stats/hurst_rs.hpp>
+#include <stratforge/stats/garch11.hpp>
+#include <stratforge/stats/hmm2.hpp>
