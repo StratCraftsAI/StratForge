@@ -227,7 +227,7 @@ jobs:
             --print-summary
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           files: build/coverage.xml
           flags: indicators,broker,engine,data,strategy,analyzers,core,simd
