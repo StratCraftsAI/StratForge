@@ -137,7 +137,9 @@
 #include <stratforge/stats/garch11.hpp>
 #include <stratforge/stats/hmm2.hpp>
 // : HypothesisResult POD + alias headers for LLM-friendly spellings.
+// : result_json.hpp — canonical wire format owned by StratForge.
 #include <stratforge/stats/result.hpp>
+#include <stratforge/stats/result_json.hpp>
 #include <stratforge/stats/garch.hpp>
 #include <stratforge/stats/hmm.hpp>
 #include <stratforge/stats/hurst.hpp>
