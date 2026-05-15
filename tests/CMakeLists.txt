@@ -41,6 +41,9 @@ add_executable(stratforge_tests
     test_stats_garch11.cpp
     test_stats_hmm2.cpp
     test_bar.cpp
+    test_in_memory_feed.cpp
+    test_signal_evaluator.cpp
+    test_signal_evaluator_golden.cpp
     test_stats_result.cpp
 )
 
