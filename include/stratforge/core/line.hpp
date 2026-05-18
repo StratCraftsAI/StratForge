@@ -8,6 +8,25 @@ namespace stratforge {
 
 /// Line<T> - Ring buffer with backtrader-style indexing.
 /// operator[](0) = current value, operator[](-1) = previous value.
+///
+/// API surface lock (ratified 2026-05-18):
+///   Indexing is provided EXCLUSIVELY through operator[](int). The template
+///   form `at<N>()` (with static_assert(N <= 0) for compile-time forward-index
+///   rejection) is intentionally NOT exposed and will not be added. Reasons:
+///     (1) operator[] already covers the full [-N, +N] range with runtime
+///         throw; `at<N>()` would only fire on literal-index callsites, so
+///         its compile-time check is partial -- any variable-driven access
+///         falls back to operator[] anyway.
+///     (2) Dual-form (operator[] + `at<N>()`) doubles the API surface
+///         that downstream prompt SSOTs and validators must handle for the
+///         same observable behavior.
+///     (3) Python backtrader exposes only `self.data.close[0]` style.
+///         The backtrader-first principle requires not diverging from this.
+///     (4) Vendored consumers pin to a specific SHA of this header. Adding
+///         `at<N>()` would require a coordinated SHA bump + downstream
+///         validator rewrite for no semantic gain.
+///   This rejection is a permanent design decision; reintroducing `at<N>()`
+///   requires deleting this paragraph AND a fresh SDK-owner ratify.
 template <typename T>
 class Line {
 public:
