@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "description": "nonabackTrader performance regression baselines (TICKET_027 Phase B). Thresholds calibrated for shared CI runners with conservative headroom over local Release-build measurements. CI gate: fail if P50 regresses > 10% or P99 regresses > 20%.",
+  "calibration_environment": {
+    "build_type": "Release",
+    "compiler": "gcc (linux x86_64)",
+    "simd": "runtime-dispatched (AVX2 typical)",
+    "notes": "Baselines reflect TICKET_027 spec (CLAUDE.md `Test Case Convention`). Values include CI VM headroom; local hardware may run 2-5x faster."
+  },
+  "baselines": [
+    {
+      "name": "SMA(30) per-bar",
+      "tag": "[performance][regression][indicator]",
+      "p50_max_ns": 200,
+      "p99_max_ns": 500,
+      "warmup_iterations": 1024,
+      "measure_iterations": 10000
+    },
+    {
+      "name": "BollingerBands(20,2) per-bar",
+      "tag": "[performance][regression][indicator]",
+      "p50_max_ns": 400,
+      "p99_max_ns": 1000,
+      "warmup_iterations": 1024,
+      "measure_iterations": 10000
+    },
+    {
+      "name": "Strategy SMA-crossover per-bar (end-to-end)",
+      "tag": "[performance][regression][strategy]",
+      "per_bar_max_ns": 5000,
+      "bars": 5000,
+      "notes": "End-to-end per-bar (Cerebro+Strategy+Indicators), single-shot amortized measurement (not a percentile distribution). Spec target 800ns is intra-next() only; 5000ns budget includes Cerebro framing + order routing overhead. Field is per_bar_max_ns to match tests/test_performance_gate.cpp:280 read pattern."
+    },
+    {
+      "name": "Cerebro 10K-bar full backtest",
+      "tag": "[performance][regression][engine]",
+      "total_max_ns": 50000000,
+      "per_bar_max_ns": 5000,
+      "bars": 10000
+    },
+    {
+      "name": "CSV load 10K rows",
+      "tag": "[performance][regression][data]",
+      "p50_max_ns": 20000000,
+      "p99_max_ns": 40000000,
+      "rows": 10000,
+      "notes": "Full disk I/O + parse. Threshold includes CI disk variability."
+    },
+    {
+      "name": "CSV per-row latency",
+      "tag": "[performance][regression][data]",
+      "p50_max_ns": 2000,
+      "p99_max_ns": 5000,
+      "notes": "Amortized per-row cost including date parsing and field conversion."
+    },
+    {
+      "name": "Line::forward 10K elements",
+      "tag": "[performance][regression][core]",
+      "p50_max_ns": 100000,
+      "p99_max_ns": 200000,
+      "elements": 10000,
+      "notes": "Pre-reserved append. Should be near vector::push_back throughput."
+    },
+    {
+      "name": "Line::operator[] random access",
+      "tag": "[performance][regression][core]",
+      "p50_max_ns": 5000,
+      "p99_max_ns": 10000,
+      "accesses": 1000,
+      "notes": "1000 random lookback accesses on 10K-element line."
+    },
+    {
+      "name": "Order flood per-bar (market orders)",
+      "tag": "[performance][regression][broker]",
+      "p50_max_ns": 8000,
+      "p99_max_ns": 15000,
+      "notes": "Per-bar cost when submitting market order every bar (create + fill)."
+    }
+  ]
+}
