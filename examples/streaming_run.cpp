@@ -96,16 +96,28 @@ int main() {
             .max_interval               = std::chrono::milliseconds{100},
             .emit_first_bar_immediately = true,
         },
-        [](const stratforge::IncrementSnapshot& s) {
+        [](const stratforge::IncrementSnapshot& s, const std::vector<stratforge::DataFeed*>&) {
+            // Print summary fields aligned with the consumer-contract
+            // wire shape: totalPnl = realized + unrealized,
+            // totalReturn (%) replaces the old per-POD realized_pnl print,
+            // and per-snapshot win-rate is now first-class.
+            const auto& m = s.current_metrics;
+            const double total_pnl = m.realized_pnl + m.unrealized_pnl;
             std::cout << "seq=" << s.seq
                       << " processed=" << s.processed_bars;
             if (s.total_bars.has_value()) {
                 std::cout << '/' << *s.total_bars;
             }
-            std::cout << " bars="    << s.new_bars.size()
-                      << " trades="  << s.new_trades.size()
-                      << " pnl="     << s.current_metrics.realized_pnl
-                      << " dd="      << s.current_metrics.current_dd_pct << '%';
+            std::cout << " bars="     << s.new_bars.size()
+                      << " trades="   << s.new_trades.size()
+                      << " totalPnl=" << total_pnl
+                      << " totalReturn=" << m.total_return_pct << '%'
+                      << " winRate="  << m.win_rate_pct << '%';
+            if (!s.new_equity_points.empty()) {
+                const auto& last_pt = s.new_equity_points.back();
+                std::cout << " lastEquity=" << last_pt.portfolio_value
+                          << " lastDd="     << last_pt.drawdown_pct << '%';
+            }
             if (s.is_final) {
                 std::cout << "   [FINAL]";
             }

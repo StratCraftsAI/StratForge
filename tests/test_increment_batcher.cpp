@@ -7,6 +7,8 @@
 // CSV parity) lives in 789-C.
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <stratforge/broker/broker.hpp>
 #include <stratforge/broker/trade.hpp>
@@ -18,6 +20,7 @@
 #include "test_helpers.hpp"
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -128,7 +131,7 @@ TEST_CASE("IncrementBatcher flush_by_bar_count partitions feed deterministically
             .max_interval               = std::chrono::milliseconds{60'000},  // effectively disabled
             .emit_first_bar_immediately = false,
         },
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
 
@@ -175,7 +178,7 @@ TEST_CASE("IncrementBatcher flush_by_interval paces flushes by wall clock",
             .max_interval               = kInterval,
             .emit_first_bar_immediately = false,
         },
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
 
@@ -204,7 +207,7 @@ TEST_CASE("IncrementBatcher emits the first bar immediately when configured",
             .max_interval               = std::chrono::milliseconds{60'000},
             .emit_first_bar_immediately = true,
         },
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
 
@@ -228,7 +231,7 @@ TEST_CASE("IncrementBatcher always emits a terminal sentinel even with no trades
             .max_interval               = std::chrono::milliseconds{60'000},
             .emit_first_bar_immediately = false,
         },
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
 
@@ -253,7 +256,7 @@ TEST_CASE("IncrementBatcher seq is strictly monotonic with no gaps",
             .max_interval               = std::chrono::milliseconds{60'000},
             .emit_first_bar_immediately = true,
         },
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
 
@@ -281,7 +284,7 @@ TEST_CASE("IncrementBatcher captures every trade fired during the run",
             .max_interval               = std::chrono::milliseconds{60'000},
             .emit_first_bar_immediately = false,
         },
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
 
@@ -318,7 +321,7 @@ TEST_CASE("IncrementBatcher accounts for every bar across all flushes",
             .max_interval               = std::chrono::milliseconds{60'000},
             .emit_first_bar_immediately = true,
         },
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
 
@@ -344,7 +347,7 @@ TEST_CASE("IncrementBatcher propagates callback exceptions out of Cerebro::run()
             .max_interval               = std::chrono::milliseconds{60'000},
             .emit_first_bar_immediately = false,
         },
-        [seen = std::size_t{0}](const IncrementSnapshot& s) mutable {
+        [seen = std::size_t{0}](const IncrementSnapshot& s, const std::vector<DataFeed*>&) mutable {
             ++seen;
             if (s.seq == 3) {
                 throw std::runtime_error("callback failure on seq=3");
@@ -352,6 +355,235 @@ TEST_CASE("IncrementBatcher propagates callback exceptions out of Cerebro::run()
         }));
 
     REQUIRE_THROWS_AS(cerebro.run(), std::runtime_error);
+}
+
+TEST_CASE("IncrementBatcher per-point drawdown tracks running peak",
+          "[observer][increment][regression]") {
+    // NoopStrategy never trades, so portfolio_value == initial_cash on every
+    // bar (broker.cash() is unchanged with no fills). To exercise drawdown
+    // we need a strategy that actually moves equity. Use a long-only buy on
+    // bar 0 with a price series that rises then falls.
+    //
+    // Sequence designed so the running peak progresses predictably:
+    //   bar 0: px=100 (entry, dd = 0)
+    //   bar 1: px=110 (pv up, peak follows pv, dd = 0)
+    //   bar 2: px=120 (pv up, peak follows pv, dd = 0)
+    //   bar 3: px=105 (pv down 15 from peak 120 → dd ≈ 12.5%)
+    //   bar 4: px=130 (pv up, peak follows pv, dd = 0)
+    //   bar 5: px=125 (pv down 5 from peak 130 → dd ≈ 3.85%)
+    class HoldLongStrategy final : public Strategy {
+    public:
+        void start() override { static_cast<void>(buy(10.0)); }
+        void next() override {}
+    };
+
+    const std::vector<StaticFeed::Bar> bars{
+        {.open = 100, .high = 100, .low = 100, .close = 100},
+        {.open = 110, .high = 110, .low = 110, .close = 110},
+        {.open = 120, .high = 120, .low = 120, .close = 120},
+        {.open = 105, .high = 105, .low = 105, .close = 105},
+        {.open = 130, .high = 130, .low = 130, .close = 130},
+        {.open = 125, .high = 125, .low = 125, .close = 125},
+    };
+
+    std::vector<IncrementSnapshot> snaps;
+
+    Cerebro cerebro;
+    cerebro.set_cash(10'000.0);
+    cerebro.add_data(std::make_unique<StaticFeed>(bars));
+    cerebro.add_strategy(std::make_unique<HoldLongStrategy>());
+    cerebro.add_observer(std::make_unique<IncrementBatcher>(
+        IncrementBatcher::Config{
+            .max_bars_per_batch         = 10'000,
+            .max_interval               = std::chrono::milliseconds{60'000},
+            .emit_first_bar_immediately = false,
+        },
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
+
+    cerebro.run();
+
+    // All 6 equity points land in the terminal flush (one mid-batch
+    // threshold disabled, callback runs once at stop()).
+    REQUIRE_FALSE(snaps.empty());
+
+    std::vector<stratforge::EquityPoint> all_points;
+    for (const auto& s : snaps) {
+        for (const auto& p : s.new_equity_points) all_points.push_back(p);
+    }
+    REQUIRE(all_points.size() == bars.size());
+
+    // Invariant 1: drawdown_pct is finite and non-negative on every point.
+    // Invariant 2: peak is non-decreasing → whenever pv == running_max(pv),
+    //              dd must be 0.0 (within ε).
+    // Invariant 3: dd_pct matches (peak − pv) / peak × 100 recomputed here
+    //              from the published portfolio_value series.
+    double recomputed_peak = 0.0;
+    for (std::size_t i = 0; i < all_points.size(); ++i) {
+        const auto& p = all_points[i];
+        INFO("point " << i << " pv=" << p.portfolio_value
+                      << " dd=" << p.drawdown_pct);
+        CHECK(std::isfinite(p.drawdown_pct));
+        CHECK(p.drawdown_pct >= 0.0);
+
+        if (p.portfolio_value > recomputed_peak) recomputed_peak = p.portfolio_value;
+        const double expected_dd = (recomputed_peak > 0.0)
+            ? ((recomputed_peak - p.portfolio_value) / recomputed_peak * 100.0)
+            : 0.0;
+        CHECK_THAT(p.drawdown_pct,
+                   Catch::Matchers::WithinAbs(expected_dd, 1e-9));
+    }
+
+    // Spot-check the published current_dd_pct matches the last point's
+    // drawdown_pct (both reflect the same bar's running-peak state).
+    const auto& last = all_points.back();
+    CHECK_THAT(snaps.back().current_metrics.current_dd_pct,
+               Catch::Matchers::WithinAbs(last.drawdown_pct, 1e-9));
+}
+
+TEST_CASE("IncrementBatcher win/loss/win_rate tally",
+          "[observer][increment][regression]") {
+    // BackBroker fills at the NEXT bar's open. To control entry/exit prices
+    // mechanically we plan bars so:
+    //   - buy issued on bar k  ⇒ entry fill at bar (k+1) open
+    //   - close issued on bar j ⇒ exit  fill at bar (j+1) open
+    // PnL is then (exit_open − entry_open) × size, commission = 0.
+    //
+    //   trade 1: buy idx=0 → entry @ bar1.open=100; close idx=1 → exit @ bar2.open=110 → win
+    //   trade 2: buy idx=3 → entry @ bar4.open=110; close idx=4 → exit @ bar5.open=100 → loss
+    //   trade 3: buy idx=6 → entry @ bar7.open=100; close idx=7 → exit @ bar8.open=100 → break-even
+    class TallyStrategy final : public Strategy {
+    public:
+        void next() override {
+            const std::size_t idx = data().index();
+            if (idx == 0)      static_cast<void>(buy(1.0));
+            else if (idx == 1) static_cast<void>(close());
+            else if (idx == 3) static_cast<void>(buy(1.0));
+            else if (idx == 4) static_cast<void>(close());
+            else if (idx == 6) static_cast<void>(buy(1.0));
+            else if (idx == 7) static_cast<void>(close());
+        }
+    };
+
+    const std::vector<StaticFeed::Bar> bars{
+        {.open = 100, .high = 100, .low = 100, .close = 100},  // 0 buy issued
+        {.open = 100, .high = 100, .low = 100, .close = 100},  // 1 entry fill @100; close issued
+        {.open = 110, .high = 110, .low = 110, .close = 110},  // 2 exit fill @110 → +10 (win)
+        {.open = 110, .high = 110, .low = 110, .close = 110},  // 3 buy issued
+        {.open = 110, .high = 110, .low = 110, .close = 110},  // 4 entry fill @110; close issued
+        {.open = 100, .high = 100, .low = 100, .close = 100},  // 5 exit fill @100 → −10 (loss)
+        {.open = 100, .high = 100, .low = 100, .close = 100},  // 6 buy issued
+        {.open = 100, .high = 100, .low = 100, .close = 100},  // 7 entry fill @100; close issued
+        {.open = 100, .high = 100, .low = 100, .close = 100},  // 8 exit fill @100 → 0 (break-even)
+    };
+
+    std::vector<IncrementSnapshot> snaps;
+
+    Cerebro cerebro;
+    cerebro.set_cash(10'000.0);
+    cerebro.add_data(std::make_unique<StaticFeed>(bars));
+    cerebro.add_strategy(std::make_unique<TallyStrategy>());
+    cerebro.add_observer(std::make_unique<IncrementBatcher>(
+        IncrementBatcher::Config{
+            .max_bars_per_batch         = 10'000,
+            .max_interval               = std::chrono::milliseconds{60'000},
+            .emit_first_bar_immediately = false,
+        },
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
+
+    cerebro.run();
+
+    REQUIRE_FALSE(snaps.empty());
+    const auto& m = snaps.back().current_metrics;
+
+    // All 3 closed trades counted; break-even contributes to trade_count
+    // but to neither winning_count nor losing_count.
+    CHECK(m.trade_count   == 3u);
+    CHECK(m.winning_count == 1u);
+    CHECK(m.losing_count  == 1u);
+
+    // win_rate = winning / (winning + losing) × 100 = 1 / 2 × 100 = 50
+    // The break-even is excluded from the denominator by design.
+    CHECK_THAT(m.win_rate_pct,
+               Catch::Matchers::WithinAbs(50.0, 1e-9));
+}
+
+TEST_CASE("IncrementBatcher projects Trade entry_time / exit_time onto TradeRecord",
+          "[observer][increment][regression]") {
+    // Verify end-to-end: broker stamps Trade timestamps, project_trade_
+    // copies them through to TradeRecord exposed on IncrementSnapshot.
+    class OneShotStrategy final : public Strategy {
+    public:
+        void next() override {
+            const std::size_t idx = data().index();
+            if (idx == 0)      static_cast<void>(buy(1.0));
+            else if (idx == 2) static_cast<void>(close());
+        }
+    };
+
+    const std::vector<StaticFeed::Bar> bars{
+        {.open = 100, .high = 100, .low = 100, .close = 100},
+        {.open = 110, .high = 110, .low = 110, .close = 110},
+        {.open = 120, .high = 120, .low = 120, .close = 120},
+        {.open = 120, .high = 120, .low = 120, .close = 120},
+    };
+
+    std::vector<IncrementSnapshot> snaps;
+    Cerebro cerebro;
+    cerebro.set_cash(10'000.0);
+    cerebro.add_data(std::make_unique<StaticFeed>(bars));
+    cerebro.add_strategy(std::make_unique<OneShotStrategy>());
+    cerebro.add_observer(std::make_unique<IncrementBatcher>(
+        IncrementBatcher::Config{
+            .max_bars_per_batch         = 10'000,
+            .max_interval               = std::chrono::milliseconds{60'000},
+            .emit_first_bar_immediately = false,
+        },
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
+    cerebro.run();
+
+    // Collect all closed trade records across snapshots.
+    std::vector<stratforge::TradeRecord> closed;
+    for (const auto& s : snaps) {
+        for (const auto& tr : s.new_trades) {
+            if (tr.status == 1u) closed.push_back(tr);
+        }
+    }
+    REQUIRE(closed.size() == 1u);
+    const auto& tr = closed[0];
+    // Timestamps must be populated (non-default for exit, which fell on
+    // bar > 0) AND entry < exit.
+    CHECK(tr.exit_time > stratforge::DateTime{});
+    CHECK(tr.entry_time < tr.exit_time);
+    // Cross-check entry/exit_bar still match the legacy int fields.
+    CHECK(tr.exit_bar > tr.entry_bar);
+}
+
+TEST_CASE("IncrementBatcher win_rate is 0 when no trades have closed",
+          "[observer][increment][regression]") {
+    std::vector<IncrementSnapshot> snaps;
+
+    Cerebro cerebro;
+    cerebro.add_data(std::make_unique<StaticFeed>(make_trivial_bars(20)));
+    cerebro.add_strategy(std::make_unique<NoopStrategy>());
+    cerebro.add_observer(std::make_unique<IncrementBatcher>(
+        IncrementBatcher::Config{
+            .max_bars_per_batch         = 10'000,
+            .max_interval               = std::chrono::milliseconds{60'000},
+            .emit_first_bar_immediately = false,
+        },
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
+
+    cerebro.run();
+
+    REQUIRE_FALSE(snaps.empty());
+    const auto& m = snaps.back().current_metrics;
+    CHECK(m.trade_count   == 0u);
+    CHECK(m.winning_count == 0u);
+    CHECK(m.losing_count  == 0u);
+    // 0/0 must NOT produce NaN — the denominator guard returns 0.0.
+    CHECK(std::isfinite(m.win_rate_pct));
+    CHECK_THAT(m.win_rate_pct,
+               Catch::Matchers::WithinAbs(0.0, 1e-12));
 }
 
 TEST_CASE("IncrementBatcher on a zero-bar feed emits a single terminal snapshot",
@@ -363,7 +595,7 @@ TEST_CASE("IncrementBatcher on a zero-bar feed emits a single terminal snapshot"
     cerebro.add_strategy(std::make_unique<NoopStrategy>());
     cerebro.add_observer(std::make_unique<IncrementBatcher>(
         IncrementBatcher::Config{},
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
 

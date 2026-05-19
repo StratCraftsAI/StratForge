@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stratforge/bar.hpp>
+
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -32,9 +34,16 @@ struct Trade {
     std::size_t entry_bar = 0;    // Bar index at entry
     std::size_t exit_bar = 0;     // Bar index at exit
     std::size_t barlen = 0;       // Bars elapsed while the trade was open
+    DateTime    entry_time{};     // [ §4.3] bar timestamp at entry fill
+    DateTime    exit_time{};      // [ §4.3] bar timestamp at exit fill
 
-    /// Update trade with a fill (may close or partially close)
-    void update(double fill_size, double fill_price, double comm, std::size_t bar_index) noexcept {
+    /// Update trade with a fill (may close or partially close).
+    /// `bar_dt` is the timestamp of the bar on which the fill occurs;
+    /// stamped onto `entry_time` at open and `exit_time` at close so
+    /// downstream sinks don't have
+    /// to resolve bar_index → DateTime themselves.
+    void update(double fill_size, double fill_price, double comm,
+                std::size_t bar_index, DateTime bar_dt = DateTime{}) noexcept {
         constexpr double eps = 1e-10;
 
         if (std::abs(fill_size) < eps) {
@@ -48,6 +57,7 @@ struct Trade {
         justopened = std::abs(old_size) < eps;
         if (justopened) {
             entry_bar = bar_index;
+            entry_time = bar_dt;
             islong = size > 0.0;
         }
 
@@ -78,6 +88,7 @@ struct Trade {
             value = 0.0;
             status = TradeStatus::Closed;
             exit_bar = bar_index;
+            exit_time = bar_dt;
             isopen = false;
         } else {
             status = TradeStatus::Open;

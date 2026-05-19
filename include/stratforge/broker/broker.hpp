@@ -654,9 +654,11 @@ private:
         double old_size = pos.size;
         pos.update(fill_size, fill_price);
 
-        // Track trades
+        // Track trades — [ §4.3] stamp bar timestamp on
+        // entry/exit so downstream sinks don't need a bar→DateTime resolver.
+        const DateTime bar_dt = (feed.size() > 0) ? feed.datetime()[0] : DateTime{};
         update_trades(order.data_index, old_size, fill_size, fill_price, comm,
-                      data_bar_index_);
+                      data_bar_index_, bar_dt);
 
         sync_order(order);
 
@@ -707,21 +709,22 @@ private:
     }
 
     void update_trades(std::size_t data_index, double old_size, double fill_size,
-                       double fill_price, double comm, std::size_t bar_index) {
+                       double fill_price, double comm, std::size_t bar_index,
+                       DateTime bar_dt = DateTime{}) {
         // Opening a new trade or adding to existing
         if (std::abs(old_size) < 1e-10) {
             // New trade
             Trade trade;
             trade.id = next_trade_id_++;
             trade.data_index = data_index;
-            trade.update(fill_size, fill_price, comm, bar_index);
+            trade.update(fill_size, fill_price, comm, bar_index, bar_dt);
             open_trades_.push_back({trade, fill_size});
         } else if ((old_size > 0 && fill_size > 0) || (old_size < 0 && fill_size < 0)) {
             // Adding to existing trade
             for (auto& [trade, orig_size] : open_trades_) {
                 if (trade.data_index == data_index && trade.is_open()) {
                     orig_size += fill_size;
-                    trade.update(fill_size, fill_price, comm, bar_index);
+                    trade.update(fill_size, fill_price, comm, bar_index, bar_dt);
                     break;
                 }
             }
@@ -738,7 +741,7 @@ private:
                         const double open_comm = comm - close_comm;
                         const double remaining = fill_size + trade.size;
 
-                        trade.update(close_size, fill_price, close_comm, bar_index);
+                        trade.update(close_size, fill_price, close_comm, bar_index, bar_dt);
                         closed_trades_.push_back({trade, orig_size});
                         if (trade_notify_) trade_notify_(trade, orig_size);
                         it = open_trades_.erase(it);
@@ -746,11 +749,11 @@ private:
                         Trade next_trade;
                         next_trade.id = next_trade_id_++;
                         next_trade.data_index = data_index;
-                        next_trade.update(remaining, fill_price, open_comm, bar_index);
+                        next_trade.update(remaining, fill_price, open_comm, bar_index, bar_dt);
                         open_trades_.push_back({next_trade, remaining});
                         break;
                     } else {
-                        trade.update(fill_size, fill_price, comm, bar_index);
+                        trade.update(fill_size, fill_price, comm, bar_index, bar_dt);
                         if (trade.is_closed()) {
                             closed_trades_.push_back({trade, orig_size});
                             if (trade_notify_) trade_notify_(trade, orig_size);

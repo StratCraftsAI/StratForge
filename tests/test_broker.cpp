@@ -203,3 +203,70 @@ TEST_CASE("BackBroker handles rejection, margin, reversal, and slippage", "[brok
         REQUIRE_THAT(broker.orders().back().executed_price, WithinRel(106.0, 1e-12));
     }
 }
+
+TEST_CASE("Trade::update stamps entry_time and exit_time from bar DateTime",
+          "[broker][trade][regression]") {
+    using std::chrono::milliseconds;
+    Trade trade;
+
+    const DateTime open_dt{milliseconds{1'700'000'000'000}};
+    const DateTime close_dt{milliseconds{1'700'000'060'000}};
+
+    trade.update(1.0, 100.0, 0.0, /*bar_index=*/1, open_dt);
+    REQUIRE(trade.is_open());
+    CHECK(trade.entry_bar  == 1u);
+    CHECK(trade.entry_time == open_dt);
+    // exit_time still default-constructed until close
+    CHECK(trade.exit_time  == DateTime{});
+
+    trade.update(-1.0, 110.0, 0.0, /*bar_index=*/2, close_dt);
+    REQUIRE(trade.is_closed());
+    CHECK(trade.exit_bar   == 2u);
+    CHECK(trade.exit_time  == close_dt);
+    // entry_time must NOT be overwritten by the closing update
+    CHECK(trade.entry_time == open_dt);
+}
+
+TEST_CASE("BackBroker propagates bar DateTime onto Trade entry_time / exit_time",
+          "[broker][trade][regression]") {
+    // BackBroker.process_orders() fills at the CURRENT bar (mirrors the
+    // existing "BackBroker executes orders and updates positions and
+    // trades" pattern at line 81). entry_time / exit_time should reflect
+    // the bar timestamps from feed.datetime()[0] at each fill.
+    StaticFeed feed({
+        {100.0, 105.0, 95.0,  102.0},
+        {110.0, 115.0, 108.0, 112.0},
+    });
+    REQUIRE(feed.load());
+    std::vector<DataFeed*> feeds{&feed};
+
+    Trade captured;
+    bool got_closed = false;
+    BackBroker broker(10'000.0);
+    broker.set_trade_notify([&](const Trade& t, double) {
+        if (t.is_closed()) { captured = t; got_closed = true; }
+    });
+
+    // Bar 0: open the position (fills at bar 0's open = 100)
+    static_cast<void>(broker.buy(1.0));
+    broker.set_bar_index(0);
+    broker.process_orders(feeds);
+    REQUIRE(broker.position().is_long());
+
+    // Bar 1: close (fills at bar 1's open = 110)
+    feed.advance();
+    broker.set_bar_index(1);
+    static_cast<void>(broker.close());
+    broker.process_orders(feeds);
+
+    REQUIRE(got_closed);
+    CHECK(captured.entry_bar == 0u);
+    CHECK(captured.exit_bar  == 1u);
+    // StaticFeed seeds bar 0 at epoch and increments by 24h per bar, so
+    // bar 0's DateTime IS the default time_point. The meaningful invariant
+    // here is monotonicity: exit_time strictly greater than entry_time, and
+    // both equal what the feed reports for those bars.
+    CHECK(captured.entry_time == feed.datetime().data()[0]);
+    CHECK(captured.exit_time  == feed.datetime().data()[1]);
+    CHECK(captured.entry_time < captured.exit_time);
+}

@@ -86,7 +86,7 @@ public:
                 .max_interval               = std::chrono::milliseconds{60'000},
                 .emit_first_bar_immediately = false,
             },
-            [&flushes](const IncrementSnapshot&) { ++flushes; }));
+            [&flushes](const IncrementSnapshot&, const std::vector<stratforge::DataFeed*>&) { ++flushes; }));
     }
 
     const auto t0 = std::chrono::steady_clock::now();
@@ -151,7 +151,7 @@ TEST_CASE("IncrementBatcher flush dispatch budget",
             .max_interval               = std::chrono::milliseconds{60'000},
             .emit_first_bar_immediately = false,
         },
-        [&flushes](const IncrementSnapshot&) {
+        [&flushes](const IncrementSnapshot&, const std::vector<stratforge::DataFeed*>&) {
             // Body kept trivially cheap — we are budgeting the batcher's
             // per-flush overhead, not whatever the caller does with the
             // snapshot.

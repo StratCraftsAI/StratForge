@@ -147,7 +147,7 @@ private:
             .max_interval               = std::chrono::milliseconds{60'000},  // disable interval
             .emit_first_bar_immediately = true,
         },
-        [&snaps](const IncrementSnapshot& s) { snaps.push_back(s); }));
+        [&snaps](const IncrementSnapshot& s, const std::vector<stratforge::DataFeed*>&) { snaps.push_back(s); }));
 
     cerebro.run();
     return snaps;

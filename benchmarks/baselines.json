@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "description": "nonabackTrader performance regression baselines (TICKET_027 Phase B). Thresholds calibrated for shared CI runners with conservative headroom over local Release-build measurements. CI gate: fail if P50 regresses > 10% or P99 regresses > 20%.",
+  "description": "StratForge performance regression baselines (TICKET_027 Phase B). Thresholds calibrated for shared CI runners with conservative headroom over local Release-build measurements. CI gate: fail if P50 regresses > 10% or P99 regresses > 20%.",
   "calibration_environment": {
     "build_type": "Release",
     "compiler": "gcc (linux x86_64)",

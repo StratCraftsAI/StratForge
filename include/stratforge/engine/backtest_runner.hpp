@@ -7,10 +7,13 @@
 #include <stratforge/data/csv_data.hpp>
 #include <stratforge/engine/cerebro.hpp>
 #include <stratforge/observers/cash_value.hpp>
+#include <stratforge/observers/increment_batcher.hpp>
+#include <stratforge/observers/increment_types.hpp>
 #include <stratforge/strategy/strategy.hpp>
 
 #include <chrono>
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -96,9 +99,17 @@ private:
 /// The strategy will be destroyed when Cerebro goes out of scope
 /// (before dlclose), which is correct for .so-allocated objects.
 ///
+/// If `on_increment` is non-null, an IncrementBatcher observer is attached
+/// to the internal Cerebro and the callback receives one IncrementSnapshot
+/// per flush (per the -B contract: bar-count OR wall-clock
+/// threshold, plus one terminal is_final flush). Out-of-process callers
+/// (e.g. stratforge-runner's [INCREMENT_V2] / [FINAL_SEQ] streaming
+/// protocol,  §4) attach a JSON-emitting lambda here.
+///
 /// Returns the result JSON string.
 [[nodiscard]] inline std::string run_backtest(std::unique_ptr<Strategy> strategy,
-                                              const BacktestConfig& config) {
+                                              const BacktestConfig& config,
+                                              IncrementBatcher::FlushCallback on_increment = nullptr) {
     if (!strategy) {
         return R"({"success":false,"errorMessage":"null strategy pointer"})";
     }
@@ -136,6 +147,11 @@ private:
     auto& drawdown = cerebro.add_analyzer<Drawdown>();
     auto& cash_value = cerebro.add_observer<CashValue>();
 
+    if (on_increment) {
+        cerebro.add_observer(std::make_unique<IncrementBatcher>(
+            IncrementBatcher::Config{}, std::move(on_increment)));
+    }
+
     cerebro.run();
 
     auto end_time = std::chrono::steady_clock::now();
@@ -160,8 +176,11 @@ private:
 
 /// Convenience overload: parse JSON config and run backtest.
 [[nodiscard]] inline std::string run_backtest(std::unique_ptr<Strategy> strategy,
-                                              std::string_view config_json) {
-    return run_backtest(std::move(strategy), parse_backtest_config(config_json));
+                                              std::string_view config_json,
+                                              IncrementBatcher::FlushCallback on_increment = nullptr) {
+    return run_backtest(std::move(strategy),
+                        parse_backtest_config(config_json),
+                        std::move(on_increment));
 }
 
 } // namespace stratforge

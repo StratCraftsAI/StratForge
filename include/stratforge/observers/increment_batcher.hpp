@@ -47,7 +47,13 @@ public:
         bool                        emit_first_bar_immediately = true;
     };
 
-    using FlushCallback = std::function<void(const IncrementSnapshot&)>;
+    /// Flush callback receives the snapshot AND the current feed list so
+    /// serializers can resolve symbol-by-data_index without re-plumbing.
+    /// `feeds` is a non-owning view valid only for the duration of the call.
+    ///  §4.3: keeps `symbol` off the POD while still letting the
+    /// wire emit it.
+    using FlushCallback = std::function<void(const IncrementSnapshot&,
+                                             const std::vector<DataFeed*>&)>;
 
     IncrementBatcher(Config config, FlushCallback on_flush) noexcept
         : config_(config)
@@ -60,6 +66,7 @@ public:
     }
 
     void next(const BackBroker& broker, const std::vector<DataFeed*>& feeds) override {
+        last_feeds_ = &feeds;
         if (!first_bar_seen_) {
             first_bar_seen_ = true;
             if (!feeds.empty() && feeds[0] != nullptr) {
@@ -79,12 +86,10 @@ public:
         const DateTime ts = (!feeds.empty() && feeds[0] != nullptr)
                           ? feeds[0]->datetime()[0]
                           : DateTime{};
-        pending_equity_.push_back(EquityPoint{ .timestamp = ts,
-                                               .portfolio_value = pv,
-                                               .cash = cash });
 
         // Running drawdown — mirrors analyzers/drawdown.hpp math; inlined
         // to avoid coupling Observer ordering to Analyzer ordering.
+        // Computed BEFORE push so the per-point dd reaches EquityPoint.
         if (pv > peak_) {
             peak_ = pv;
         }
@@ -96,6 +101,11 @@ public:
         last_portfolio_value_ = pv;
         last_cash_ = cash;
 
+        pending_equity_.push_back(EquityPoint{ .timestamp       = ts,
+                                               .portfolio_value = pv,
+                                               .cash            = cash,
+                                               .drawdown_pct    = dd });
+
         ++processed_bars_;
         maybe_flush_(/*force=*/false);
     }
@@ -105,6 +115,12 @@ public:
         if (trade.is_closed()) {
             closed_realized_pnl_ += trade.pnlcomm;
             ++closed_trade_count_;
+            // Win/loss tally — exact 0.0 is neither (break-even).
+            if (trade.pnlcomm > 0.0) {
+                ++winning_count_;
+            } else if (trade.pnlcomm < 0.0) {
+                ++losing_count_;
+            }
         }
     }
 
@@ -146,7 +162,14 @@ private:
         pending_equity_.clear();
         pending_equity_.reserve(config_.max_bars_per_batch);
 
-        on_flush_(snap);  // may throw — propagates out of Cerebro::run() (§4.3)
+        //  §4.3: pass feeds so serializers can resolve
+        // symbol-by-data_index. last_feeds_ is the most-recent ptr from
+        // next(); on a zero-bar feed it remains null and the callback
+        // receives an empty list.
+        static const std::vector<DataFeed*> kEmpty{};
+        const std::vector<DataFeed*>& feeds_ref =
+            (last_feeds_ != nullptr) ? *last_feeds_ : kEmpty;
+        on_flush_(snap, feeds_ref);  // may throw — propagates out of Cerebro::run() (§4.3)
     }
 
     [[nodiscard]] static Bar snapshot_current_bar_(const DataFeed& feed) noexcept {
@@ -173,6 +196,8 @@ private:
             .entry_bar   = trade.entry_bar,
             .exit_bar    = trade.exit_bar,
             .status      = static_cast<std::uint8_t>(trade.status),
+            .entry_time  = trade.entry_time,
+            .exit_time   = trade.exit_time,
         };
     }
 
@@ -190,6 +215,12 @@ private:
         m.current_dd_pct   = current_dd_;
         m.max_dd_pct       = max_dd_;
         m.trade_count      = closed_trade_count_;
+        m.winning_count    = winning_count_;
+        m.losing_count     = losing_count_;
+        const std::uint64_t decided = winning_count_ + losing_count_;
+        m.win_rate_pct     = (decided == 0)
+                           ? 0.0
+                           : (static_cast<double>(winning_count_) / static_cast<double>(decided)) * 100.0;
         return m;
     }
 
@@ -204,6 +235,7 @@ private:
     std::vector<EquityPoint>                pending_equity_;
     std::chrono::steady_clock::time_point   last_flush_at_{};
     bool                                    first_bar_seen_       = false;
+    const std::vector<DataFeed*>*           last_feeds_           = nullptr;
 
     double                                  initial_cash_         = 0.0;
     double                                  last_portfolio_value_ = 0.0;
@@ -213,6 +245,8 @@ private:
     double                                  max_dd_               = 0.0;
     double                                  closed_realized_pnl_  = 0.0;
     std::uint64_t                           closed_trade_count_   = 0;
+    std::uint64_t                           winning_count_        = 0;
+    std::uint64_t                           losing_count_         = 0;
 };
 
 }  // namespace stratforge
