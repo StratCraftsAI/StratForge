@@ -45,6 +45,10 @@ add_executable(stratforge_tests
     test_signal_evaluator.cpp
     test_signal_evaluator_golden.cpp
     test_stats_result.cpp
+    test_increment_types.cpp
+    test_increment_batcher.cpp
+    test_increment_batcher_baseline.cpp
+    test_performance_increment_batcher.cpp
 )
 
 target_link_libraries(stratforge_tests PRIVATE

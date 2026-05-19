@@ -75,6 +75,22 @@
       "p50_max_ns": 8000,
       "p99_max_ns": 15000,
       "notes": "Per-bar cost when submitting market order every bar (create + fill)."
+    },
+    {
+      "name": "IncrementBatcher per-bar accumulation",
+      "tag": "[performance][regression][observer]",
+      "p50_max_ns": 200,
+      "p99_max_ns": 500,
+      "bars": 10000,
+      "notes": "TICKET_789-B §7. Per-bar delta of Cerebro::run() with vs without an attached IncrementBatcher (noop callback, batch=10K so only one mid-flush). Local Release measurement: ~26-28 ns. p99_max_ns=500 carries CI VM headroom (CLAUDE.md convention)."
+    },
+    {
+      "name": "IncrementBatcher flush dispatch",
+      "tag": "[performance][regression][observer]",
+      "p50_max_ns": 5000,
+      "p99_max_ns": 10000,
+      "bars": 10000,
+      "notes": "TICKET_789-B §7. Per-flush upper-bound, computed as (with_batcher_ns − without_ns) / flush_count over a 10K-bar run with ~101 flushes. Upper bound because the divisor attributes all batcher overhead (including per-bar accumulation) to flushes alone — a strict over-estimate. Local Release measurement: ~1700 ns. Generous CI headroom to absorb the wall-clock noise floor on shared runners."
     }
   ]
 }

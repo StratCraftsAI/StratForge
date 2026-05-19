@@ -125,6 +125,13 @@
 #include <stratforge/observers/buy_sell.hpp>
 #include <stratforge/observers/cash_value.hpp>
 #include <stratforge/observers/value.hpp>
+// -A: POD wire contract for progressive backtest streaming.
+// The IncrementBatcher observer (789-B) and the future AsyncIncrementSink
+// both project into IncrementSnapshot.
+#include <stratforge/observers/increment_types.hpp>
+// -B: Built-in batching Observer that streams IncrementSnapshots
+// to a user-supplied flush callback during Cerebro::run().
+#include <stratforge/observers/increment_batcher.hpp>
 
 // Engine
 #include <stratforge/engine/cerebro.hpp>

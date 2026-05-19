@@ -25,6 +25,7 @@ add_stratforge_example(bollinger_bands)
 add_stratforge_example(multi_timeframe)
 add_stratforge_example(pairs_trading)
 add_stratforge_example(optimizer_example)
+add_stratforge_example(streaming_run)
 
 # Add AI-generated examples subdirectory
 add_subdirectory(llm_generated)
@@ -39,5 +40,6 @@ add_custom_target(examples
         multi_timeframe
         pairs_trading
         optimizer_example
+        streaming_run
         llm_examples
 )
