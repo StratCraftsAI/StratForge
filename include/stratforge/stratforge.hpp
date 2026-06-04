@@ -113,6 +113,95 @@
 #include <stratforge/indicators/mavp.hpp>
 #include <stratforge/indicators/talib_compat.hpp>
 
+// Phase 1: TICKET_SF009 — TA-Lib deferred indicators
+#include <stratforge/indicators/aberration.hpp>
+#include <stratforge/indicators/accbands.hpp>
+#include <stratforge/indicators/adosc.hpp>
+#include <stratforge/indicators/alma.hpp>
+#include <stratforge/indicators/amat.hpp>
+#include <stratforge/indicators/aobv.hpp>
+#include <stratforge/indicators/bias.hpp>
+#include <stratforge/indicators/cdl_inside.hpp>
+#include <stratforge/indicators/cdl_z.hpp>
+#include <stratforge/indicators/cfo.hpp>
+#include <stratforge/indicators/chop.hpp>
+#include <stratforge/indicators/cksp.hpp>
+#include <stratforge/indicators/cti.hpp>
+#include <stratforge/indicators/decay.hpp>
+#include <stratforge/indicators/decreasing.hpp>
+#include <stratforge/indicators/dx.hpp>
+#include <stratforge/indicators/ebsw.hpp>
+#include <stratforge/indicators/efficiency_ratio.hpp>
+#include <stratforge/indicators/efi.hpp>
+#include <stratforge/indicators/entropy.hpp>
+#include <stratforge/indicators/fwma.hpp>
+#include <stratforge/indicators/hwc.hpp>
+#include <stratforge/indicators/increasing.hpp>
+#include <stratforge/indicators/inertia.hpp>
+#include <stratforge/indicators/jma.hpp>
+#include <stratforge/indicators/kurtosis.hpp>
+#include <stratforge/indicators/log_return.hpp>
+#include <stratforge/indicators/long_run.hpp>
+#include <stratforge/indicators/massi.hpp>
+#include <stratforge/indicators/mcgd.hpp>
+#include <stratforge/indicators/median.hpp>
+#include <stratforge/indicators/nvi.hpp>
+#include <stratforge/indicators/pdist.hpp>
+#include <stratforge/indicators/psl.hpp>
+#include <stratforge/indicators/pvi.hpp>
+#include <stratforge/indicators/pvol.hpp>
+#include <stratforge/indicators/pvr.hpp>
+#include <stratforge/indicators/pwma.hpp>
+#include <stratforge/indicators/qqe.hpp>
+#include <stratforge/indicators/qstick.hpp>
+#include <stratforge/indicators/quantile.hpp>
+#include <stratforge/indicators/rvi.hpp>
+#include <stratforge/indicators/short_run.hpp>
+#include <stratforge/indicators/sinwma.hpp>
+#include <stratforge/indicators/skew.hpp>
+#include <stratforge/indicators/squeeze.hpp>
+#include <stratforge/indicators/ssf.hpp>
+#include <stratforge/indicators/stc.hpp>
+#include <stratforge/indicators/swma.hpp>
+#include <stratforge/indicators/td_seq.hpp>
+#include <stratforge/indicators/thermo.hpp>
+#include <stratforge/indicators/tos_stdevall.hpp>
+#include <stratforge/indicators/tsignals.hpp>
+#include <stratforge/indicators/vp.hpp>
+#include <stratforge/indicators/vwma.hpp>
+#include <stratforge/indicators/xsignals.hpp>
+#include <stratforge/indicators/zscore.hpp>
+
+// Phase 2: TICKET_SF009 — Alpha158 deferred indicators
+#include <stratforge/indicators/idxmax.hpp>
+#include <stratforge/indicators/idxmin.hpp>
+#include <stratforge/indicators/imxd.hpp>
+#include <stratforge/indicators/rolling_residual.hpp>
+#include <stratforge/indicators/rolling_rsquared.hpp>
+#include <stratforge/indicators/cntp.hpp>
+#include <stratforge/indicators/cntn.hpp>
+#include <stratforge/indicators/cntd.hpp>
+#include <stratforge/indicators/sump.hpp>
+#include <stratforge/indicators/sum_neg_return.hpp>
+#include <stratforge/indicators/sumd.hpp>
+#include <stratforge/indicators/vsump.hpp>
+#include <stratforge/indicators/vsumn.hpp>
+#include <stratforge/indicators/vsumd.hpp>
+#include <stratforge/indicators/wvma.hpp>
+#include <stratforge/indicators/alpha158_vwap.hpp>
+
+// Phase 3: TICKET_SF009 — Alpha101 (WorldQuant 101 factors)
+#include <stratforge/indicators/alpha101_ops.hpp>
+#include <stratforge/indicators/alpha101.hpp>
+
+// Phase 4: TICKET_SF009 — Alpha191 (Guotai Junan 191 factors)
+#include <stratforge/indicators/alpha191_ops.hpp>
+#include <stratforge/indicators/alpha191.hpp>
+
+// Phase 5: TICKET_SF009 — JKP (Jensen, Kelly & Pedersen 25 academic factors)
+#include <stratforge/indicators/jkp_ops.hpp>
+#include <stratforge/indicators/jkp.hpp>
+
 // Analyzers
 #include <stratforge/analyzers/analyzer.hpp>
 #include <stratforge/analyzers/sharpe_ratio.hpp>

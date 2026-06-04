@@ -98,6 +98,103 @@ void run_indicator_ohlc(::stratforge::Line<double>& o, ::stratforge::Line<double
     }
 }
 
+/// Drive a close+volume-source indicator (e.g. OBV, EFI, NVI, PVI).
+/// Also used for any two-line indicator where both lines advance together.
+template <typename IndicatorType>
+void run_indicator_cv(::stratforge::Line<double>& close, ::stratforge::Line<double>& volume,
+                      IndicatorType& indicator) {
+    for (std::size_t i = 0; i < close.size(); ++i) {
+        indicator.next();
+        if (i + 1 < close.size()) {
+            close.advance();
+            volume.advance();
+        }
+    }
+}
+
+/// Drive an open+close indicator (e.g. QStick, CdlZ).
+template <typename IndicatorType>
+void run_indicator_oc(::stratforge::Line<double>& open, ::stratforge::Line<double>& close,
+                      IndicatorType& indicator) {
+    for (std::size_t i = 0; i < close.size(); ++i) {
+        indicator.next();
+        if (i + 1 < close.size()) {
+            open.advance();
+            close.advance();
+        }
+    }
+}
+
+/// Drive an OHLCV-source indicator (high, low, close, volume — 4 lines).
+template <typename IndicatorType>
+void run_indicator_ohlcv(::stratforge::Line<double>& high, ::stratforge::Line<double>& low,
+                         ::stratforge::Line<double>& close, ::stratforge::Line<double>& volume,
+                         IndicatorType& indicator) {
+    for (std::size_t i = 0; i < close.size(); ++i) {
+        indicator.next();
+        if (i + 1 < close.size()) {
+            high.advance();
+            low.advance();
+            close.advance();
+            volume.advance();
+        }
+    }
+}
+
+/// Drive a full OHLCV-source indicator (open, high, low, close, volume — 5 lines).
+template <typename IndicatorType>
+void run_indicator_full_ohlcv(::stratforge::Line<double>& open, ::stratforge::Line<double>& high,
+                              ::stratforge::Line<double>& low, ::stratforge::Line<double>& close,
+                              ::stratforge::Line<double>& volume, IndicatorType& indicator) {
+    for (std::size_t i = 0; i < close.size(); ++i) {
+        indicator.next();
+        if (i + 1 < close.size()) {
+            open.advance();
+            high.advance();
+            low.advance();
+            close.advance();
+            volume.advance();
+        }
+    }
+}
+
+// ============================================================================
+// Full OHLCV dataset generator (for Alpha101 batch tests)
+// ============================================================================
+
+struct OhlcvLines {
+    ::stratforge::Line<double> open;
+    ::stratforge::Line<double> high;
+    ::stratforge::Line<double> low;
+    ::stratforge::Line<double> close;
+    ::stratforge::Line<double> volume;
+};
+
+inline OhlcvLines make_ohlcv(std::size_t count,
+                              double base = 100.0,
+                              double vol_base = 100000.0) {
+    OhlcvLines lines;
+    for (std::size_t i = 0; i < count; ++i) {
+        const double di = static_cast<double>(i);
+        const double c = base + std::sin(di * 0.1) * 5.0 + di * 0.02;
+        const double h = c + 1.0 + std::abs(std::sin(di * 0.3)) * 0.5;
+        const double l = c - 1.0 - std::abs(std::cos(di * 0.3)) * 0.5;
+        const double o = c + std::sin(di * 0.7) * 0.3;
+        const double v = vol_base + di * 500.0 + std::sin(di * 0.2) * 20000.0;
+        lines.open.forward(o);
+        lines.high.forward(h);
+        lines.low.forward(l);
+        lines.close.forward(c);
+        lines.volume.forward(v);
+    }
+    lines.open.home();
+    lines.high.home();
+    lines.low.home();
+    lines.close.home();
+    lines.volume.home();
+    return lines;
+}
+
 // ============================================================================
 // Programmatic data generators
 // ============================================================================
