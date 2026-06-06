@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <vector>
 
 namespace stratforge {
 
@@ -26,38 +27,65 @@ public:
         , kijun_(kijun == 0 ? 1 : kijun)
         , senkou_(senkou == 0 ? 1 : senkou)
         , senkou_lead_(senkou_lead)
-        , chikou_(chikou) {}
+        , chikou_(chikou)
+        , senkou_a_buf_(senkou_lead, std::numeric_limits<double>::quiet_NaN())
+        , senkou_b_buf_(senkou_lead, std::numeric_limits<double>::quiet_NaN()) {}
 
     void next_impl() {
-        ensure_storage();
-
-        const std::size_t idx = close_.index();
-        sync_cursors(idx);
-
+        const std::size_t idx = bar_count_++;
         const double nan = std::numeric_limits<double>::quiet_NaN();
-        double tenkan_value = nan;
-        double kijun_value = nan;
 
+        // -- tenkan_sen (primary output line_) --
+        double tenkan_value = nan;
         if (idx + 1 >= tenkan_) {
             tenkan_value = midpoint(idx, tenkan_);
         }
-        line_.data()[idx] = tenkan_value;
+        line_.forward(tenkan_value);
 
+        // -- kijun_sen --
+        double kijun_value = nan;
         if (idx + 1 >= kijun_) {
             kijun_value = midpoint(idx, kijun_);
         }
-        kijun_sen_.data()[idx] = kijun_value;
+        kijun_sen_.forward(kijun_value);
 
-        if (!std::isnan(tenkan_value) && !std::isnan(kijun_value) && idx + senkou_lead_ < total_bars_) {
-            senkou_span_a_.data()[idx + senkou_lead_] = (tenkan_value + kijun_value) / 2.0;
+        // -- senkou_span_a (forward-shifted by senkou_lead_ bars) --
+        // Compute the value that WILL appear senkou_lead_ bars from now,
+        // push it into the ring buffer. Emit the oldest buffered value
+        // as this bar's senkou_span_a output.
+        double sa_pending = nan;
+        if (!std::isnan(tenkan_value) && !std::isnan(kijun_value)) {
+            sa_pending = (tenkan_value + kijun_value) / 2.0;
         }
+        senkou_span_a_.forward(senkou_a_buf_[sa_cursor_]);
+        senkou_a_buf_[sa_cursor_] = sa_pending;
 
-        if (idx + 1 >= senkou_ && idx + senkou_lead_ < total_bars_) {
-            senkou_span_b_.data()[idx + senkou_lead_] = midpoint(idx, senkou_);
+        // -- senkou_span_b (forward-shifted by senkou_lead_ bars) --
+        double sb_pending = nan;
+        if (idx + 1 >= senkou_) {
+            sb_pending = midpoint(idx, senkou_);
         }
+        senkou_span_b_.forward(senkou_b_buf_[sb_cursor_]);
+        senkou_b_buf_[sb_cursor_] = sb_pending;
 
-        if (idx >= chikou_) {
+        // Advance ring cursors (shared period = senkou_lead_)
+        sa_cursor_ = (sa_cursor_ + 1) % senkou_lead_buf_size();
+        sb_cursor_ = (sb_cursor_ + 1) % senkou_lead_buf_size();
+
+        // -- chikou_span (back-shifted: current close appears chikou_ bars ago) --
+        // For bar idx, chikou_span[idx] is the close from bar idx + chikou_
+        // (which hasn't arrived yet). So at bar idx we can fill
+        // chikou_span[idx - chikou_] = close[idx].
+        // Bars 0..chikou_-1 emit NaN; from bar chikou_ onward we
+        // retroactively fill the slot that is now chikou_ bars old.
+        if (idx < chikou_) {
+            chikou_span_.forward(nan);
+        } else {
+            // Overwrite the slot written chikou_ bars ago (was NaN),
+            // then forward the current slot (which will be filled later
+            // or remain NaN if this is one of the trailing bars).
             chikou_span_.data()[idx - chikou_] = close_.data()[idx];
+            chikou_span_.forward(nan);
         }
     }
 
@@ -72,29 +100,8 @@ public:
     [[nodiscard]] const Line<double>& chikou_span() const noexcept { return chikou_span_; }
 
 private:
-    void ensure_storage() {
-        if (initialized_) {
-            return;
-        }
-
-        total_bars_ = close_.size();
-        const double nan = std::numeric_limits<double>::quiet_NaN();
-        line_.extend(total_bars_, nan);
-        kijun_sen_.extend(total_bars_, nan);
-        senkou_span_a_.extend(total_bars_, nan);
-        senkou_span_b_.extend(total_bars_, nan);
-        chikou_span_.extend(total_bars_, nan);
-        initialized_ = true;
-    }
-
-    void sync_cursors(std::size_t idx) {
-        while (line_.index() < idx) {
-            line_.advance();
-            kijun_sen_.advance();
-            senkou_span_a_.advance();
-            senkou_span_b_.advance();
-            chikou_span_.advance();
-        }
+    [[nodiscard]] std::size_t senkou_lead_buf_size() const noexcept {
+        return senkou_lead_ == 0 ? 1 : senkou_lead_;
     }
 
     [[nodiscard]] double midpoint(std::size_t idx, std::size_t period) const noexcept {
@@ -115,8 +122,17 @@ private:
     std::size_t senkou_;
     std::size_t senkou_lead_;
     std::size_t chikou_;
-    std::size_t total_bars_ = 0uz;
-    bool initialized_ = false;
+
+    std::size_t bar_count_ = 0uz;
+
+    // Ring buffers for forward-shifted senkou outputs. Each holds
+    // senkou_lead_ pending values. On each bar the oldest pending
+    // value is emitted and replaced with this bar's computed value.
+    std::vector<double> senkou_a_buf_;
+    std::vector<double> senkou_b_buf_;
+    std::size_t sa_cursor_ = 0uz;
+    std::size_t sb_cursor_ = 0uz;
+
     Line<double> kijun_sen_;
     Line<double> senkou_span_a_;
     Line<double> senkou_span_b_;
