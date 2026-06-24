@@ -27,8 +27,6 @@ public:
         const double nd = static_cast<double>(period_);
         const double* p = &source_.data()[idx - period_ + 1];
 
-        double sum_sin = 0.0;
-        double sum_cos = 0.0;
         double sum_sin2 = 0.0;
         double sum_cos2 = 0.0;
         double sum_sincos = 0.0;
@@ -39,8 +37,6 @@ public:
             const double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / nd;
             const double s = std::sin(angle);
             const double c = std::cos(angle);
-            sum_sin += s;
-            sum_cos += c;
             sum_sin2 += s * s;
             sum_cos2 += c * c;
             sum_sincos += s * c;

@@ -1,14 +1,18 @@
 #pragma once
 
 #include <stratforge/broker/commission.hpp>
+#include <stratforge/broker/currency.hpp>
+#include <stratforge/broker/instrument.hpp>
 #include <stratforge/broker/order.hpp>
 #include <stratforge/broker/position.hpp>
 #include <stratforge/broker/trade.hpp>
+#include <stratforge/broker/venue.hpp>
 #include <stratforge/data/data_feed.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -16,18 +20,17 @@
 
 namespace stratforge {
 
-/// Notification callback types
 using OrderNotifyFn = std::function<void(const Order&)>;
 using TradeNotifyFn = std::function<void(const Trade&, double /*original_size*/)>;
 
-/// BackBroker - simulates order execution against bar data.
-/// Implements next-bar execution (no look-ahead bias).
 class BackBroker {
 public:
-    explicit BackBroker(double cash = 10000.0)
-        : initial_cash_(cash), cash_(cash) {
-        // Performance hints only — not hard capacity limits.
-        // Vectors auto-grow if exceeded (matches backtrader's unbounded lists).
+    explicit BackBroker(Currency base_ccy, double initial_base_cash = 10000.0,
+                        std::shared_ptr<FxRateProvider> fx = nullptr)
+        : base_ccy_(base_ccy),
+          fx_(std::move(fx)) {
+        cash_[base_ccy_] = initial_base_cash;
+        initial_cash_ = initial_base_cash;
         all_orders_.reserve(1024);
         pending_orders_.reserve(64);
         positions_.reserve(8);
@@ -35,35 +38,56 @@ public:
         closed_trades_.reserve(1024);
     }
 
-    /// Set initial cash
+    explicit BackBroker(double cash = 10000.0)
+        : BackBroker(Currency::USD, cash, nullptr) {}
+
     void set_cash(double cash) noexcept {
         initial_cash_ = cash;
-        cash_ = cash;
+        cash_[base_ccy_] = cash;
     }
 
-    /// Get current cash
-    [[nodiscard]] double cash() const noexcept { return cash_; }
+    void deposit(Currency ccy, double amount) noexcept {
+        cash_[ccy] += amount;
+    }
 
-    /// Get initial cash
+    [[nodiscard]] double cash(Currency ccy) const noexcept {
+        auto it = cash_.find(ccy);
+        return it != cash_.end() ? it->second : 0.0;
+    }
+
+    [[nodiscard]] double cash() const noexcept {
+        return cash(base_ccy_);
+    }
+
+    [[nodiscard]] double cash_in_base(DateTime at) const {
+        double total = 0.0;
+        for (const auto& [ccy, amount] : cash_) {
+            if (ccy == base_ccy_) {
+                total += amount;
+            } else if (fx_) {
+                total += amount * fx_->rate(ccy, base_ccy_, at);
+            } else {
+                total += amount;
+            }
+        }
+        return total;
+    }
+
     [[nodiscard]] double initial_cash() const noexcept { return initial_cash_; }
 
-    /// Set commission scheme
+    [[nodiscard]] Currency base_ccy() const noexcept { return base_ccy_; }
+
     void set_commission(CommissionInfo info) noexcept {
-        commission_ = info;
+        legacy_commission_ = info;
     }
 
-    /// Get commission info
     [[nodiscard]] const CommissionInfo& commission_info() const noexcept {
-        return commission_;
+        return legacy_commission_;
     }
 
-    /// Set order notification callback
     void set_order_notify(OrderNotifyFn fn) { order_notify_ = std::move(fn); }
-
-    /// Set trade notification callback
     void set_trade_notify(TradeNotifyFn fn) { trade_notify_ = std::move(fn); }
 
-    /// Configure percentage-based slippage.
     void set_slippage_perc(double perc, bool slip_open = true, bool slip_limit = true,
                            bool slip_match = true, bool slip_out = false) noexcept {
         slip_perc_ = perc;
@@ -74,7 +98,6 @@ public:
         slip_out_ = slip_out;
     }
 
-    /// Configure fixed-point slippage.
     void set_slippage_fixed(double fixed, bool slip_open = true, bool slip_limit = true,
                             bool slip_match = true, bool slip_out = false) noexcept {
         slip_perc_ = 0.0;
@@ -85,7 +108,6 @@ public:
         slip_out_ = slip_out;
     }
 
-    /// Extended order parameters
     struct OrderParams {
         OrderType type = OrderType::Market;
         double price = 0.0;
@@ -99,7 +121,10 @@ public:
         bool transmit = true;
     };
 
-    /// Submit a buy order
+    void set_instrument(std::size_t data_index, const Instrument* instr) {
+        instrument_map_[data_index] = instr;
+    }
+
     [[nodiscard]] std::size_t buy(double size, double price = 0.0,
                                    std::optional<double> stop_price = std::nullopt,
                                    OrderType type = OrderType::Market,
@@ -107,7 +132,6 @@ public:
         return submit_order(OrderSide::Buy, size, price, stop_price, type, data_index);
     }
 
-    /// Submit a sell order
     [[nodiscard]] std::size_t sell(double size, double price = 0.0,
                                     std::optional<double> stop_price = std::nullopt,
                                     OrderType type = OrderType::Market,
@@ -115,18 +139,14 @@ public:
         return submit_order(OrderSide::Sell, size, price, stop_price, type, data_index);
     }
 
-    /// Submit a buy order with extended parameters
     [[nodiscard]] std::size_t buy_ext(double size, const OrderParams& params) {
         return submit_order_ext(OrderSide::Buy, size, params);
     }
 
-    /// Submit a sell order with extended parameters
     [[nodiscard]] std::size_t sell_ext(double size, const OrderParams& params) {
         return submit_order_ext(OrderSide::Sell, size, params);
     }
 
-    /// Submit a bracket order (main + stop loss + take profit)
-    /// Returns {main_id, stop_id, limit_id}
     struct BracketResult { std::size_t main_id; std::size_t stop_id; std::size_t limit_id; };
 
     [[nodiscard]] BracketResult buy_bracket(double size, double limit_price,
@@ -134,11 +154,9 @@ public:
                                              std::size_t data_index = 0) {
         std::size_t oco_grp = next_oco_group_id_++;
 
-        // Main order (market buy)
         auto main_id = submit_order(OrderSide::Buy, size, 0.0, std::nullopt,
                                      OrderType::Market, data_index);
 
-        // Take-profit (limit sell) -- child, OCO with stop
         OrderParams tp_params;
         tp_params.type = OrderType::Limit;
         tp_params.price = limit_price;
@@ -148,7 +166,6 @@ public:
         tp_params.transmit = false;
         auto limit_id = submit_order_ext(OrderSide::Sell, size, tp_params);
 
-        // Stop-loss (stop sell) -- child, OCO with limit
         OrderParams sl_params;
         sl_params.type = OrderType::Stop;
         sl_params.stop_price = stop_price;
@@ -158,7 +175,6 @@ public:
         sl_params.transmit = false;
         auto stop_id = submit_order_ext(OrderSide::Sell, size, sl_params);
 
-        // Register children on parent
         for (auto& o : all_orders_) {
             if (o.id == main_id) {
                 o.child_ids = {limit_id, stop_id};
@@ -183,7 +199,6 @@ public:
         auto main_id = submit_order(OrderSide::Sell, size, 0.0, std::nullopt,
                                      OrderType::Market, data_index);
 
-        // Take-profit (limit buy) -- child, OCO
         OrderParams tp_params;
         tp_params.type = OrderType::Limit;
         tp_params.price = limit_price;
@@ -193,7 +208,6 @@ public:
         tp_params.transmit = false;
         auto limit_id = submit_order_ext(OrderSide::Buy, size, tp_params);
 
-        // Stop-loss (stop buy) -- child, OCO
         OrderParams sl_params;
         sl_params.type = OrderType::Stop;
         sl_params.stop_price = stop_price;
@@ -219,10 +233,8 @@ public:
         return {main_id, stop_id, limit_id};
     }
 
-    /// Get next OCO group ID (for manual OCO setup)
     [[nodiscard]] std::size_t next_oco_group() noexcept { return next_oco_group_id_++; }
 
-    /// Cancel a pending order
     void cancel_order(std::size_t order_id) {
         for (auto& order : pending_orders_) {
             if (order.id == order_id && order.is_alive()) {
@@ -233,7 +245,6 @@ public:
         }
     }
 
-    /// Close position for a data feed
     [[nodiscard]] std::size_t close(std::size_t data_index = 0) {
         auto& pos = get_position(data_index);
         if (pos.is_flat()) return 0;
@@ -245,7 +256,6 @@ public:
         }
     }
 
-    /// Process pending orders against current bar data (called by Cerebro)
     void process_orders(const std::vector<DataFeed*>& data_feeds) {
         std::vector<Order> still_pending;
         std::vector<std::size_t> filled_oco_groups;
@@ -253,13 +263,11 @@ public:
         for (auto& order : pending_orders_) {
             if (!order.is_alive()) [[unlikely]] continue;
 
-            // Skip held bracket children (transmit=false, parent not filled)
             if (!order.transmit && order.parent_id != 0) {
                 if (!is_parent_filled(order.parent_id)) {
                     still_pending.push_back(order);
                     continue;
                 }
-                // Parent filled -- activate this child
                 order.transmit = true;
             }
 
@@ -276,7 +284,6 @@ public:
                 continue;
             }
 
-            // Check expiry
             if (order.valid_until_bar.has_value() && data_bar_index_ > *order.valid_until_bar) {
                 order.expire();
                 sync_order(order);
@@ -284,7 +291,6 @@ public:
                 continue;
             }
 
-            // Submit and accept on first processing
             if (order.status == OrderStatus::Created) {
                 order.submit();
                 sync_order(order);
@@ -294,8 +300,6 @@ public:
                 if (order_notify_) order_notify_(order);
             }
 
-            // For trailing stops: try fill first (using previously-set trail level),
-            // then update the trail for next bar
             bool is_trail = (order.type == OrderType::StopTrail ||
                              order.type == OrderType::StopTrailLimit);
 
@@ -305,15 +309,12 @@ public:
             }
             if (filled) {
                 if (order_notify_) order_notify_(order);
-                // Track OCO group fill
                 if (order.oco_group_id != 0 && order.status == OrderStatus::Completed) {
                     filled_oco_groups.push_back(order.oco_group_id);
                 }
-                // Activate bracket children on parent fill
                 if (order.status == OrderStatus::Completed && !order.child_ids.empty()) {
                     activate_bracket_children(order.id);
                 }
-                // Cancel bracket children on parent failure
                 if (order.parent_id == 0 && !order.child_ids.empty() &&
                     (order.status == OrderStatus::Canceled ||
                      order.status == OrderStatus::Rejected ||
@@ -326,7 +327,6 @@ public:
             }
         }
 
-        // Cancel OCO siblings of filled orders
         if (!filled_oco_groups.empty()) {
             for (auto& order : still_pending) {
                 if (order.oco_group_id != 0 && order.is_alive()) {
@@ -340,25 +340,47 @@ public:
                     }
                 }
             }
-            // Remove canceled orders from still_pending
             std::erase_if(still_pending, [](const Order& o) { return !o.is_alive(); });
         }
 
         pending_orders_ = std::move(still_pending);
     }
 
-    /// Calculate portfolio value (cash + positions)
     [[nodiscard]] double portfolio_value(const std::vector<DataFeed*>& data_feeds) const noexcept {
-        double value = cash_;
+        double value = cash(base_ccy_);
         for (const auto& pos : positions_) {
             if (!pos.is_flat() && pos.data_index < data_feeds.size()) {
-                value += pos.size * data_feeds[pos.data_index]->close()[0];
+                const double mark_px = data_feeds[pos.data_index]->close()[0];
+                if (pos.instrument) {
+                    value += pos.instrument->mark_to_market(pos.size, pos.avg_price, mark_px);
+                } else {
+                    value += pos.size * mark_px;
+                }
             }
         }
         return value;
     }
 
-    /// Get position for a data feed
+    [[nodiscard]] double portfolio_value(DateTime at, const std::vector<DataFeed*>& data_feeds) const {
+        double value = cash_in_base(at);
+        for (const auto& pos : positions_) {
+            if (!pos.is_flat() && pos.data_index < data_feeds.size()) {
+                const double mark_px = data_feeds[pos.data_index]->close()[0];
+                if (pos.instrument) {
+                    double mtm = pos.instrument->mark_to_market(pos.size, pos.avg_price, mark_px);
+                    Currency settle = pos.instrument->settlement_ccy();
+                    if (settle != base_ccy_ && fx_) {
+                        mtm *= fx_->rate(settle, base_ccy_, at);
+                    }
+                    value += mtm;
+                } else {
+                    value += pos.size * mark_px;
+                }
+            }
+        }
+        return value;
+    }
+
     [[nodiscard]] const Position& position(std::size_t data_index = 0) const {
         for (const auto& pos : positions_) {
             if (pos.data_index == data_index) return pos;
@@ -367,22 +389,22 @@ public:
         return empty;
     }
 
-    /// Get all orders (completed and pending)
     [[nodiscard]] const std::vector<Order>& orders() const noexcept { return all_orders_; }
 
-    /// Get all closed trades
     [[nodiscard]] const std::vector<std::pair<Trade, double>>& closed_trades() const noexcept {
         return closed_trades_;
     }
 
-    /// Get all open trades
     [[nodiscard]] const std::vector<std::pair<Trade, double>>& open_trades() const noexcept {
         return open_trades_;
     }
 
-    /// Get pending orders
     [[nodiscard]] const std::vector<Order>& pending_orders() const noexcept {
         return pending_orders_;
+    }
+
+    [[nodiscard]] const std::shared_ptr<FxRateProvider>& fx_provider() const noexcept {
+        return fx_;
     }
 
 private:
@@ -451,14 +473,12 @@ private:
         }
 
         if (order.side == OrderSide::Sell) {
-            // Trailing stop for long: stop follows price up
             double new_stop = current_price - trail_dist;
             if (order.trail_stop_price == 0.0 || new_stop > order.trail_stop_price) {
                 order.trail_stop_price = new_stop;
                 sync_order(order);
             }
         } else {
-            // Trailing stop for short: stop follows price down
             double new_stop = current_price + trail_dist;
             if (order.trail_stop_price == 0.0 || new_stop < order.trail_stop_price) {
                 order.trail_stop_price = new_stop;
@@ -494,6 +514,11 @@ private:
         }
     }
 
+    [[nodiscard]] const Instrument* instrument_for(std::size_t data_index) const {
+        auto it = instrument_map_.find(data_index);
+        return it != instrument_map_.end() ? it->second : nullptr;
+    }
+
     [[nodiscard]] bool try_fill_order(Order& order, const DataFeed& feed) {
         double fill_price = 0.0;
         const bool apply_open_slippage =
@@ -505,7 +530,7 @@ private:
 
         switch (order.type) {
             case OrderType::Market: [[likely]]
-                fill_price = feed.open()[0]; // Execute at current bar open
+                fill_price = feed.open()[0];
                 break;
 
             case OrderType::Limit:
@@ -551,7 +576,6 @@ private:
                     sync_order(order);
                     return true;
                 }
-                // StopLimit: stop triggers, then limit executes
                 if (order.side == OrderSide::Buy) {
                     if (feed.high()[0] >= *order.stop_price) {
                         if (feed.low()[0] <= order.price) {
@@ -626,36 +650,52 @@ private:
             fill_price = *slipped;
         }
 
-        // Calculate fill size (signed)
         double fill_size = order.size;
         if (order.side == OrderSide::Sell) fill_size = -fill_size;
 
-        // Calculate commission
-        double comm = commission_.calculate(order.size, fill_price);
+        const Instrument* instr = instrument_for(order.data_index);
+        double comm = 0.0;
+        if (instr) {
+            comm = instr->venue().fees().commission(order.size, fill_price,
+                                                     instr->settlement_ccy());
+        } else {
+            comm = legacy_commission_.calculate(order.size, fill_price);
+        }
 
-        // Check cash sufficiency for buys
         if (order.side == OrderSide::Buy) {
-            double cost = fill_size * fill_price + comm;
-            if (cost > cash_) {
-                order.margin();
-                sync_order(order);
-                return true;
+            if (instr) {
+                const double im = instr->initial_margin(order.size, fill_price);
+                const double need = im + comm;
+                const Currency settle = instr->settlement_ccy();
+                double have = cash(settle);
+                if (settle != base_ccy_ && fx_) {
+                    const DateTime bar_dt = (feed.size() > 0) ? feed.datetime()[0] : DateTime{};
+                    have += fx_->rate(base_ccy_, settle, bar_dt) * cash(base_ccy_);
+                }
+                if (need > have) {
+                    order.margin();
+                    sync_order(order);
+                    return true;
+                }
+            } else {
+                double cost = fill_size * fill_price + comm;
+                if (cost > cash(base_ccy_)) {
+                    order.margin();
+                    sync_order(order);
+                    return true;
+                }
             }
         }
 
-        // Execute the order
         order.execute(fill_price, order.size, comm);
 
-        // Update cash
-        cash_ -= fill_size * fill_price + comm;
+        Currency settle = instr ? instr->settlement_ccy() : base_ccy_;
+        cash_[settle] -= fill_size * fill_price + comm;
 
-        // Update position
         auto& pos = get_position(order.data_index);
         double old_size = pos.size;
         pos.update(fill_size, fill_price);
 
-        // Track trades — [ §4.3] stamp bar timestamp on
-        // entry/exit so downstream sinks don't need a bar→DateTime resolver.
         const DateTime bar_dt = (feed.size() > 0) ? feed.datetime()[0] : DateTime{};
         update_trades(order.data_index, old_size, fill_size, fill_price, comm,
                       data_bar_index_, bar_dt);
@@ -704,23 +744,21 @@ private:
         for (auto& pos : positions_) {
             if (pos.data_index == data_index) return pos;
         }
-        positions_.push_back(Position{.data_index = data_index});
+        const Instrument* instr = instrument_for(data_index);
+        positions_.push_back(Position{.instrument = instr, .data_index = data_index});
         return positions_.back();
     }
 
     void update_trades(std::size_t data_index, double old_size, double fill_size,
                        double fill_price, double comm, std::size_t bar_index,
                        DateTime bar_dt = DateTime{}) {
-        // Opening a new trade or adding to existing
         if (std::abs(old_size) < 1e-10) {
-            // New trade
             Trade trade;
             trade.id = next_trade_id_++;
             trade.data_index = data_index;
             trade.update(fill_size, fill_price, comm, bar_index, bar_dt);
             open_trades_.push_back({trade, fill_size});
         } else if ((old_size > 0 && fill_size > 0) || (old_size < 0 && fill_size < 0)) {
-            // Adding to existing trade
             for (auto& [trade, orig_size] : open_trades_) {
                 if (trade.data_index == data_index && trade.is_open()) {
                     orig_size += fill_size;
@@ -729,7 +767,6 @@ private:
                 }
             }
         } else {
-            // Closing (partially or fully)
             for (auto it = open_trades_.begin(); it != open_trades_.end();) {
                 auto& [trade, orig_size] = *it;
                 if (trade.data_index == data_index && trade.is_open()) {
@@ -770,9 +807,11 @@ private:
         }
     }
 
+    Currency base_ccy_ = Currency::USD;
     double initial_cash_ = 10000.0;
-    double cash_ = 10000.0;
-    CommissionInfo commission_;
+    std::unordered_map<Currency, double> cash_;
+    std::shared_ptr<FxRateProvider> fx_;
+    CommissionInfo legacy_commission_;
     double slip_perc_ = 0.0;
     double slip_fixed_ = 0.0;
     bool slip_open_ = true;
@@ -783,18 +822,18 @@ private:
     std::size_t next_trade_id_ = 1;
     std::size_t next_oco_group_id_ = 1;
     std::size_t data_bar_index_ = 0;
+    std::unordered_map<std::size_t, const Instrument*> instrument_map_;
 
     std::vector<Order> all_orders_;
     std::vector<Order> pending_orders_;
     std::vector<Position> positions_;
-    std::vector<std::pair<Trade, double>> open_trades_;     // Trade + original_size
-    std::vector<std::pair<Trade, double>> closed_trades_;   // Trade + original_size
+    std::vector<std::pair<Trade, double>> open_trades_;
+    std::vector<std::pair<Trade, double>> closed_trades_;
 
     OrderNotifyFn order_notify_;
     TradeNotifyFn trade_notify_;
 
 public:
-    /// Set current bar index (called by Cerebro)
     void set_bar_index(std::size_t idx) noexcept { data_bar_index_ = idx; }
 };
 

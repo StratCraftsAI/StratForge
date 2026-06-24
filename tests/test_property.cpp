@@ -117,10 +117,9 @@ TEST_CASE("Line<double> invariants under random operation walk", "[property][reg
 //       upopened == fill_size and upclosed == 0.
 //   I2: When the fill fully reverses direction, upclosed == -old_size and
 //       upopened == new_size (signs match new direction).
-//   I3: Going flat (size crosses to ~0) clears avg_price/total_cost.
+//   I3: Going flat (size crosses to ~0) clears avg_price.
 //   I4: For pure-long opens (price > 0, size > 0), avg_price after N opens
 //       equals weighted average of (size, price) inputs.
-//   I5: total_cost == abs(size) * avg_price (after every update).
 //
 TEST_CASE("Position::update conservation invariants", "[property][regression][broker]") {
     SECTION("Weighted average price for pure-long opens") {
@@ -144,8 +143,6 @@ TEST_CASE("Position::update conservation invariants", "[property][regression][br
                          << " expected=" << expected_avg);
             REQUIRE_THAT(pos.size, Catch::Matchers::WithinAbs(total_size, 1e-9));
             REQUIRE_THAT(pos.avg_price, Catch::Matchers::WithinRel(expected_avg, 1e-12));
-            REQUIRE_THAT(pos.total_cost,
-                         Catch::Matchers::WithinRel(std::abs(pos.size) * pos.avg_price, 1e-12));
         }
     }
 
@@ -168,30 +165,14 @@ TEST_CASE("Position::update conservation invariants", "[property][regression][br
         REQUIRE_THAT(pos.avg_price, Catch::Matchers::WithinRel(reverse_price, 1e-12));
     }
 
-    SECTION("Going flat zeros avg_price and total_cost") {
+    SECTION("Going flat zeros avg_price") {
         stratforge::Position pos;
         pos.update(50.0, 100.0);
         REQUIRE(pos.size > 0.0);
         pos.update(-50.0, 110.0);
         REQUIRE(pos.is_flat());
         REQUIRE(pos.avg_price == 0.0);
-        REQUIRE(pos.total_cost == 0.0);
         REQUIRE(pos.price == 0.0);
-    }
-
-    SECTION("Random walk: total_cost == abs(size) * avg_price always") {
-        std::mt19937 rng(kSeed + 2);
-        std::uniform_real_distribution<double> sz_dist(-50.0, 50.0);
-        std::uniform_real_distribution<double> px_dist(50.0, 200.0);
-
-        stratforge::Position pos;
-        for (std::size_t i = 0; i < kIterations; ++i) {
-            pos.update(sz_dist(rng), px_dist(rng));
-            INFO("iter=" << i << " size=" << pos.size << " avg=" << pos.avg_price
-                         << " cost=" << pos.total_cost);
-            const double expected_cost = std::abs(pos.size) * pos.avg_price;
-            REQUIRE_THAT(pos.total_cost, Catch::Matchers::WithinAbs(expected_cost, 1e-9));
-        }
     }
 }
 

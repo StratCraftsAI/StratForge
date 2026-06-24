@@ -17,6 +17,9 @@
 #include <stratforge/data/replay.hpp>
 
 // Broker
+#include <stratforge/broker/currency.hpp>
+#include <stratforge/broker/venue.hpp>
+#include <stratforge/broker/instrument.hpp>
 #include <stratforge/broker/order.hpp>
 #include <stratforge/broker/commission.hpp>
 #include <stratforge/broker/position.hpp>

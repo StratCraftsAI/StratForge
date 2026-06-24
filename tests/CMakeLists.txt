@@ -49,6 +49,24 @@ add_executable(stratforge_tests
     test_increment_batcher.cpp
     test_increment_batcher_baseline.cpp
     test_performance_increment_batcher.cpp
+    test_increment_v2_wire_contract.cpp
+    test_instrument_venue_currency.cpp
+    test_property.cpp
+    test_performance_gate.cpp
+    test_stats_result_json.cpp
+    test_mavp.cpp
+    test_exit_strategy.cpp
+    test_observer_strategy.cpp
+    test_regime_detector_strategy.cpp
+    test_regime_entry_strategy.cpp
+    test_signal_entry_strategy.cpp
+    test_ai_signal_entry_strategy.cpp
+    test_ai_libero_strategy.cpp
+    test_sf009_phase1.cpp
+    test_sf009_phase2.cpp
+    test_sf009_phase3.cpp
+    test_sf009_phase4.cpp
+    test_sf009_phase5.cpp
 )
 
 target_link_libraries(stratforge_tests PRIVATE

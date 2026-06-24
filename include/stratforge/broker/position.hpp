@@ -1,22 +1,22 @@
 #pragma once
 
+#include <stratforge/broker/instrument.hpp>
+
 #include <cmath>
 #include <cstddef>
 
 namespace stratforge {
 
-/// Position tracking for a single instrument
 struct Position {
-    std::size_t data_index = 0;  // Which data feed
-    double size = 0.0;           // Current position size (negative = short)
-    double avg_price = 0.0;      // Average entry price
-    double price = 0.0;          // backtrader-compatible alias for avg_price
-    double price_orig = 0.0;     // Price before the latest update
-    double total_cost = 0.0;     // Total cost basis
-    double upopened = 0.0;       // Signed quantity used to open/increase
-    double upclosed = 0.0;       // Signed quantity used to reduce/close
+    const Instrument* instrument = nullptr;
+    std::size_t data_index = 0;
+    double size = 0.0;
+    double avg_price = 0.0;
+    double price = 0.0;
+    double price_orig = 0.0;
+    double upopened = 0.0;
+    double upclosed = 0.0;
 
-    /// Update position after a fill
     void update(double fill_size, double fill_price) noexcept {
         constexpr double eps = 1e-10;
 
@@ -57,7 +57,6 @@ struct Position {
             size = 0.0;
             avg_price = 0.0;
             price = 0.0;
-            total_cost = 0.0;
             return;
         }
 
@@ -71,26 +70,23 @@ struct Position {
             avg_price = fill_price;
             price = fill_price;
         }
-
-        total_cost = std::abs(size) * avg_price;
     }
 
-    /// Unrealized PnL at a given market price
-    [[nodiscard]] double unrealized_pnl(double market_price) const noexcept {
-        return size * (market_price - avg_price);
+    [[nodiscard]] double unrealized_pnl(double mark_px) const noexcept {
+        if (instrument) {
+            return instrument->mark_to_market(size, avg_price, mark_px);
+        }
+        return size * (mark_px - avg_price);
     }
 
-    /// Whether position is flat
     [[nodiscard]] bool is_flat() const noexcept {
         return std::abs(size) < 1e-10;
     }
 
-    /// Whether position is long
     [[nodiscard]] bool is_long() const noexcept {
         return size > 1e-10;
     }
 
-    /// Whether position is short
     [[nodiscard]] bool is_short() const noexcept {
         return size < -1e-10;
     }

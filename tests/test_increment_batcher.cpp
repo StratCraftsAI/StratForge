@@ -347,8 +347,7 @@ TEST_CASE("IncrementBatcher propagates callback exceptions out of Cerebro::run()
             .max_interval               = std::chrono::milliseconds{60'000},
             .emit_first_bar_immediately = false,
         },
-        [seen = std::size_t{0}](const IncrementSnapshot& s, const std::vector<DataFeed*>&) mutable {
-            ++seen;
+        [](const IncrementSnapshot& s, const std::vector<DataFeed*>&) {
             if (s.seq == 3) {
                 throw std::runtime_error("callback failure on seq=3");
             }
