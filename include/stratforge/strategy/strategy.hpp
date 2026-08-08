@@ -194,14 +194,50 @@ public:
 
     // --- Minimum period ---
 
-    /// Set minimum period (number of bars before next() is called)
+    /// Set minimum period for feed 0 (back-compat alias).
     void set_minimum_period(std::size_t period) noexcept {
-        minimum_period_ = period;
+        set_minimum_period(0, period);
     }
 
-    /// Get minimum period
+    /// Set minimum period for a specific feed index.
+    void set_minimum_period(std::size_t feed_idx, std::size_t bars) noexcept {
+        if (feed_idx >= min_periods_.size()) {
+            min_periods_.resize(feed_idx + 1, 1);
+        }
+        min_periods_[feed_idx] = bars;
+    }
+
+    /// Get minimum period for feed 0 (back-compat).
     [[nodiscard]] std::size_t minimum_period() const noexcept {
-        return minimum_period_;
+        return minimum_period(0);
+    }
+
+    /// Get minimum period for a specific feed index.
+    /// Feed 0 defaults to 1 (back-compat: nextstart on bar 0 unless overridden).
+    /// Context feeds (1+) default to 0 (no warmup unless explicitly set).
+    [[nodiscard]] std::size_t minimum_period(std::size_t feed_idx) const noexcept {
+        if (feed_idx < min_periods_.size()) {
+            return min_periods_[feed_idx];
+        }
+        return 0;
+    }
+
+    // --- Multi-clock introspection (written by Cerebro each master bar) ---
+
+    /// Whether feed k formed a new bar this master iteration.
+    [[nodiscard]] bool feed_advanced(std::size_t k) const noexcept {
+        if (k < feed_advanced_.size()) {
+            return feed_advanced_[k];
+        }
+        return false;
+    }
+
+    /// How many bars feed k has delivered so far.
+    [[nodiscard]] std::size_t bars_delivered(std::size_t k) const noexcept {
+        if (k < bars_delivered_.size()) {
+            return bars_delivered_[k];
+        }
+        return 0;
     }
 
     // --- Internal (called by Cerebro) ---
@@ -219,6 +255,16 @@ public:
         if (!params_initialized_) {
             set_params({});
         }
+    }
+
+    /// Engine-internal: set feed_advanced flags for this master bar.
+    void set_feed_advanced(std::vector<bool> flags) noexcept {
+        feed_advanced_ = std::move(flags);
+    }
+
+    /// Engine-internal: set cumulative bars_delivered counts.
+    void set_bars_delivered(std::vector<std::size_t> counts) noexcept {
+        bars_delivered_ = std::move(counts);
     }
 
 private:
@@ -251,7 +297,9 @@ private:
     std::unordered_map<std::string, DataFeed*, TransparentStringHash, TransparentStringEqual> data_lookup_;
     ParamMap params_;
     bool params_initialized_ = false;
-    std::size_t minimum_period_ = 1;
+    std::vector<std::size_t> min_periods_{1};   // per-feed; index 0 = feed 0
+    std::vector<bool> feed_advanced_;           // written by Cerebro each master bar
+    std::vector<std::size_t> bars_delivered_;   // cumulative per-feed delivered counts
     std::unique_ptr<Sizer> sizer_;
 };
 

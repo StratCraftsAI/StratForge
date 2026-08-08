@@ -2,6 +2,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
 #include <stratforge/engine/cerebro.hpp>
+#include <stratforge/engine/backtest_runner.hpp>
 #include <stratforge/broker/sizer.hpp>
 
 #include "test_helpers.hpp"
@@ -182,4 +183,70 @@ TEST_CASE("FixedReverser returns position + base_size when reversing", "[sizer][
     REQUIRE_THAT(strategy.sizes[0], WithinRel(5.0, 1e-12));
     // Second bar: position is 5, returns 5 + 5 = 10
     REQUIRE_THAT(strategy.sizes[1], WithinRel(10.0, 1e-12));
+}
+
+// =========================================================================
+// : BacktestConfig sizer parsing + run_backtest sizer wiring
+// =========================================================================
+
+TEST_CASE("parse_backtest_config defaults to PercentSizer", "[sizer][config]") {
+    const auto cfg = stratforge::parse_backtest_config(
+        R"({"data_file":"test.csv","initial_cash":50000})");
+    REQUIRE(cfg.sizer_type == stratforge::SizerType::Percent);
+    REQUIRE_THAT(cfg.sizer_param, WithinRel(100.0, 1e-12));
+    REQUIRE(cfg.symbol_count == 1);
+}
+
+TEST_CASE("parse_backtest_config parses sizer_type fixed", "[sizer][config]") {
+    const auto cfg = stratforge::parse_backtest_config(
+        R"({"data_file":"t.csv","sizer_type":"fixed","sizer_param":2.5,"symbol_count":10})");
+    REQUIRE(cfg.sizer_type == stratforge::SizerType::Fixed);
+    REQUIRE_THAT(cfg.sizer_param, WithinRel(2.5, 1e-12));
+    REQUIRE(cfg.symbol_count == 10);
+}
+
+TEST_CASE("parse_backtest_config parses sizer_type allin", "[sizer][config]") {
+    const auto cfg = stratforge::parse_backtest_config(
+        R"({"data_file":"t.csv","sizer_type":"allin"})");
+    REQUIRE(cfg.sizer_type == stratforge::SizerType::AllIn);
+}
+
+TEST_CASE("parse_backtest_config parses sizer_type percent with symbol_count", "[sizer][config]") {
+    const auto cfg = stratforge::parse_backtest_config(
+        R"({"data_file":"t.csv","sizer_type":"percent","sizer_param":100,"symbol_count":66})");
+    REQUIRE(cfg.sizer_type == stratforge::SizerType::Percent);
+    REQUIRE_THAT(cfg.sizer_param, WithinRel(100.0, 1e-12));
+    REQUIRE(cfg.symbol_count == 66);
+}
+
+TEST_CASE("parse_backtest_config clamps symbol_count < 1 to 1", "[sizer][config]") {
+    const auto cfg = stratforge::parse_backtest_config(
+        R"({"data_file":"t.csv","symbol_count":0})");
+    REQUIRE(cfg.symbol_count == 1);
+}
+
+TEST_CASE("PercentSizer equal-weight 100/N via BacktestConfig", "[sizer][config][integration]") {
+    Cerebro cerebro;
+    cerebro.set_cash(100000.0);
+    cerebro.add_data(std::make_unique<StaticFeed>(std::vector<StaticFeed::Bar>{
+        {50.0, 51.0, 49.0, 50.0},
+    }));
+
+    auto strategy = std::make_unique<SizerStrategy>();
+    stratforge::BacktestConfig cfg;
+    cfg.sizer_type = stratforge::SizerType::Percent;
+    cfg.sizer_param = 100.0;
+    cfg.symbol_count = 10;
+
+    const double per_symbol_pct = cfg.sizer_param /
+                                  static_cast<double>(cfg.symbol_count);
+    strategy->setsizer(std::make_unique<PercentSizer>(per_symbol_pct));
+
+    auto* ptr = strategy.get();
+    cerebro.add_strategy(std::move(strategy));
+    cerebro.run();
+
+    REQUIRE(ptr->sizes.size() == 1);
+    // 100000 * (100/10 = 10%) / 50 = 200
+    REQUIRE_THAT(ptr->sizes[0], WithinRel(200.0, 1e-6));
 }

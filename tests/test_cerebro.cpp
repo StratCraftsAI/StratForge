@@ -225,7 +225,10 @@ TEST_CASE("Cerebro orchestrates broker, strategy, analyzer, and observer in dete
     REQUIRE_THAT(observer.portfolio_values.at(2), WithinRel(1020.0, 1e-12));
 }
 
-TEST_CASE("Cerebro preserves feed insertion order and runs to the shortest feed length", "[cerebro][multidata]") {
+TEST_CASE("Cerebro preserves feed insertion order; master feed drives loop length", "[cerebro][multidata]") {
+    // : the master (feed 0) drives the loop; context feeds
+    // (feed 1+) hold their last value after exhaustion. This replaces the
+    // old min(sizes) lockstep behavior.
     Cerebro cerebro;
     cerebro.add_data(std::make_unique<StaticFeed>(std::vector<StaticFeed::Bar>{
         {10.0, 11.0, 9.0, 10.5},
@@ -241,10 +244,12 @@ TEST_CASE("Cerebro preserves feed insertion order and runs to the shortest feed 
     cerebro.run();
 
     REQUIRE(strategy.names == std::vector<std::string>{"data0", "data1"});
-    REQUIRE(strategy.primary_indices == std::vector<std::size_t>{0, 1});
-    REQUIRE(strategy.secondary_indices == std::vector<std::size_t>{0, 1});
-    REQUIRE(strategy.primary_closes == std::vector<double>{10.5, 11.5});
-    REQUIRE(strategy.secondary_closes == std::vector<double>{20.5, 21.5});
+    // Master feed runs all 3 bars
+    REQUIRE(strategy.primary_indices == std::vector<std::size_t>{0, 1, 2});
+    REQUIRE(strategy.primary_closes == std::vector<double>{10.5, 11.5, 12.5});
+    // Context feed delivers 2 bars then holds its last value
+    REQUIRE(strategy.secondary_indices == std::vector<std::size_t>{0, 1, 1});
+    REQUIRE(strategy.secondary_closes == std::vector<double>{20.5, 21.5, 21.5});
 }
 
 TEST_CASE("Cerebro run options keep runonce and bar-by-bar execution equivalent for covered scenarios", "[cerebro][runonce]") {

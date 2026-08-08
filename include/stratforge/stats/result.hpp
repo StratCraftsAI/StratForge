@@ -15,6 +15,7 @@
 #include <map>
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace stratforge::stats {
 
@@ -36,6 +37,7 @@ struct HypothesisResult {
     bool                                            is_significant  = false;
     std::string                                     summary;           // short human-readable verdict
     std::map<std::string, HypothesisParameterValue> parameters;        // hypothesis-specific knobs
+    std::vector<double>                             per_bar_scores;    // : rolling sub-window scores, one per bar
 };
 
 }  // namespace stratforge::stats

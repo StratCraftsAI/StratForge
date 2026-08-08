@@ -11,7 +11,8 @@ enum class DataError : std::uint8_t {
     FileNotFound,   ///< File could not be opened
     EmptyFile,      ///< File contained no data rows (after filtering)
     HeaderOnly,     ///< File had only a header line, no data
-    AlreadyLoaded   ///< load() called more than once
+    AlreadyLoaded,  ///< load() called more than once
+    InvalidInterval ///< Token not in the canonical interval vocabulary
 };
 
 /// Zero-alloc human-readable message for DataError.
@@ -21,6 +22,7 @@ enum class DataError : std::uint8_t {
     case DataError::EmptyFile:     return "no data rows after filtering";
     case DataError::HeaderOnly:    return "header only, no data rows";
     case DataError::AlreadyLoaded: return "data already loaded";
+    case DataError::InvalidInterval: return "invalid interval token";
     }
     return "unknown data error";
 }

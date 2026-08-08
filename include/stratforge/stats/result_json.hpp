@@ -113,7 +113,16 @@ inline void append_param_value(std::string& out, const HypothesisParameterValue&
         out.push_back(':');
         append_param_value(out, v);
     }
-    out.append("}}");
+    out.push_back('}');
+    if (!r.per_bar_scores.empty()) {
+        out.append(",\"per_bar_scores\":[");
+        for (std::size_t i = 0; i < r.per_bar_scores.size(); ++i) {
+            if (i > 0) out.push_back(',');
+            append_double(out, r.per_bar_scores[i]);
+        }
+        out.push_back(']');
+    }
+    out.push_back('}');
     return out;
 }
 
