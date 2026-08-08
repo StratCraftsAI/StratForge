@@ -13,6 +13,7 @@
 #pragma once
 
 #include <stratforge/bar.hpp>
+#include <stratforge/corrective/corrective_contracts.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -133,6 +134,8 @@ struct IncrementSnapshot {
     bool                                   is_final        = false;
     std::optional<TerminationReason>       termination;           // [live-compat] set only when is_final
     std::uint32_t                          dropped_since_last_flush = 0;  // [live-compat] always 0 in backtest
+    std::vector<corrective::CandidateSnapshot> new_candidates;    //  P1
+    std::vector<corrective::OutcomeRecord>     new_outcomes;       //  P1
 };
 
 static_assert(std::is_standard_layout_v<TradeRecord>);

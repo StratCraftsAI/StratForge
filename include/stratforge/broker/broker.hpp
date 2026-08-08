@@ -7,6 +7,7 @@
 #include <stratforge/broker/position.hpp>
 #include <stratforge/broker/trade.hpp>
 #include <stratforge/broker/venue.hpp>
+#include <stratforge/corrective/corrective_contracts.hpp>
 #include <stratforge/data/data_feed.hpp>
 
 #include <algorithm>
@@ -22,6 +23,7 @@ namespace stratforge {
 
 using OrderNotifyFn = std::function<void(const Order&)>;
 using TradeNotifyFn = std::function<void(const Trade&, double /*original_size*/)>;
+using PreOrderHookFn = std::function<corrective::PreOrderResult(OrderSide, double /*size*/, std::size_t /*data_index*/)>;
 
 class BackBroker {
 public:
@@ -87,6 +89,7 @@ public:
 
     void set_order_notify(OrderNotifyFn fn) { order_notify_ = std::move(fn); }
     void set_trade_notify(TradeNotifyFn fn) { trade_notify_ = std::move(fn); }
+    void set_pre_order_hook(PreOrderHookFn fn) { pre_order_hook_ = std::move(fn); }
 
     void set_slippage_perc(double perc, bool slip_open = true, bool slip_limit = true,
                            bool slip_match = true, bool slip_out = false) noexcept {
@@ -429,14 +432,20 @@ private:
     [[nodiscard]] std::size_t submit_order(OrderSide side, double size, double price,
                                             std::optional<double> stop_price,
                                             OrderType type, std::size_t data_index) {
+        const auto por = pre_order_hook_
+            ? pre_order_hook_(side, size, data_index)
+            : corrective::PreOrderResult{0, size, false};
+        if (por.rejected) return 0;
+
         Order order;
         order.id = next_order_id_++;
         order.type = type;
         order.side = side;
-        order.size = size;
+        order.size = por.final_size;
         order.price = price;
         order.stop_price = stop_price;
         order.data_index = data_index;
+        order.candidate_id = por.candidate_id;
 
         all_orders_.push_back(order);
         pending_orders_.push_back(order);
@@ -445,11 +454,16 @@ private:
 
     [[nodiscard]] std::size_t submit_order_ext(OrderSide side, double size,
                                                const OrderParams& params) {
+        const auto por = pre_order_hook_
+            ? pre_order_hook_(side, size, params.data_index)
+            : corrective::PreOrderResult{0, size, false};
+        if (por.rejected) return 0;
+
         Order order;
         order.id = next_order_id_++;
         order.type = params.type;
         order.side = side;
-        order.size = size;
+        order.size = por.final_size;
         order.price = params.price;
         order.stop_price = params.stop_price;
         order.data_index = params.data_index;
@@ -459,6 +473,7 @@ private:
         order.oco_group_id = params.oco_group_id;
         order.parent_id = params.parent_id;
         order.transmit = params.transmit;
+        order.candidate_id = por.candidate_id;
 
         all_orders_.push_back(order);
         pending_orders_.push_back(order);
@@ -698,7 +713,7 @@ private:
 
         const DateTime bar_dt = (feed.size() > 0) ? feed.datetime()[0] : DateTime{};
         update_trades(order.data_index, old_size, fill_size, fill_price, comm,
-                      data_bar_index_, bar_dt);
+                      data_bar_index_, bar_dt, order.candidate_id);
 
         sync_order(order);
 
@@ -751,11 +766,13 @@ private:
 
     void update_trades(std::size_t data_index, double old_size, double fill_size,
                        double fill_price, double comm, std::size_t bar_index,
-                       DateTime bar_dt = DateTime{}) {
+                       DateTime bar_dt = DateTime{},
+                       std::uint64_t candidate_id = 0) {
         if (std::abs(old_size) < 1e-10) {
             Trade trade;
             trade.id = next_trade_id_++;
             trade.data_index = data_index;
+            trade.candidate_id = candidate_id;
             trade.update(fill_size, fill_price, comm, bar_index, bar_dt);
             open_trades_.push_back({trade, fill_size});
         } else if ((old_size > 0 && fill_size > 0) || (old_size < 0 && fill_size < 0)) {
@@ -786,6 +803,7 @@ private:
                         Trade next_trade;
                         next_trade.id = next_trade_id_++;
                         next_trade.data_index = data_index;
+                        next_trade.candidate_id = candidate_id;
                         next_trade.update(remaining, fill_price, open_comm, bar_index, bar_dt);
                         open_trades_.push_back({next_trade, remaining});
                         break;
@@ -832,6 +850,7 @@ private:
 
     OrderNotifyFn order_notify_;
     TradeNotifyFn trade_notify_;
+    PreOrderHookFn pre_order_hook_;
 
 public:
     void set_bar_index(std::size_t idx) noexcept { data_bar_index_ = idx; }

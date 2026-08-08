@@ -68,6 +68,7 @@ struct BacktestConfig {
     /// When empty (legacy config), a single-feed plan is synthesized from
     /// data_file for back-compat (AC5).
     std::vector<FeedSpec> feeds;
+
 };
 
 /// Minimal JSON config parser for backtest configuration.

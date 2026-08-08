@@ -105,3 +105,13 @@ catch_discover_tests(stratforge_tests)
 set_target_properties(stratforge_tests PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/tests
 )
+
+# This private integration test is intentionally absent from the public
+# StratForge sync, whose SDK surface excludes qnx_strategy_sdk.
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test_ticket791_validation_sdk.py)
+    find_package(Python3 COMPONENTS Interpreter REQUIRED)
+    add_test(
+        NAME ticket791_validation_sdk
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_ticket791_validation_sdk.py
+    )
+endif()

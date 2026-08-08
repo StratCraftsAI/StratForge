@@ -36,6 +36,7 @@ struct Trade {
     std::size_t barlen = 0;       // Bars elapsed while the trade was open
     DateTime    entry_time{};     // [ §4.3] bar timestamp at entry fill
     DateTime    exit_time{};      // [ §4.3] bar timestamp at exit fill
+    std::uint64_t candidate_id = 0;  // : corrective layer candidate linkage
 
     /// Update trade with a fill (may close or partially close).
     /// `bar_dt` is the timestamp of the bar on which the fill occurs;

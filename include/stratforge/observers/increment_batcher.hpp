@@ -25,6 +25,7 @@
 #include <stratforge/bar.hpp>
 #include <stratforge/broker/broker.hpp>
 #include <stratforge/broker/trade.hpp>
+#include <stratforge/corrective/candidate_collector.hpp>
 #include <stratforge/data/data_feed.hpp>
 #include <stratforge/observers/increment_types.hpp>
 #include <stratforge/observers/observer.hpp>
@@ -124,6 +125,10 @@ public:
         }
     }
 
+    void set_candidate_collector(corrective::CandidateCollector* c) noexcept {
+        collector_ = c;
+    }
+
     void stop() override {
         emit_(/*is_final=*/true);
     }
@@ -155,6 +160,10 @@ private:
                                ? std::optional<TerminationReason>{TerminationReason::Normal}
                                : std::nullopt;
         snap.dropped_since_last_flush = 0;  // backtest invariant
+        if (collector_) {
+            snap.new_candidates = collector_->drain_pending_candidates();
+            snap.new_outcomes   = collector_->drain_pending_outcomes();
+        }
 
         pending_bars_.clear();
         pending_bars_.reserve(config_.max_bars_per_batch);
@@ -247,6 +256,7 @@ private:
     std::uint64_t                           closed_trade_count_   = 0;
     std::uint64_t                           winning_count_        = 0;
     std::uint64_t                           losing_count_         = 0;
+    corrective::CandidateCollector*         collector_            = nullptr;
 };
 
 }  // namespace stratforge

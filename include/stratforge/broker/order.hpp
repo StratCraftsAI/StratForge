@@ -52,6 +52,7 @@ struct Order {
     double executed_size = 0.0;
     double commission = 0.0;
     std::size_t data_index = 0;        // Index of the data feed
+    std::uint64_t candidate_id = 0;    // : corrective layer candidate linkage
 
     // --- Expiry ---
     std::optional<std::size_t> valid_until_bar;  // Bar index after which order expires

@@ -2,8 +2,10 @@
 
 #include <stratforge/analyzers/analyzer.hpp>
 #include <stratforge/broker/broker.hpp>
+#include <stratforge/corrective/candidate_collector.hpp>
 #include <stratforge/data/data_feed.hpp>
 #include <stratforge/data/interval.hpp>
+#include <stratforge/observers/increment_batcher.hpp>
 #include <stratforge/observers/observer.hpp>
 #include <stratforge/strategy/strategy.hpp>
 
@@ -88,6 +90,11 @@ public:
         auto& ref = *ptr;
         observers_.push_back(std::move(ptr));
         return ref;
+    }
+
+    void set_candidate_collector(
+        std::unique_ptr<corrective::CandidateCollector> collector) {
+        candidate_collector_ = std::move(collector);
     }
 
     /// Set initial cash
@@ -238,7 +245,27 @@ public:
             for (auto& observer : observers_) {
                 observer->notify_trade(trade, orig_size);
             }
+            if (candidate_collector_ && trade.is_closed()) {
+                candidate_collector_->on_trade_closed(trade, orig_size);
+            }
         });
+
+        //  P1: Wire corrective layer candidate collector
+        if (candidate_collector_) {
+            broker_.set_pre_order_hook(
+                [this, &feed_ptrs](OrderSide side, double size, std::size_t di)
+                    -> corrective::PreOrderResult {
+                    return candidate_collector_->on_pre_order(
+                        side, size, di, feed_ptrs, broker_);
+                });
+            candidate_collector_->init(feed_ptrs);
+            for (auto& obs : observers_) {
+                auto* batcher = dynamic_cast<IncrementBatcher*>(obs.get());
+                if (batcher) {
+                    batcher->set_candidate_collector(candidate_collector_.get());
+                }
+            }
+        }
 
         // Initialize strategies
         for (auto& strat : strategies_) {
@@ -387,6 +414,11 @@ public:
                 observer->next(broker_, feed_ptrs);
             }
 
+            //  P1: tick corrective collector per bar
+            if (candidate_collector_) {
+                candidate_collector_->on_bar(bar, feed_ptrs, broker_);
+            }
+
             // Advance master feed to next bar
             if (bar + 1 < num_bars) {
                 data_feeds_[0]->advance();
@@ -395,6 +427,11 @@ public:
 
         //  P5: persist per-feed bar counts for post-run access.
         final_bars_delivered_ = bars_delivered;
+
+        //  P1: generate censored outcomes before observers stop
+        if (candidate_collector_) {
+            candidate_collector_->on_stop(feed_ptrs, broker_);
+        }
 
         // Stop strategies
         for (auto& strat : strategies_) {
@@ -406,7 +443,8 @@ public:
             analyzer->stop();
         }
 
-        // Stop observers
+        // Stop observers (IncrementBatcher::stop() emits final flush, picks up
+        // any remaining candidates/outcomes from the collector)
         for (auto& observer : observers_) {
             observer->stop();
         }
@@ -417,6 +455,7 @@ private:
     std::vector<std::unique_ptr<Strategy>> strategies_;
     std::vector<std::unique_ptr<Analyzer>> analyzers_;
     std::vector<std::unique_ptr<Observer>> observers_;
+    std::unique_ptr<corrective::CandidateCollector> candidate_collector_;
     BackBroker broker_;
 
     ///  P5: timestamp (epoch ms) of the first next() bar.

@@ -150,6 +150,50 @@ inline void json_escape_into(std::ostringstream& os, std::string_view s) {
        << R"(,"winRate":)"       << m.win_rate_pct
        << '}';
 
+    os << R"(,"newCandidates":[)";
+    for (std::size_t i = 0; i < s.new_candidates.size(); ++i) {
+        const auto& c = s.new_candidates[i];
+        if (i) os << ',';
+        os << '{'
+           << R"("candidateId":)" << c.candidate_id
+           << R"(,"asOfTimestampNs":)" << c.as_of_timestamp_ns
+           << R"(,"symbolId":)" << c.symbol_id
+           << R"(,"side":")" << (c.side == corrective::CandidateSide::kLong ? "long" : "short")
+           << R"(","proposedSize":)" << c.proposed_size
+           << R"(,"finalSize":)" << c.final_size
+           << R"(,"featureVector":[)";
+        for (std::size_t fi = 0; fi < corrective::kPopFeatureCountV1; ++fi) {
+            if (fi) os << ',';
+            os << c.feature_vector[fi];
+        }
+        os << ']'
+           << R"(,"featureSchemaHash":)" << c.feature_schema_hash
+           << R"(,"gateVerdict":)" << static_cast<int>(c.gate_verdict)
+           << R"(,"calibratedProbability":)" << c.calibrated_probability
+           << '}';
+    }
+    os << ']';
+
+    os << R"(,"newOutcomes":[)";
+    for (std::size_t i = 0; i < s.new_outcomes.size(); ++i) {
+        const auto& o = s.new_outcomes[i];
+        if (i) os << ',';
+        os << '{'
+           << R"("candidateId":)" << o.candidate_id
+           << R"(,"outcomeType":)" << static_cast<int>(o.outcome_type)
+           << R"(,"entryTimestampNs":)" << o.entry_timestamp_ns
+           << R"(,"exitTimestampNs":)" << o.exit_timestamp_ns
+           << R"(,"holdingIntervalBars":)" << o.holding_interval_bars
+           << R"(,"grossPnl":)" << o.gross_pnl
+           << R"(,"commission":)" << o.commission
+           << R"(,"slippage":)" << o.slippage
+           << R"(,"netPnl":)" << o.net_pnl
+           << R"(,"completionStatus":)" << static_cast<int>(o.completion_status)
+           << R"(,"profitLabel":)" << static_cast<int>(o.profit_label)
+           << '}';
+    }
+    os << ']';
+
     os << '}';
     return os.str();
 }
