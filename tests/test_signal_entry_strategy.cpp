@@ -1,10 +1,12 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <stratforge/engine/cerebro.hpp>
+#include <stratforge/indicators/williams.hpp>
 #include <stratforge/strategy/signal_entry_strategy.hpp>
 
 #include "test_helpers.hpp"
 
+#include <cstddef>
 #include <memory>
 #include <vector>
 
@@ -49,6 +51,41 @@ public:
     }
 };
 
+class PreviousWilliamsRSignalEntry final : public SignalEntryStrategy {
+public:
+    static constexpr std::size_t kWilliamsPeriod = 14;
+    static constexpr std::size_t kPreviousOffset = 1;
+
+    int indicator_updates = 0;
+    int signal_checks = 0;
+
+    void initialize_indicators() override {
+        williams_r_ = std::make_unique<WilliamsR>(
+            data().high(), data().low(), data().close(), kWilliamsPeriod);
+    }
+
+    void update_indicators() override {
+        ++indicator_updates;
+        williams_r_->next();
+    }
+
+    [[nodiscard]] std::size_t get_indicator_history_warmup_period() const noexcept override {
+        return kWilliamsPeriod + kPreviousOffset;
+    }
+
+    [[nodiscard]] EntrySignal check_open_conditions() override {
+        ++signal_checks;
+        const double current = williams_r_->line()[0];
+        const double previous = williams_r_->line()[-1];
+        return {.long_signal = current > previous};
+    }
+
+    [[nodiscard]] bool check_close_conditions() override { return false; }
+
+private:
+    std::unique_ptr<WilliamsR> williams_r_;
+};
+
 } // namespace
 
 TEST_CASE("SignalEntryStrategy lifecycle wiring", "[strategy][signal_entry]") {
@@ -67,7 +104,7 @@ TEST_CASE("SignalEntryStrategy lifecycle wiring", "[strategy][signal_entry]") {
         REQUIRE(strategy.init_called);
     }
 
-    SECTION("no explicit warmup period override") {
+    SECTION("current-only strategies retain the one-bar default") {
         REQUIRE(strategy.minimum_period() == 1);
     }
 
@@ -77,6 +114,29 @@ TEST_CASE("SignalEntryStrategy lifecycle wiring", "[strategy][signal_entry]") {
         REQUIRE(strategy.open_checks == 3);
         REQUIRE(strategy.close_checks == 0);
     }
+}
+
+TEST_CASE("SignalEntryStrategy advances indicator history before signal evaluation",
+          "[strategy][signal_entry][regression]") {
+    Cerebro cerebro;
+    cerebro.set_cash(10000.0);
+    std::vector<StaticFeed::Bar> bars;
+    bars.reserve(PreviousWilliamsRSignalEntry::kWilliamsPeriod + 2);
+    for (std::size_t index = 0; index < PreviousWilliamsRSignalEntry::kWilliamsPeriod + 2;
+         ++index) {
+        const double close = 100.0 + static_cast<double>(index);
+        bars.push_back({close, close + 1.0, close - 1.0, close});
+    }
+    cerebro.add_data(std::make_unique<StaticFeed>(std::move(bars)), "main");
+
+    auto& strategy = cerebro.add_strategy<PreviousWilliamsRSignalEntry>();
+    REQUIRE_NOTHROW(cerebro.run());
+
+    REQUIRE(strategy.minimum_period()
+            == PreviousWilliamsRSignalEntry::kWilliamsPeriod
+                + PreviousWilliamsRSignalEntry::kPreviousOffset);
+    REQUIRE(strategy.indicator_updates == PreviousWilliamsRSignalEntry::kWilliamsPeriod + 2);
+    REQUIRE(strategy.signal_checks == 2);
 }
 
 TEST_CASE("SignalEntryStrategy buy then close lifecycle", "[strategy][signal_entry]") {

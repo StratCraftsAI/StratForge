@@ -72,8 +72,9 @@ class WarmupThresholdStrategy final : public SignalEntryStrategy {
 public:
     explicit WarmupThresholdStrategy(std::size_t warmup) : warmup_(warmup) {}
 
-    void initialize_indicators() override {
-        set_minimum_period(warmup_);
+    void initialize_indicators() override {}
+    [[nodiscard]] std::size_t get_indicator_history_warmup_period() const noexcept override {
+        return warmup_;
     }
     [[nodiscard]] EntrySignal check_open_conditions() override {
         return {.long_signal = data().close()[0] > 102.0};

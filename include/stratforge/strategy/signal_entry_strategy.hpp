@@ -3,15 +3,18 @@
 #include <stratforge/strategy/entry_signal.hpp>
 #include <stratforge/strategy/strategy.hpp>
 
+#include <cstddef>
+
 namespace stratforge {
 
-/// Base class for signal-based entry strategies (no regime, no warmup override).
+/// Base class for signal-based entry strategies without regime ownership.
 ///
-/// Same open/close lifecycle as RegimeEntryStrategy but without
-/// a mandatory warmup period override.
+/// Same open/close lifecycle as RegimeEntryStrategy with an optional explicit
+/// indicator-history warmup requirement.
 ///
 /// Lifecycle wiring:
-///   init()  -> initialize_indicators()
+///   init()  -> initialize_indicators() + set indicator-history warmup
+///   prenext() -> update_indicators() only
 ///   next()  -> check_close -> check_open -> buy/sell/close
 class SignalEntryStrategy : public Strategy {
 public:
@@ -29,10 +32,18 @@ public:
     /// Called each bar before business logic. Override to advance indicators.
     virtual void update_indicators() {}
 
-protected:
-    /// Default execution flow: close-then-open each bar.
-    /// Subclasses may override for custom execution semantics
-    void next() override {
+    /// Total bars required before signal evaluation. A strategy that reads
+    /// indicator output [-N] returns the indicator calculation period plus N.
+    [[nodiscard]] virtual std::size_t get_indicator_history_warmup_period() const noexcept {
+        return 1;
+    }
+
+private:
+    void prenext() final {
+        update_indicators();
+    }
+
+    void next() final {
         update_indicators();
 
         // Close first
@@ -51,9 +62,9 @@ protected:
         }
     }
 
-private:
     void init() final {
         initialize_indicators();
+        set_minimum_period(get_indicator_history_warmup_period());
     }
 };
 

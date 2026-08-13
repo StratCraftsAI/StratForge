@@ -31,7 +31,8 @@ namespace stratforge::evaluation {
 /// Output indexing: result[i] is the EntrySignal at bar i — bit-for-bit the
 /// same signal Cerebro's per-bar loop sees when next() runs at bar i.
 ///
-/// Warmup: indices [0, min_period - 1) are forced to EntrySignal{}. The first
+/// Warmup: indicators advance at every index while indices
+/// [0, min_period - 1) are forced to EntrySignal{}. The first
 /// bar where the strategy's real signal is recorded is min_period - 1, which
 /// matches Cerebro's nextstart() boundary (bar + 1 == min_period). When
 /// min_period == 1 (the default), no entries are forced neutral.
@@ -82,8 +83,8 @@ public:
 
         for (std::size_t i = 0; i < n; ++i) {
             EntrySignal sig{};
+            strategy_->update_indicators();
             if (i + 1 >= min_period) {
-                strategy_->update_indicators();
                 sig = strategy_->check_open_conditions();
             }
             if (i >= start && i < end) {

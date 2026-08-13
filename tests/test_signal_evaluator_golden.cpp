@@ -56,7 +56,7 @@ inline std::vector<Bar> make_synthetic_bars(std::size_t n, double base = 100.0) 
 /// Strategy mixin that records (bar_index, EntrySignal) for every bar where
 /// check_open_conditions runs (i.e. post-warmup). Bar index is derived from
 /// an internal counter incremented in update_indicators(), which fires once
-/// per bar in both Cerebro::next() and SignalEvaluator::evaluate_slice().
+/// per bar, including warmup, in both Cerebro and SignalEvaluator.
 ///
 /// Subclasses implement signal_for(bar_index) — pure function of bar index so
 /// Cerebro vs. SignalEvaluator decisions can't diverge for reasons other than
@@ -71,13 +71,12 @@ public:
         recorded.clear();
         bar_cursor    = 0;
         cursor_primed = false;
-        configure();   // subclass hook (e.g. set_minimum_period)
+        configure();
     }
 
     void update_indicators() override {
         if (!cursor_primed) {
-            // First update_indicators of the run corresponds to bar (min_period - 1).
-            bar_cursor    = minimum_period() == 0 ? 0 : minimum_period() - 1;
+            bar_cursor    = 0;
             cursor_primed = true;
         } else {
             ++bar_cursor;
@@ -120,7 +119,9 @@ public:
     explicit WarmupAlternatingRecording(std::size_t warmup) : warmup_(warmup) {}
 
 protected:
-    void configure() override { set_minimum_period(warmup_); }
+    [[nodiscard]] std::size_t get_indicator_history_warmup_period() const noexcept override {
+        return warmup_;
+    }
     EntrySignal signal_for(std::size_t bar_index) const override {
         return {.long_signal = (bar_index % 2 == 0)};
     }
