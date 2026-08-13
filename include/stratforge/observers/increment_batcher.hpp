@@ -165,12 +165,6 @@ private:
             snap.new_outcomes   = collector_->drain_pending_outcomes();
         }
 
-        pending_bars_.clear();
-        pending_bars_.reserve(config_.max_bars_per_batch);
-        pending_trades_.clear();
-        pending_equity_.clear();
-        pending_equity_.reserve(config_.max_bars_per_batch);
-
         //  §4.3: pass feeds so serializers can resolve
         // symbol-by-data_index. last_feeds_ is the most-recent ptr from
         // next(); on a zero-bar feed it remains null and the callback
@@ -179,6 +173,16 @@ private:
         const std::vector<DataFeed*>& feeds_ref =
             (last_feeds_ != nullptr) ? *last_feeds_ : kEmpty;
         on_flush_(snap, feeds_ref);  // may throw — propagates out of Cerebro::run() (§4.3)
+
+        // The callback only borrows `snap` for the duration of this call. Move
+        // its storage back afterward so subsequent batches reuse the existing
+        // allocations instead of allocating two new vectors on every flush.
+        pending_bars_ = std::move(snap.new_bars);
+        pending_bars_.clear();
+        pending_trades_ = std::move(snap.new_trades);
+        pending_trades_.clear();
+        pending_equity_ = std::move(snap.new_equity_points);
+        pending_equity_.clear();
     }
 
     [[nodiscard]] static Bar snapshot_current_bar_(const DataFeed& feed) noexcept {

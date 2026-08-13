@@ -15,6 +15,10 @@ using StaticFeed = stratforge::test::StaticFeed;
 
 namespace {
 
+std::vector<StaticFeed::Bar> make_flat_bars(std::size_t count) {
+    return std::vector<StaticFeed::Bar>(count, {100.0, 101.0, 99.0, 100.0});
+}
+
 /// Concrete strategy: buys when close > 102, closes when close drops below 100.
 class TestSignalEntry final : public SignalEntryStrategy {
 public:
@@ -86,6 +90,37 @@ private:
     std::unique_ptr<WilliamsR> williams_r_;
 };
 
+class LegacyWarmupSignalEntry final : public SignalEntryStrategy {
+public:
+    static constexpr std::size_t kWarmup = 5;
+
+    int indicator_updates = 0;
+    int signal_checks = 0;
+
+    void initialize_indicators() override { set_minimum_period(kWarmup); }
+    void update_indicators() override { ++indicator_updates; }
+    [[nodiscard]] EntrySignal check_open_conditions() override {
+        ++signal_checks;
+        return {};
+    }
+    [[nodiscard]] bool check_close_conditions() override { return false; }
+};
+
+class CustomLifecycleSignalEntry final : public SignalEntryStrategy {
+public:
+    int custom_next_calls = 0;
+
+    void initialize_indicators() override {}
+    [[nodiscard]] EntrySignal check_open_conditions() override { return {}; }
+    [[nodiscard]] bool check_close_conditions() override { return false; }
+
+protected:
+    void next() override {
+        ++custom_next_calls;
+        SignalEntryStrategy::next();
+    }
+};
+
 } // namespace
 
 TEST_CASE("SignalEntryStrategy lifecycle wiring", "[strategy][signal_entry]") {
@@ -137,6 +172,32 @@ TEST_CASE("SignalEntryStrategy advances indicator history before signal evaluati
                 + PreviousWilliamsRSignalEntry::kPreviousOffset);
     REQUIRE(strategy.indicator_updates == PreviousWilliamsRSignalEntry::kWilliamsPeriod + 2);
     REQUIRE(strategy.signal_checks == 2);
+}
+
+TEST_CASE("SignalEntryStrategy preserves legacy explicit minimum period",
+          "[strategy][signal_entry][regression]") {
+    Cerebro cerebro;
+    cerebro.set_cash(10000.0);
+    cerebro.add_data(std::make_unique<StaticFeed>(make_flat_bars(7)), "main");
+
+    auto& strategy = cerebro.add_strategy<LegacyWarmupSignalEntry>();
+    cerebro.run();
+
+    REQUIRE(strategy.minimum_period() == LegacyWarmupSignalEntry::kWarmup);
+    REQUIRE(strategy.indicator_updates == 7);
+    REQUIRE(strategy.signal_checks == 3);
+}
+
+TEST_CASE("SignalEntryStrategy retains custom next extension point",
+          "[strategy][signal_entry][regression]") {
+    Cerebro cerebro;
+    cerebro.set_cash(10000.0);
+    cerebro.add_data(std::make_unique<StaticFeed>(make_flat_bars(3)), "main");
+
+    auto& strategy = cerebro.add_strategy<CustomLifecycleSignalEntry>();
+    cerebro.run();
+
+    REQUIRE(strategy.custom_next_calls == 3);
 }
 
 TEST_CASE("SignalEntryStrategy buy then close lifecycle", "[strategy][signal_entry]") {

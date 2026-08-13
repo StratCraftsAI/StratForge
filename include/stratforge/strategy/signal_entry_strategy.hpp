@@ -38,12 +38,16 @@ public:
         return 1;
     }
 
-private:
-    void prenext() final {
+    /// Warmup flow. Custom lifecycle implementations should call this base
+    /// implementation so indicator history continues to advance.
+    void prenext() override {
         update_indicators();
     }
 
-    void next() final {
+protected:
+    /// Default execution flow. Subclasses may override for custom execution
+    /// semantics and call this implementation to retain the standard flow.
+    void next() override {
         update_indicators();
 
         // Close first
@@ -62,9 +66,13 @@ private:
         }
     }
 
+private:
     void init() final {
         initialize_indicators();
-        set_minimum_period(get_indicator_history_warmup_period());
+        const auto declared_warmup = get_indicator_history_warmup_period();
+        if (minimum_period() < declared_warmup) {
+            set_minimum_period(declared_warmup);
+        }
     }
 };
 
