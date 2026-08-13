@@ -35,16 +35,23 @@ public:
     [[nodiscard]] virtual bool check_close_conditions() = 0;
 
     /// Called each bar before business logic. Override to advance indicators.
-    virtual void update_indicators() {}
+    /// Advance indicators during warmup without evaluating entry/exit decisions.
+    void prenext() override {
+        advance_generated_indicators();
+    }
 
 private:
     void init() final {
         initialize_indicators();
-        set_minimum_period(get_base_warmup_period());
+        const auto declared_warmup = get_base_warmup_period();
+        if (minimum_period() < declared_warmup) {
+            set_minimum_period(declared_warmup);
+        }
+        apply_indicator_history_requirements();
     }
 
     void next() final {
-        update_indicators();
+        advance_generated_indicators();
 
         // Close first
         if (position().size != 0.0 && check_close_conditions()) {

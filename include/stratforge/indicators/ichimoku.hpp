@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <string_view>
 #include <vector>
 
 namespace stratforge {
@@ -90,7 +91,16 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return tenkan_;
+        return std::max({tenkan_, kijun_, senkou_ + senkou_lead_, chikou_ + 1});
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        if (accessor == "tenkan_sen") return tenkan_;
+        if (accessor == "kijun_sen") return kijun_;
+        if (accessor == "senkou_span_a") return std::max(tenkan_, kijun_) + senkou_lead_;
+        if (accessor == "senkou_span_b") return senkou_ + senkou_lead_;
+        return chikou_ + 1;
     }
 
     [[nodiscard]] const Line<double>& tenkan_sen() const noexcept { return line_; }

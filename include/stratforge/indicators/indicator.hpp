@@ -3,6 +3,7 @@
 #include <stratforge/core/line.hpp>
 
 #include <cstddef>
+#include <string_view>
 
 namespace stratforge {
 
@@ -51,6 +52,16 @@ public:
 
     [[nodiscard]] std::size_t minimum_period() const noexcept final {
         return static_cast<const Derived*>(this)->minimum_period_impl();
+    }
+
+    /// Earliest bar on which a named public output is calculation-ready.
+    /// The indicator registry validates accessor identity before calling this.
+    [[nodiscard]] std::size_t accessor_minimum_period(std::string_view accessor) const noexcept {
+        const auto& derived = *static_cast<const Derived*>(this);
+        if constexpr (requires { derived.accessor_minimum_period_impl(accessor); }) {
+            return derived.accessor_minimum_period_impl(accessor);
+        }
+        return derived.minimum_period_impl();
     }
 };
 

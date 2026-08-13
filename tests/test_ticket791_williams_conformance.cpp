@@ -27,9 +27,9 @@
 #if __has_include(<qnx_strategy_sdk/qnx_strategy_sdk.hpp>)
 #  include <qnx_strategy_sdk/qnx_strategy_sdk.hpp>
 #  include <qnx_strategy_sdk/version.hpp>
-#  define NBT_TICKET791_HAS_QNX_ABI 1
+#  define SF_TICKET791_HAS_QNX_ABI 1
 #else
-#  define NBT_TICKET791_HAS_QNX_ABI 0
+#  define SF_TICKET791_HAS_QNX_ABI 0
 #endif
 
 #include "fixtures/williams_r_strategy.hpp"
@@ -90,7 +90,7 @@ TEST_CASE(": reviewed Williams %R rules shape runs through the runner path",
     }
 }
 
-#if NBT_TICKET791_HAS_QNX_ABI
+#if SF_TICKET791_HAS_QNX_ABI
 // The generated artifact must satisfy the ABI v2 factory contract. Emitting the
 // exports here is a compile-smoke proof that the fixture is a valid ABI v2
 // strategy type; the runtime symbols themselves are covered by the [live]
@@ -112,4 +112,4 @@ TEST_CASE(": fixture satisfies the ABI v2 factory contract",
         stratforge_destroy_strategy(raw);
     }
 }
-#endif // NBT_TICKET791_HAS_QNX_ABI
+#endif // SF_TICKET791_HAS_QNX_ABI

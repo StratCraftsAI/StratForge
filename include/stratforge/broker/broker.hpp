@@ -9,6 +9,7 @@
 #include <stratforge/broker/venue.hpp>
 #include <stratforge/corrective/corrective_contracts.hpp>
 #include <stratforge/data/data_feed.hpp>
+#include <stratforge/live/market_connector.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -17,6 +18,7 @@
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace stratforge {
@@ -91,6 +93,18 @@ public:
     void set_trade_notify(TradeNotifyFn fn) { trade_notify_ = std::move(fn); }
     void set_pre_order_hook(PreOrderHookFn fn) { pre_order_hook_ = std::move(fn); }
 
+    void set_live_connector(MarketConnector* connector) noexcept {
+        live_connector_ = connector;
+    }
+
+    void set_live_symbols(std::vector<std::string> symbols) {
+        live_symbols_ = std::move(symbols);
+    }
+
+    [[nodiscard]] bool live_mode() const noexcept {
+        return live_connector_ != nullptr;
+    }
+
     void set_slippage_perc(double perc, bool slip_open = true, bool slip_limit = true,
                            bool slip_match = true, bool slip_out = false) noexcept {
         slip_perc_ = perc;
@@ -132,6 +146,9 @@ public:
                                    std::optional<double> stop_price = std::nullopt,
                                    OrderType type = OrderType::Market,
                                    std::size_t data_index = 0) {
+        if (live_mode()) {
+            return submit_live_order(OrderSide::Buy, size, price, stop_price, type, data_index);
+        }
         return submit_order(OrderSide::Buy, size, price, stop_price, type, data_index);
     }
 
@@ -139,14 +156,29 @@ public:
                                     std::optional<double> stop_price = std::nullopt,
                                     OrderType type = OrderType::Market,
                                     std::size_t data_index = 0) {
+        if (live_mode()) {
+            return submit_live_order(OrderSide::Sell, size, price, stop_price, type, data_index);
+        }
         return submit_order(OrderSide::Sell, size, price, stop_price, type, data_index);
     }
 
     [[nodiscard]] std::size_t buy_ext(double size, const OrderParams& params) {
+        if (live_mode()) {
+            return submit_live_order(OrderSide::Buy, size, params.price, params.stop_price,
+                                     params.type, params.data_index, params.valid_until_bar,
+                                     params.trail_amount, params.trail_percent,
+                                     params.oco_group_id, params.parent_id, params.transmit);
+        }
         return submit_order_ext(OrderSide::Buy, size, params);
     }
 
     [[nodiscard]] std::size_t sell_ext(double size, const OrderParams& params) {
+        if (live_mode()) {
+            return submit_live_order(OrderSide::Sell, size, params.price, params.stop_price,
+                                     params.type, params.data_index, params.valid_until_bar,
+                                     params.trail_amount, params.trail_percent,
+                                     params.oco_group_id, params.parent_id, params.transmit);
+        }
         return submit_order_ext(OrderSide::Sell, size, params);
     }
 
@@ -239,6 +271,21 @@ public:
     [[nodiscard]] std::size_t next_oco_group() noexcept { return next_oco_group_id_++; }
 
     void cancel_order(std::size_t order_id) {
+        if (live_mode()) {
+            auto* order = find_order(order_id);
+            if (!order) {
+                throw std::out_of_range("unknown order id");
+            }
+            if (live_connector_) {
+                live_connector_->cancel_order(order_id);
+            }
+            order->cancel();
+            sync_order(*order);
+            sync_pending_order(*order);
+            if (order_notify_) order_notify_(*order);
+            return;
+        }
+
         for (auto& order : pending_orders_) {
             if (order.id == order_id && order.is_alive()) {
                 order.cancel();
@@ -256,6 +303,56 @@ public:
             return sell(std::abs(pos.size), 0.0, std::nullopt, OrderType::Market, data_index);
         } else {
             return buy(std::abs(pos.size), 0.0, std::nullopt, OrderType::Market, data_index);
+        }
+    }
+
+    void record_live_fill(const Trade& trade) {
+        if (!live_mode()) {
+            return;
+        }
+
+        auto* order = find_order(trade.id);
+        if (!order) {
+            return;
+        }
+
+        const auto prev_it = live_trade_snapshots_.find(trade.id);
+        const Trade* prev_trade = prev_it == live_trade_snapshots_.end() ? nullptr : &prev_it->second;
+        const double prev_size = prev_trade ? prev_trade->size : 0.0;
+        const double delta_size = trade.size - prev_size;
+        if (std::abs(delta_size) < 1e-12) {
+            live_trade_snapshots_[trade.id] = trade;
+            return;
+        }
+
+        double fill_price = trade.entry_price;
+        if (prev_trade) {
+            if (trade.is_closed() && trade.exit_price > 0.0) {
+                fill_price = trade.exit_price;
+            } else if ((prev_size > 0.0 && trade.size > prev_size) ||
+                       (prev_size < 0.0 && trade.size < prev_size)) {
+                const double new_abs = std::abs(trade.size);
+                const double old_abs = std::abs(prev_size);
+                const double fill_abs = std::abs(delta_size);
+                if (fill_abs > 0.0) {
+                    fill_price = ((trade.entry_price * new_abs) - (prev_trade->entry_price * old_abs)) / fill_abs;
+                }
+            } else if (std::abs(trade.size) < std::abs(prev_size)) {
+                const double pnl_delta = trade.pnl - prev_trade->pnl;
+                const double fill_abs = std::abs(delta_size);
+                if (fill_abs > 0.0) {
+                    fill_price = prev_trade->entry_price +
+                        (prev_size > 0.0 ? 1.0 : -1.0) * (pnl_delta / fill_abs);
+                }
+            }
+        }
+
+        const double comm_delta = trade.commission - (prev_trade ? prev_trade->commission : 0.0);
+        apply_live_execution(*order, delta_size, fill_price, comm_delta, trade);
+
+        live_trade_snapshots_[trade.id] = trade;
+        if (trade.is_closed() || std::abs(trade.size) >= order->size - 1e-12) {
+            live_trade_snapshots_.erase(trade.id);
         }
     }
 
@@ -427,6 +524,104 @@ private:
             }
         }
         return nullptr;
+    }
+
+    void sync_pending_order(const Order& order) {
+        for (auto& stored : pending_orders_) {
+            if (stored.id == order.id) {
+                stored = order;
+                return;
+            }
+        }
+    }
+
+    void apply_live_execution(Order& order, double fill_size_signed, double fill_price,
+                              double comm, const Trade& trade) {
+        const std::size_t bar_index = data_bar_index_;
+        const bool terminal = trade.is_closed() || std::abs(trade.size) >= order.size - 1e-12;
+
+        const Instrument* instr = instrument_for(order.data_index);
+        Currency settle = instr ? instr->settlement_ccy() : base_ccy_;
+        cash_[settle] -= fill_size_signed * fill_price + comm;
+
+        auto& pos = get_position(order.data_index);
+        const double old_size = pos.size;
+        pos.update(fill_size_signed, fill_price);
+
+        const DateTime live_dt = trade.is_closed() ? trade.exit_time : trade.entry_time;
+        update_trades(order.data_index, old_size, fill_size_signed, fill_price, comm,
+                      bar_index, live_dt, order.candidate_id);
+
+        order.executed_size += std::abs(fill_size_signed);
+        order.executed_price = fill_price;
+        order.commission += comm;
+        order.status = terminal ? OrderStatus::Completed : OrderStatus::Partial;
+        sync_order(order);
+        sync_pending_order(order);
+
+        if (order_notify_) order_notify_(order);
+
+        if (terminal) {
+            std::erase_if(pending_orders_, [&order](const Order& pending) {
+                return pending.id == order.id;
+            });
+        }
+    }
+
+    [[nodiscard]] std::size_t submit_live_order(OrderSide side, double size, double price,
+                                                std::optional<double> stop_price,
+                                                OrderType type, std::size_t data_index,
+                                                std::optional<std::size_t> valid_until_bar = std::nullopt,
+                                                double trail_amount = 0.0,
+                                                double trail_percent = 0.0,
+                                                std::size_t oco_group_id = 0,
+                                                std::size_t parent_id = 0,
+                                                bool transmit = true) {
+        if (!live_connector_) {
+            throw std::logic_error("live connector not configured");
+        }
+        if (data_index >= live_symbols_.size() || live_symbols_[data_index].empty()) {
+            throw std::invalid_argument("live trading requires a symbol mapping for the order data index");
+        }
+
+        const auto por = pre_order_hook_
+            ? pre_order_hook_(side, size, data_index)
+            : corrective::PreOrderResult{0, size, false};
+        if (por.rejected) return 0;
+        const double effective_size = por.final_size;
+
+        Order order;
+        order.id = next_order_id_++;
+        order.type = type;
+        order.side = side;
+        order.size = effective_size;
+        order.price = price;
+        order.stop_price = stop_price;
+        order.symbol = live_symbols_[data_index];
+        order.data_index = data_index;
+        order.valid_until_bar = valid_until_bar;
+        order.trail_amount = trail_amount;
+        order.trail_percent = trail_percent;
+        order.oco_group_id = oco_group_id;
+        order.parent_id = parent_id;
+        order.transmit = transmit;
+        order.candidate_id = por.candidate_id;
+
+        all_orders_.push_back(order);
+        pending_orders_.push_back(order);
+
+        order.submit();
+        sync_order(order);
+        sync_pending_order(order);
+        if (order_notify_) order_notify_(order);
+
+        order.accept();
+        sync_order(order);
+        sync_pending_order(order);
+        if (order_notify_) order_notify_(order);
+
+        live_connector_->submit_order(order);
+        return order.id;
     }
 
     [[nodiscard]] std::size_t submit_order(OrderSide side, double size, double price,
@@ -840,6 +1035,9 @@ private:
     std::size_t next_trade_id_ = 1;
     std::size_t next_oco_group_id_ = 1;
     std::size_t data_bar_index_ = 0;
+    MarketConnector* live_connector_ = nullptr;
+    std::vector<std::string> live_symbols_;
+    std::unordered_map<std::size_t, Trade> live_trade_snapshots_;
     std::unordered_map<std::size_t, const Instrument*> instrument_map_;
 
     std::vector<Order> all_orders_;

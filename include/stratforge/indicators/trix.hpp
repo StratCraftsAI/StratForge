@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <string_view>
 
 namespace stratforge {
 
@@ -176,6 +177,11 @@ public:
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
         return trix_.minimum_period() + sigperiod_ - 1;
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return accessor == "line" ? trix_.minimum_period() : minimum_period_impl();
     }
 
     [[nodiscard]] const Line<double>& trix_line() const noexcept { return trix_.line(); }

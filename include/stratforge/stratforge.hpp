@@ -27,6 +27,11 @@
 #include <stratforge/broker/broker.hpp>
 #include <stratforge/broker/sizer.hpp>
 
+// Live trading
+#include <stratforge/live/market_connector.hpp>
+#include <stratforge/live/live_data_feed.hpp>
+#include <stratforge/live/live_engine.hpp>
+
 // Strategy
 #include <stratforge/strategy/signal.hpp>
 #include <stratforge/strategy/strategy.hpp>

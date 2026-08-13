@@ -18,6 +18,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <string_view>
 
 namespace stratforge {
 
@@ -304,6 +305,12 @@ public:
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
         return std::max(fast_.minimum_period(), slow_.minimum_period()) + signal_period_ - 1;
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return accessor == "ppo" ? std::max(fast_.minimum_period(), slow_.minimum_period())
+                                 : minimum_period_impl();
     }
 
     [[nodiscard]] const Line<double>& ppo() const noexcept { return line_; }

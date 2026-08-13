@@ -13,7 +13,7 @@
 // Baseline schema (one row per flush, comma-separated, no header):
 //   seq,processed_bars,is_final,new_bars_count,new_trades_count,realized_pnl,current_dd_pct
 //
-// Regeneration: rebuild with the `NBT_REGEN_BASELINE` env var set; the
+// Regeneration: rebuild with the `SF_REGEN_BASELINE` env var set; the
 // test rewrites tests/golden/increment_batcher_sma_cross_1000bar.csv and
 // PASSES (so CI noticing a regen would have to fail explicitly). Always
 // review the diff manually before committing a regenerated baseline.
@@ -186,7 +186,7 @@ void write_baseline_rows(const std::filesystem::path& p,
 }
 
 [[nodiscard]] bool regen_requested() {
-    const char* v = std::getenv("NBT_REGEN_BASELINE");
+    const char* v = std::getenv("SF_REGEN_BASELINE");
     return v != nullptr && v[0] != '\0' && std::strcmp(v, "0") != 0;
 }
 

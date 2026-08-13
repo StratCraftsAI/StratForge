@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <string_view>
 
 namespace stratforge {
 
@@ -81,6 +82,12 @@ public:
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
         return period_ + period_dfast_ + period_dslow_ - 2;
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return accessor == "percK" ? period_ + period_dfast_ - 1
+                                   : minimum_period_impl();
     }
 
     [[nodiscard]] const Line<double>& percK() const noexcept { return line_; }
@@ -176,6 +183,13 @@ public:
         return period_ + period_dfast_ + period_dslow_ - 2;
     }
 
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        if (accessor == "percK") return period_;
+        if (accessor == "percD") return period_ + period_dfast_ - 1;
+        return minimum_period_impl();
+    }
+
     [[nodiscard]] const Line<double>& percK() const noexcept { return line_; }
     [[nodiscard]] const Line<double>& percD() const noexcept { return perc_d_; }
     [[nodiscard]] const Line<double>& percDSlow() const noexcept { return perc_dslow_; }
@@ -222,6 +236,11 @@ public:
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
         return full_.minimum_period();
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return full_.accessor_minimum_period(accessor);
     }
 
     [[nodiscard]] const Line<double>& percK() const noexcept { return line_; }

@@ -13,6 +13,8 @@
 #include <stratforge/data/interval.hpp>
 #include <stratforge/data/resampled_feed.hpp>
 #include <stratforge/engine/cerebro.hpp>
+#include <stratforge/indicators/williams.hpp>
+#include <stratforge/strategy/signal_entry_strategy.hpp>
 
 #include "test_helpers.hpp"
 
@@ -153,6 +155,40 @@ public:
     void stop() override {
         lifecycle.push_back("stop");
     }
+};
+
+class SecondaryHistorySignal final : public SignalEntryStrategy {
+public:
+    int updates = 0;
+    int decisions = 0;
+
+    void initialize_indicators() override {
+        indicator_ = std::make_unique<WilliamsR>(
+            data(1).high(), data(1).low(), data(1).close(), 2);
+    }
+
+    [[nodiscard]] IndicatorHistoryRequirements
+    indicator_history_requirements() const override {
+        return {{.feed_index = 1, .bars = 3}};
+    }
+
+    void update_indicators(std::size_t feed_index) override {
+        if (feed_index == 1) {
+            indicator_->next();
+            ++updates;
+        }
+    }
+
+    [[nodiscard]] EntrySignal check_open_conditions() override {
+        ++decisions;
+        static_cast<void>(indicator_->line()[-1]);
+        return {};
+    }
+
+    [[nodiscard]] bool check_close_conditions() override { return false; }
+
+private:
+    std::unique_ptr<WilliamsR> indicator_;
 };
 
 } // namespace
@@ -846,4 +882,38 @@ TEST_CASE("Multi-clock: feed_advanced and bars_delivered are correct per bar",
         // in the recorder. Let's just verify the master close changes.)
         CHECK(r.master_close > 0.0);
     }
+}
+
+TEST_CASE("Multi-clock: generated history updates only on its owning feed",
+          "[cerebro][multi_tf][history_warmup]") {
+    const auto start = make_dt(2024, 1, 1);
+    auto primary = std::make_unique<TestFeed>(make_hourly_bars(start, 8));
+    static_cast<void>(primary->load());
+    primary->set_timeframe({TimeFrame::Minutes, 60});
+
+    std::vector<TestFeed::Bar> context_bars;
+    for (int hour = 0; hour < 8; hour += 2) {
+        const double price = 200.0 + hour;
+        context_bars.push_back({
+            start + std::chrono::hours(hour),
+            price,
+            price + 2.0,
+            price - 2.0,
+            price + 0.5,
+            1000.0,
+        });
+    }
+    auto context = std::make_unique<TestFeed>(context_bars);
+    static_cast<void>(context->load());
+    context->set_timeframe({TimeFrame::Minutes, 120});
+
+    Cerebro cerebro;
+    cerebro.add_data(std::move(primary), "hourly");
+    cerebro.add_data(std::move(context), "two_hour");
+    auto& strategy = cerebro.add_strategy<SecondaryHistorySignal>();
+    cerebro.run();
+
+    CHECK(strategy.minimum_period(1) == 3);
+    CHECK(strategy.updates == 4);
+    CHECK(strategy.decisions == 3);
 }

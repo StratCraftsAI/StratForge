@@ -30,8 +30,6 @@ public:
     [[nodiscard]] virtual bool check_close_conditions() = 0;
 
     /// Called each bar before business logic. Override to advance indicators.
-    virtual void update_indicators() {}
-
     /// Total bars required before signal evaluation. A strategy that reads
     /// indicator output [-N] returns the indicator calculation period plus N.
     [[nodiscard]] virtual std::size_t get_indicator_history_warmup_period() const noexcept {
@@ -41,14 +39,14 @@ public:
     /// Warmup flow. Custom lifecycle implementations should call this base
     /// implementation so indicator history continues to advance.
     void prenext() override {
-        update_indicators();
+        advance_generated_indicators();
     }
 
 protected:
     /// Default execution flow. Subclasses may override for custom execution
     /// semantics and call this implementation to retain the standard flow.
     void next() override {
-        update_indicators();
+        advance_generated_indicators();
 
         // Close first
         if (position().size != 0.0 && check_close_conditions()) {
@@ -73,6 +71,7 @@ private:
         if (minimum_period() < declared_warmup) {
             set_minimum_period(declared_warmup);
         }
+        apply_indicator_history_requirements();
     }
 };
 

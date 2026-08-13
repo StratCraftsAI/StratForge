@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <string_view>
 
 namespace stratforge {
 
@@ -148,7 +149,16 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return (period_ * 2);
+        return period_ * 3;
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        if (accessor == "plus_di" || accessor == "minus_di" || accessor == "dx") {
+            return period_ + 1;
+        }
+        if (accessor == "adx") return period_ * 2;
+        return minimum_period_impl();
     }
 
     [[nodiscard]] const Line<double>& adx() const noexcept { return line_; }
@@ -208,7 +218,7 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return dm_.minimum_period();
+        return dm_.accessor_minimum_period("plus_di");
     }
 
 private:
@@ -231,7 +241,7 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return dm_.minimum_period();
+        return dm_.accessor_minimum_period("minus_di");
     }
 
 private:
@@ -254,7 +264,7 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return dm_.minimum_period();
+        return dm_.accessor_minimum_period("adx");
     }
 
 private:
@@ -277,11 +287,16 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return dm_.minimum_period();
+        return dm_.accessor_minimum_period("plus_di");
     }
 
     [[nodiscard]] const Line<double>& plus_di() const noexcept { return dm_.plus_di(); }
     [[nodiscard]] const Line<double>& minus_di() const noexcept { return dm_.minus_di(); }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return dm_.accessor_minimum_period(accessor);
+    }
 
 private:
     const Line<double>& close_;
@@ -303,7 +318,7 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return dm_.minimum_period() + period_;
+        return dm_.accessor_minimum_period("adxr");
     }
 
 private:

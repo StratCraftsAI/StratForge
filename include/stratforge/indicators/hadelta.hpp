@@ -6,6 +6,7 @@
 
 #include <limits>
 #include <cstddef>
+#include <string_view>
 
 namespace stratforge {
 
@@ -48,7 +49,13 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return period_;
+        return std::max(period_, autoheikin_ ? 2uz : 1uz);
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return accessor == "ha_delta" ? (autoheikin_ ? 2uz : 1uz)
+                                      : minimum_period_impl();
     }
 
     [[nodiscard]] const Line<double>& ha_delta() const noexcept { return line_; }

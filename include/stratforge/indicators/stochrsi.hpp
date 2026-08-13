@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <string_view>
 
 namespace stratforge {
 
@@ -78,7 +79,13 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return rsi_.minimum_period() + stoch_period_ - 1;
+        return rsi_.minimum_period() + stoch_period_ + period_d_ - 2;
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return accessor == "percK" ? rsi_.minimum_period() + stoch_period_ - 1
+                                   : minimum_period_impl();
     }
 
     [[nodiscard]] const Line<double>& percK() const noexcept { return line_; }

@@ -31,6 +31,7 @@ add_executable(stratforge_tests
     test_e2e_integration.cpp
     test_registry_compile.cpp
     test_indicator_ticket011.cpp
+    test_public_live_engine.cpp
     test_candlestick.cpp
     test_mavp.cpp
     test_coverage_indicators.cpp
@@ -73,6 +74,8 @@ add_executable(stratforge_tests
     test_multi_clock_cerebro.cpp
     test_backtest_runner_feeds.cpp
     test_ticket791_williams_conformance.cpp
+    test_indicator_history_contract.cpp
+    test_generated_strategy_warmup.cpp
 )
 
 target_link_libraries(stratforge_tests PRIVATE
@@ -80,8 +83,11 @@ target_link_libraries(stratforge_tests PRIVATE
     Catch2::Catch2WithMain
 )
 
-find_package(SQLite3 REQUIRED)
-target_link_libraries(stratforge_tests PRIVATE SQLite::SQLite3)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test_live_engine.cpp OR
+   EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test_strategy_runtime.cpp)
+    find_package(SQLite3 REQUIRED)
+    target_link_libraries(stratforge_tests PRIVATE SQLite::SQLite3)
+endif()
 
 if(NOT WIN32)
     target_link_libraries(stratforge_tests PRIVATE dl)
@@ -102,6 +108,14 @@ include(CTest)
 include(Catch)
 catch_discover_tests(stratforge_tests)
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+add_test(
+    NAME indicator_history_contract_drift
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_SOURCE_DIR}/tools/generate_indicator_history_contract.py
+            --check
+)
+
 set_target_properties(stratforge_tests PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/tests
 )
@@ -109,7 +123,6 @@ set_target_properties(stratforge_tests PROPERTIES
 # This private integration test is intentionally absent from the public
 # StratForge sync, whose SDK surface excludes qnx_strategy_sdk.
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test_ticket791_validation_sdk.py)
-    find_package(Python3 COMPONENTS Interpreter REQUIRED)
     add_test(
         NAME ticket791_validation_sdk
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_ticket791_validation_sdk.py

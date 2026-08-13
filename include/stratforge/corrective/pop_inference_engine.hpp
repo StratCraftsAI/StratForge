@@ -5,7 +5,7 @@
 // for the enabled path. No Python, no IPC, no network (AC5).
 //
 // Compile guard: the ONNX Runtime dependency is optional (feature flag
-// in vcpkg.json / CMake). When NBT_HAS_ONNXRUNTIME is not defined,
+// in vcpkg.json / CMake). When SF_HAS_ONNXRUNTIME is not defined,
 // PopInferenceContext::create() always fails with a clear error.
 
 #pragma once
@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#ifdef NBT_HAS_ONNXRUNTIME
+#ifdef SF_HAS_ONNXRUNTIME
 #include <onnxruntime_cxx_api.h>
 #endif
 
@@ -89,7 +89,7 @@ private:
     PopCalibrator    calibrator_;
     PopSizingPolicy  policy_;
 
-#ifdef NBT_HAS_ONNXRUNTIME
+#ifdef SF_HAS_ONNXRUNTIME
     Ort::Env                         ort_env_{ORT_LOGGING_LEVEL_WARNING, "corrective"};
     std::unique_ptr<Ort::Session>    ort_session_;
     Ort::MemoryInfo                  memory_info_ = Ort::MemoryInfo::CreateCpu(
@@ -105,7 +105,7 @@ private:
 // Implementation
 // -----------------------------------------------------------------------
 
-#ifdef NBT_HAS_ONNXRUNTIME
+#ifdef SF_HAS_ONNXRUNTIME
 
 inline std::unique_ptr<PopInferenceContext> PopInferenceContext::create(
     const ArtifactManifest& manifest,
@@ -239,7 +239,7 @@ inline InferenceResult PopInferenceContext::infer(
         raw, calibrated, decision.verdict, decision.final_size};
 }
 
-#else // !NBT_HAS_ONNXRUNTIME
+#else // !SF_HAS_ONNXRUNTIME
 
 inline std::unique_ptr<PopInferenceContext> PopInferenceContext::create(
     const ArtifactManifest& /*manifest*/,
@@ -263,6 +263,6 @@ inline InferenceResult PopInferenceContext::infer(
     return InferenceResult{0.0f, 0.0f, GateVerdict::kPass, proposed_size};
 }
 
-#endif // NBT_HAS_ONNXRUNTIME
+#endif // SF_HAS_ONNXRUNTIME
 
 } // namespace stratforge::corrective

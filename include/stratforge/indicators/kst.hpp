@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <limits>
+#include <string_view>
 
 namespace stratforge {
 
@@ -32,8 +33,7 @@ public:
         , rcma3_(roc3_.line(), rma3)
         , rcma4_(roc4_.line(), rma4)
         , signal_sma_(line_, rsignal)
-        , rp4_(rp4)
-        , rma4_(rma4)
+        , kst_period_(std::max({rp1 + rma1, rp2 + rma2, rp3 + rma3, rp4 + rma4}) - 1)
         , rsignal_(rsignal == 0 ? 1 : rsignal) {}
 
     void next_impl() {
@@ -70,7 +70,12 @@ public:
     }
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
-        return rp4_ + rma4_ + rsignal_ - 2;
+        return kst_period_ + rsignal_ - 1;
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return accessor == "kst" ? kst_period_ : minimum_period_impl();
     }
 
     [[nodiscard]] const Line<double>& kst() const noexcept { return line_; }
@@ -88,8 +93,7 @@ private:
     SMA rcma4_;
     SMA signal_sma_;
     Line<double> signal_;
-    std::size_t rp4_;
-    std::size_t rma4_;
+    std::size_t kst_period_;
     std::size_t rsignal_;
 };
 

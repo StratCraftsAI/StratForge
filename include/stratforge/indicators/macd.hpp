@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <limits>
+#include <string_view>
 
 namespace stratforge {
 
@@ -89,6 +90,11 @@ public:
 
     [[nodiscard]] std::size_t minimum_period_impl() const noexcept {
         return slow_period_ + signal_period_ - 1;
+    }
+
+    [[nodiscard]] std::size_t
+    accessor_minimum_period_impl(std::string_view accessor) const noexcept {
+        return accessor == "macd" ? slow_period_ : minimum_period_impl();
     }
 
     [[nodiscard]] const Line<double>& macd() const noexcept { return line_; }

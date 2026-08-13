@@ -49,7 +49,10 @@ public:
     [[nodiscard]] RegimeState current_state() const noexcept { return current_state_; }
 
     /// Called each bar before business logic. Override to advance indicators.
-    virtual void update_indicators() {}
+    /// Advance indicators during warmup without evaluating regime decisions.
+    void prenext() override {
+        advance_generated_indicators();
+    }
 
 protected:
     RegimeState current_state_ = RegimeState::Unknown;
@@ -57,11 +60,15 @@ protected:
 private:
     void init() final {
         initialize_indicators();
-        set_minimum_period(get_base_warmup_period());
+        const auto declared_warmup = get_base_warmup_period();
+        if (minimum_period() < declared_warmup) {
+            set_minimum_period(declared_warmup);
+        }
+        apply_indicator_history_requirements();
     }
 
     void next() final {
-        update_indicators();
+        advance_generated_indicators();
 
         auto trend = calculate_trend_strength();
         auto range = calculate_range_strength();

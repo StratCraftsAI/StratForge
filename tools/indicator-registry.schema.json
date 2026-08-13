@@ -1,0 +1,158 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StratForge Indicator Registry",
+  "description": "Schema for tools/market-analysis-indicator.json - the stratforge:: indicator registry",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "slug",
+      "name",
+      "aliases",
+      "category",
+      "include",
+      "code_template",
+      "constructor_params",
+      "data_input",
+      "output_lines",
+      "output_accessors",
+      "example_usage",
+      "template_keys",
+      "usage_modes"
+    ],
+    "properties": {
+      "slug": {
+        "type": "string",
+        "pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
+        "description": "Unique identifier matching the C++ class name"
+      },
+      "display_name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Optional UI-facing label; defaults to slug when omitted by consumers"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Human-readable indicator name"
+      },
+      "aliases": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 1,
+        "description": "Alternative names for lookup (must include slug)"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "trend",
+          "momentum",
+          "volatility",
+          "volume",
+          "directional",
+          "statistical",
+          "statistic",
+          "signal",
+          "envelope",
+          "helper",
+          "adaptive",
+          "advanced",
+          "pattern",
+          "oscillator",
+          "utility",
+          "overlap",
+          "price_transform",
+          "candlestick"
+        ],
+        "description": "Indicator category"
+      },
+      "include": {
+        "type": "string",
+        "pattern": "^stratforge/indicators/[a-z0-9_]+\\.hpp$",
+        "description": "Header path relative to include/"
+      },
+      "code_template": {
+        "type": "string",
+        "minLength": 1,
+        "description": "C++ instantiation template with {param} placeholders"
+      },
+      "constructor_params": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["name", "type", "position"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Parameter name matching {placeholder} in code_template"
+            },
+            "type": {
+              "type": "string",
+              "enum": ["std::size_t", "int", "double", "bool"],
+              "description": "C++ type of the parameter"
+            },
+            "position": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based position among user-configurable params"
+            },
+            "default": {
+              "description": "Default value (type matches 'type' field)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "description": "User-configurable constructor parameters"
+      },
+      "data_input": {
+        "type": "string",
+        "enum": ["single_line", "full_data", "dual_line", "close"],
+        "description": "Input data pattern"
+      },
+      "output_lines": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 1,
+        "description": "Named output lines"
+      },
+      "output_accessors": {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": { "type": "string" },
+        "description": "Map of line_name -> accessor method"
+      },
+      "example_usage": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Example C++ code lines"
+      },
+      "template_keys": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "trend_following",
+            "crossover",
+            "mean_reversion",
+            "momentum",
+            "volatility_filter",
+            "breakout",
+            "volume_confirmation"
+          ]
+        },
+        "description": "Strategy template categories this indicator is useful for"
+      },
+      "usage_modes": {
+        "type": "object",
+        "required": ["standalone", "strategy_template"],
+        "properties": {
+          "standalone": { "type": "boolean" },
+          "strategy_template": { "type": "boolean" }
+        },
+        "additionalProperties": false,
+        "description": "Supported usage contexts"
+      }
+    },
+    "additionalProperties": false
+  }
+}

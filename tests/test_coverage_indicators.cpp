@@ -340,7 +340,7 @@ TEST_CASE("PlusDirectionalIndicator outputs +DI", "[indicator][dm][plusdi]") {
     stratforge::PlusDirectionalIndicator pdi(high, low, close, 5);
     run_indicator_hlc(high, low, close, pdi);
 
-    REQUIRE(pdi.minimum_period() == 10); // period * 2
+    REQUIRE(pdi.minimum_period() == 6); // +DI is ready after its own seed window
 
     bool found_valid = false;
     for (std::size_t i = 0; i < pdi.line().data().size(); ++i) {

@@ -17,6 +17,13 @@
 
 namespace stratforge {
 
+struct IndicatorHistoryRequirement {
+    std::size_t feed_index = 0;
+    std::size_t bars = 1;
+};
+
+using IndicatorHistoryRequirements = std::vector<IndicatorHistoryRequirement>;
+
 /// Strategy base class.
 /// Provides lifecycle hooks and order submission methods.
 /// Not using CRTP here to keep the API simpler for users;
@@ -50,6 +57,24 @@ public:
 
     /// Called when the strategy is stopped (end of data).
     virtual void stop() {}
+
+    /// Per-feed indicator-history requirements declared by generated code.
+    /// Empty means that no secondary-feed history is used.
+    [[nodiscard]] virtual IndicatorHistoryRequirements
+    indicator_history_requirements() const {
+        return {};
+    }
+
+    /// Legacy feed-0 indicator update hook.
+    virtual void update_indicators() {}
+
+    /// Per-feed indicator update hook. Generated multi-feed strategies override
+    /// this overload and advance only members owned by feed_index.
+    virtual void update_indicators(std::size_t feed_index) {
+        if (feed_index == 0) {
+            update_indicators();
+        }
+    }
 
     // --- Notification callbacks ---
 
@@ -207,6 +232,13 @@ public:
         min_periods_[feed_idx] = bars;
     }
 
+    /// Preserve an existing stricter requirement while declaring warmup.
+    void require_minimum_period(std::size_t feed_idx, std::size_t bars) noexcept {
+        if (minimum_period(feed_idx) < bars) {
+            set_minimum_period(feed_idx, bars);
+        }
+    }
+
     /// Get minimum period for feed 0 (back-compat).
     [[nodiscard]] std::size_t minimum_period() const noexcept {
         return minimum_period(0);
@@ -265,6 +297,37 @@ public:
     /// Engine-internal: set cumulative bars_delivered counts.
     void set_bars_delivered(std::vector<std::size_t> counts) noexcept {
         bars_delivered_ = std::move(counts);
+    }
+
+protected:
+    /// Apply the generated per-feed declaration after indicators are created.
+    void apply_indicator_history_requirements() {
+        for (const auto& requirement : indicator_history_requirements()) {
+            if (requirement.feed_index >= data_count()) {
+                throw std::invalid_argument(
+                    "indicator history requirement references an unavailable feed");
+            }
+            if (requirement.bars == 0) {
+                throw std::invalid_argument(
+                    "indicator history requirement must be positive");
+            }
+            require_minimum_period(requirement.feed_index, requirement.bars);
+        }
+    }
+
+    /// Advance generated indicators once for every feed that formed a bar.
+    /// Single-feed evaluators that do not publish clock flags retain feed-0
+    /// behavior for compatibility.
+    void advance_generated_indicators() {
+        if (feed_advanced_.empty()) {
+            update_indicators(0);
+            return;
+        }
+        for (std::size_t feed_index = 0; feed_index < feed_advanced_.size(); ++feed_index) {
+            if (feed_advanced_[feed_index]) {
+                update_indicators(feed_index);
+            }
+        }
     }
 
 private:

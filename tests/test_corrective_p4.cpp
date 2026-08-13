@@ -310,7 +310,7 @@ TEST_CASE("preflight -- isotonic breakpoints parsed from CSV strings",
                  Catch::Matchers::WithinAbs(0.5, 1e-5));
 }
 
-#ifndef NBT_HAS_ONNXRUNTIME
+#ifndef SF_HAS_ONNXRUNTIME
 TEST_CASE("preflight -- create fails without ONNX Runtime",
           "[corrective][p4][preflight]")
 {
@@ -328,7 +328,7 @@ TEST_CASE("preflight -- create fails without ONNX Runtime",
 // AC10: Preflight -- feature schema hash mismatch detected
 // ===========================================================================
 
-#ifdef NBT_HAS_ONNXRUNTIME
+#ifdef SF_HAS_ONNXRUNTIME
 TEST_CASE("preflight -- rejects feature schema mismatch",
           "[corrective][p4][preflight]")
 {
