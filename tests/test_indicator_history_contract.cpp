@@ -143,7 +143,7 @@ TEST_CASE("indicator history contract checks lookback arithmetic",
 TEST_CASE("every registered indicator accessor has a resolvable default contract",
           "[indicator][history_contract][drift]") {
     const auto descriptors = history::descriptors();
-    REQUIRE(descriptors.size() == 205);
+    REQUIRE(descriptors.size() == 251);
 
     for (const auto& descriptor : descriptors) {
         history::Parameters parameters;

@@ -5,6 +5,7 @@
 #include <stratforge/analyzers/trade_analyzer.hpp>
 #include <stratforge/broker/commission.hpp>
 #include <stratforge/data/csv_data.hpp>
+#include <stratforge/data/epoch_time.hpp>
 #include <stratforge/data/interval.hpp>
 #include <stratforge/data/resampled_feed.hpp>
 #include <stratforge/engine/cerebro.hpp>
@@ -15,8 +16,10 @@
 #include <stratforge/strategy/strategy.hpp>
 
 #include <algorithm>
+#include <charconv>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -24,6 +27,7 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <vector>
 
 namespace stratforge {
@@ -55,12 +59,12 @@ struct BacktestConfig {
     double sizer_param = 100.0;
     int symbol_count = 1;
 
-    ///  G1: window pushdown parameters.
+    /// : canonical inclusive window pushdown parameters.
     /// When set, passed through to ParquetData/CsvData fromdate/todate so the
     /// data loader reads only the requested window (plus warmup extension)
-    /// instead of the full file. Epoch-seconds (UTC).
-    std::optional<double> start_time;
-    std::optional<double> end_time;
+    /// instead of the full file. Epoch milliseconds (UTC).
+    std::optional<std::int64_t> start_time_ms;
+    std::optional<std::int64_t> end_time_ms;
 
     ///  P2: multi-timeframe feed plan.
     /// When populated (from a "feeds" JSON array in the config), the runner
@@ -107,6 +111,36 @@ public:
         } catch (...) {
             return fallback;
         }
+    }
+
+    [[nodiscard]] std::optional<std::int64_t> get_int64(std::string_view key) const {
+        const auto pos = find_key(key);
+        if (pos == std::string_view::npos) return std::nullopt;
+        const auto begin = json_.find_first_not_of(" \t\r\n", pos);
+        if (begin == std::string_view::npos ||
+            (json_[begin] != '-' && (json_[begin] < '0' || json_[begin] > '9'))) {
+            throw std::runtime_error("Runner field '" + std::string(key) +
+                                     "' must be a signed 64-bit integer");
+        }
+        const auto end = json_.find_first_not_of("-0123456789", begin);
+        const auto token = json_.substr(begin, end - begin);
+        std::int64_t value = 0;
+        const auto [ptr, error] = std::from_chars(token.data(), token.data() + token.size(), value);
+        if (error != std::errc{} || ptr != token.data() + token.size()) {
+            throw std::runtime_error("Runner field '" + std::string(key) +
+                                     "' must be a signed 64-bit integer");
+        }
+        const auto delimiter = json_.find_first_not_of(" \t\r\n", end);
+        if (delimiter != std::string_view::npos && json_[delimiter] != ',' &&
+            json_[delimiter] != '}' && json_[delimiter] != ']') {
+            throw std::runtime_error("Runner field '" + std::string(key) +
+                                     "' must be a signed 64-bit integer");
+        }
+        return value;
+    }
+
+    [[nodiscard]] bool contains(std::string_view key) const {
+        return find_key(key) != std::string_view::npos;
     }
 
     ///  P2: parse the "feeds" JSON array into a vector of FeedSpec.
@@ -227,6 +261,25 @@ private:
     std::string_view json_;
 };
 
+/// : enforce the canonical runner window independently of how a
+/// BacktestConfig was constructed. JSON parsing and direct C++ callers share
+/// this single validation path.
+inline void validate_backtest_window(const BacktestConfig& config) {
+    if (config.start_time_ms.has_value() != config.end_time_ms.has_value()) {
+        throw std::runtime_error(
+            "Runner window requires both start_time_ms and end_time_ms");
+    }
+    if (!config.start_time_ms) {
+        return;
+    }
+    if (*config.end_time_ms < *config.start_time_ms) {
+        throw std::runtime_error(
+            "Runner window end_time_ms must be greater than or equal to start_time_ms");
+    }
+    static_cast<void>(datetime_from_epoch_milliseconds(*config.start_time_ms));
+    static_cast<void>(datetime_from_epoch_milliseconds(*config.end_time_ms));
+}
+
 /// Parse a JSON config string into a BacktestConfig.
 [[nodiscard]] inline BacktestConfig parse_backtest_config(std::string_view json) {
     BacktestConfigParser parser(json);
@@ -252,11 +305,15 @@ private:
     cfg.symbol_count = static_cast<int>(parser.get_double("symbol_count", 1.0));
     if (cfg.symbol_count < 1) cfg.symbol_count = 1;
 
-    //  G1: window pushdown epoch-seconds.
-    const double st = parser.get_double("start_time", -1.0);
-    if (st >= 0.0) cfg.start_time = st;
-    const double et = parser.get_double("end_time", -1.0);
-    if (et >= 0.0) cfg.end_time = et;
+    //  supersedes the ambiguous epoch-second runner fields.
+    if (parser.contains("start_time") || parser.contains("end_time")) {
+        throw std::runtime_error(
+            "Runner window fields start_time/end_time are unsupported; "
+            "use start_time_ms/end_time_ms");
+    }
+    cfg.start_time_ms = parser.get_int64("start_time_ms");
+    cfg.end_time_ms = parser.get_int64("end_time_ms");
+    validate_backtest_window(cfg);
 
     //  P2: multi-timeframe feed plan.
     cfg.feeds = parser.parse_feeds();
@@ -417,6 +474,12 @@ private:
         return make_error_result("null strategy pointer");
     }
 
+    try {
+        validate_backtest_window(config);
+    } catch (const std::exception& error) {
+        return make_error_result(error.what());
+    }
+
     // -------------------------------------------------------------------
     //  P2: back-compat synth plan.
     // When feeds[] is absent but data_file exists, synthesize a single-feed
@@ -455,19 +518,17 @@ private:
     auto wall_start = std::chrono::steady_clock::now();
 
     // -------------------------------------------------------------------
-    //  G1 + P2: convert config epoch-seconds to DateTime for
+    // : convert canonical config epoch milliseconds to DateTime for
     // window pushdown. Extend start backward by the coarsest feed's warmup
     // span so warmup bars are present (NO FULL-HISTORY READ, ).
     // -------------------------------------------------------------------
     std::optional<DateTime> from_dt;
     std::optional<DateTime> to_dt;
-    if (cfg.start_time.has_value()) {
-        from_dt = DateTime(std::chrono::duration_cast<std::chrono::system_clock::duration>(
-            std::chrono::duration<double>(*cfg.start_time)));
+    if (cfg.start_time_ms.has_value()) {
+        from_dt = datetime_from_epoch_milliseconds(*cfg.start_time_ms);
     }
-    if (cfg.end_time.has_value()) {
-        to_dt = DateTime(std::chrono::duration_cast<std::chrono::system_clock::duration>(
-            std::chrono::duration<double>(*cfg.end_time)));
+    if (cfg.end_time_ms.has_value()) {
+        to_dt = datetime_from_epoch_milliseconds(*cfg.end_time_ms);
     }
 
     // Find the coarsest feed's TFC for warmup window extension.

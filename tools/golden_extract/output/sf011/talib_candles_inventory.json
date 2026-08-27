@@ -1,0 +1,454 @@
+{
+  "patterns": [
+    {
+      "cpp_type": "CDLTwoCrows",
+      "disposition": "existing_unverified",
+      "name": "CDL2CROWS",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLThreeBlackCrows",
+      "disposition": "existing_unverified",
+      "name": "CDL3BLACKCROWS",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLThreeInside",
+      "disposition": "existing_unverified",
+      "name": "CDL3INSIDE",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLThreeLineStrike",
+      "disposition": "existing_unverified",
+      "name": "CDL3LINESTRIKE",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLThreeOutside",
+      "disposition": "existing_unverified",
+      "name": "CDL3OUTSIDE",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLThreeStarsInSouth",
+      "disposition": "existing_unverified",
+      "name": "CDL3STARSINSOUTH",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLThreeWhiteSoldiers",
+      "disposition": "existing_unverified",
+      "name": "CDL3WHITESOLDIERS",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLAbandonedBaby",
+      "disposition": "existing_unverified",
+      "name": "CDLABANDONEDBABY",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLAdvanceBlock",
+      "disposition": "existing_unverified",
+      "name": "CDLADVANCEBLOCK",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLBeltHold",
+      "disposition": "existing_unverified",
+      "name": "CDLBELTHOLD",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLBreakaway",
+      "disposition": "existing_unverified",
+      "name": "CDLBREAKAWAY",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLClosingMarubozu",
+      "disposition": "existing_unverified",
+      "name": "CDLCLOSINGMARUBOZU",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLConcealingBabySwallow",
+      "disposition": "existing_unverified",
+      "name": "CDLCONCEALBABYSWALL",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLCounterAttack",
+      "disposition": "existing_unverified",
+      "name": "CDLCOUNTERATTACK",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLDarkCloudCover",
+      "disposition": "existing_unverified",
+      "name": "CDLDARKCLOUDCOVER",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLDoji",
+      "disposition": "existing_unverified",
+      "name": "CDLDOJI",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLDojiStar",
+      "disposition": "existing_unverified",
+      "name": "CDLDOJISTAR",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLDragonflyDoji",
+      "disposition": "existing_unverified",
+      "name": "CDLDRAGONFLYDOJI",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLEngulfing",
+      "disposition": "existing_unverified",
+      "name": "CDLENGULFING",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLEveningDojiStar",
+      "disposition": "existing_unverified",
+      "name": "CDLEVENINGDOJISTAR",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLEveningStar",
+      "disposition": "existing_unverified",
+      "name": "CDLEVENINGSTAR",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLGapSideSideWhite",
+      "disposition": "existing_unverified",
+      "name": "CDLGAPSIDESIDEWHITE",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLGravestoneDoji",
+      "disposition": "existing_unverified",
+      "name": "CDLGRAVESTONEDOJI",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLHammer",
+      "disposition": "existing_unverified",
+      "name": "CDLHAMMER",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLHangingMan",
+      "disposition": "existing_unverified",
+      "name": "CDLHANGINGMAN",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLHarami",
+      "disposition": "existing_unverified",
+      "name": "CDLHARAMI",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLHaramiCross",
+      "disposition": "existing_unverified",
+      "name": "CDLHARAMICROSS",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLHighWave",
+      "disposition": "existing_unverified",
+      "name": "CDLHIGHWAVE",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLHikkake",
+      "disposition": "existing_unverified",
+      "name": "CDLHIKKAKE",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLModifiedHikkake",
+      "disposition": "existing_unverified",
+      "name": "CDLHIKKAKEMOD",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLHomingPigeon",
+      "disposition": "existing_unverified",
+      "name": "CDLHOMINGPIGEON",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLIdenticalThreeCrows",
+      "disposition": "existing_unverified",
+      "name": "CDLIDENTICAL3CROWS",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLInNeck",
+      "disposition": "existing_unverified",
+      "name": "CDLINNECK",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLInvertedHammer",
+      "disposition": "existing_unverified",
+      "name": "CDLINVERTEDHAMMER",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLKicking",
+      "disposition": "existing_unverified",
+      "name": "CDLKICKING",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLKickingByLength",
+      "disposition": "existing_unverified",
+      "name": "CDLKICKINGBYLENGTH",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLLadderBottom",
+      "disposition": "existing_unverified",
+      "name": "CDLLADDERBOTTOM",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLLongLeggedDoji",
+      "disposition": "existing_unverified",
+      "name": "CDLLONGLEGGEDDOJI",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLLongLine",
+      "disposition": "existing_unverified",
+      "name": "CDLLONGLINE",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLMarubozu",
+      "disposition": "existing_unverified",
+      "name": "CDLMARUBOZU",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLMatchingLow",
+      "disposition": "existing_unverified",
+      "name": "CDLMATCHINGLOW",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLMatHold",
+      "disposition": "existing_unverified",
+      "name": "CDLMATHOLD",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLMorningDojiStar",
+      "disposition": "existing_unverified",
+      "name": "CDLMORNINGDOJISTAR",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLMorningStar",
+      "disposition": "existing_unverified",
+      "name": "CDLMORNINGSTAR",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLOnNeck",
+      "disposition": "existing_unverified",
+      "name": "CDLONNECK",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLPiercingLine",
+      "disposition": "existing_unverified",
+      "name": "CDLPIERCING",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLRickshawMan",
+      "disposition": "existing_unverified",
+      "name": "CDLRICKSHAWMAN",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLRiseFallThreeMethods",
+      "disposition": "existing_unverified",
+      "name": "CDLRISEFALL3METHODS",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLSeparatingLines",
+      "disposition": "existing_unverified",
+      "name": "CDLSEPARATINGLINES",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLShootingStar",
+      "disposition": "existing_unverified",
+      "name": "CDLSHOOTINGSTAR",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLShortLine",
+      "disposition": "existing_unverified",
+      "name": "CDLSHORTLINE",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLSpinningTop",
+      "disposition": "existing_unverified",
+      "name": "CDLSPINNINGTOP",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLStalledPattern",
+      "disposition": "existing_unverified",
+      "name": "CDLSTALLEDPATTERN",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLStickSandwich",
+      "disposition": "existing_unverified",
+      "name": "CDLSTICKSANDWICH",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLTakuri",
+      "disposition": "existing_unverified",
+      "name": "CDLTAKURI",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLTasukiGap",
+      "disposition": "existing_unverified",
+      "name": "CDLTASUKIGAP",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLThrusting",
+      "disposition": "existing_unverified",
+      "name": "CDLTHRUSTING",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLTristar",
+      "disposition": "existing_unverified",
+      "name": "CDLTRISTAR",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLUniqueThreeRiver",
+      "disposition": "existing_unverified",
+      "name": "CDLUNIQUE3RIVER",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLUpsideGap",
+      "disposition": "existing_unverified",
+      "name": "CDLUPSIDEGAP2CROWS",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    },
+    {
+      "cpp_type": "CDLXSideGapThreeMethods",
+      "disposition": "existing_unverified",
+      "name": "CDLXSIDEGAP3METHODS",
+      "registry_discoverable": true,
+      "talib_alias_present": true
+    }
+  ],
+  "provenance": {
+    "downstream_catalog_sha256": "04cfc02efc78e523ed278f94ae95d310c0612d6132cfb7ab9b4ad2a3f32d6511",
+    "downstream_revision": "bcfd5e5f296eb6efe195205683944d88dac48be3",
+    "phase": 0,
+    "qlib_loader_sha256": "814b7f7ab3d418ae3c87ce352220080b239eba2670eac9e38376b794be4075cb",
+    "qlib_revision": "79633dd9506ea689e5400dea0197717b5b3d74b7",
+    "stratforge_alias_header_sha256": "f7f8d481b2d3cffa210237df725249b76347cd2b9fef455f785b9a31696dc7dd",
+    "stratforge_registry_sha256": "cb0877b43c54edee2f5b638d16c8382336f93ec3566339c16e66244ef224bf67",
+    "talib_c_version": "0.6.4",
+    "talib_python_version": "0.6.8",
+    "ticket": "TICKET_SF011"
+  },
+  "summary": {
+    "alpha158_cpp_routes": 95,
+    "alpha158_exact_formula_matches": 158,
+    "alpha158_expression_routes": 63,
+    "alpha158_normalized_formula_matches": 158,
+    "alpha158_total": 158,
+    "talib_candles_total": 61,
+    "talib_existing_aliases": 61,
+    "talib_missing_aliases": 0,
+    "talib_registry_rows": 61
+  }
+}

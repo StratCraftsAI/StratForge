@@ -11,13 +11,17 @@
 #include <stratforge/indicators/aroon.hpp>
 #include <stratforge/indicators/atr.hpp>
 #include <stratforge/indicators/average.hpp>
+#include <stratforge/indicators/avgprice.hpp>
 #include <stratforge/indicators/awesomeoscillator.hpp>
 #include <stratforge/indicators/bollinger.hpp>
 #include <stratforge/indicators/bollingerpct.hpp>
+#include <stratforge/indicators/bop.hpp>
+#include <stratforge/indicators/candlestick.hpp>
 #include <stratforge/indicators/cci.hpp>
 #include <stratforge/indicators/crossover.hpp>
 #include <stratforge/indicators/dema.hpp>
 #include <stratforge/indicators/directionalmovement.hpp>
+#include <stratforge/indicators/dm_standalone.hpp>
 #include <stratforge/indicators/dma.hpp>
 #include <stratforge/indicators/downday.hpp>
 #include <stratforge/indicators/downmove.hpp>
@@ -30,17 +34,26 @@
 #include <stratforge/indicators/hadelta.hpp>
 #include <stratforge/indicators/heikinashi.hpp>
 #include <stratforge/indicators/highest.hpp>
+#include <stratforge/indicators/hilbert.hpp>
 #include <stratforge/indicators/hma.hpp>
 #include <stratforge/indicators/hurst.hpp>
 #include <stratforge/indicators/ichimoku.hpp>
 #include <stratforge/indicators/kama.hpp>
 #include <stratforge/indicators/kst.hpp>
 #include <stratforge/indicators/laguerre.hpp>
+#include <stratforge/indicators/linearreg.hpp>
 #include <stratforge/indicators/logicaln.hpp>
 #include <stratforge/indicators/lowest.hpp>
 #include <stratforge/indicators/macd.hpp>
+#include <stratforge/indicators/macdext.hpp>
+#include <stratforge/indicators/macdfix.hpp>
+#include <stratforge/indicators/mavp.hpp>
 #include <stratforge/indicators/meandeviation.hpp>
+#include <stratforge/indicators/medprice.hpp>
+#include <stratforge/indicators/midpoint.hpp>
+#include <stratforge/indicators/minmax.hpp>
 #include <stratforge/indicators/momentum.hpp>
+#include <stratforge/indicators/natr.hpp>
 #include <stratforge/indicators/obv.hpp>
 #include <stratforge/indicators/ols.hpp>
 #include <stratforge/indicators/oscillator.hpp>
@@ -51,26 +64,33 @@
 #include <stratforge/indicators/pivotpoint.hpp>
 #include <stratforge/indicators/prettygoodoscillator.hpp>
 #include <stratforge/indicators/psar.hpp>
+#include <stratforge/indicators/qlib_kbar.hpp>
+#include <stratforge/indicators/roc_variants.hpp>
 #include <stratforge/indicators/rsi.hpp>
 #include <stratforge/indicators/sma.hpp>
 #include <stratforge/indicators/smma.hpp>
 #include <stratforge/indicators/statistics.hpp>
 #include <stratforge/indicators/stddev.hpp>
 #include <stratforge/indicators/stochastic.hpp>
+#include <stratforge/indicators/stochrsi.hpp>
 #include <stratforge/indicators/sumn.hpp>
 #include <stratforge/indicators/tema.hpp>
 #include <stratforge/indicators/trend.hpp>
+#include <stratforge/indicators/trima.hpp>
 #include <stratforge/indicators/trix.hpp>
 #include <stratforge/indicators/truehigh.hpp>
 #include <stratforge/indicators/truelow.hpp>
 #include <stratforge/indicators/truerange.hpp>
 #include <stratforge/indicators/tsi.hpp>
+#include <stratforge/indicators/typprice.hpp>
 #include <stratforge/indicators/ultimateoscillator.hpp>
 #include <stratforge/indicators/upday.hpp>
 #include <stratforge/indicators/upmove.hpp>
+#include <stratforge/indicators/variance.hpp>
 #include <stratforge/indicators/volatility.hpp>
 #include <stratforge/indicators/volume.hpp>
 #include <stratforge/indicators/vortex.hpp>
+#include <stratforge/indicators/wclprice.hpp>
 #include <stratforge/indicators/weightedaverage.hpp>
 #include <stratforge/indicators/williams.hpp>
 #include <stratforge/indicators/wma.hpp>
@@ -134,6 +154,44 @@ TEST_CASE("Registry compile: ATR", "[registry][compile]") {
 
     [[maybe_unused]] const auto& ref_line = atr_.line();
     [[maybe_unused]] auto op0 = atr_[0];
+}
+
+TEST_CASE("Registry compile: AVGPRICE", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::AvgPrice avgprice_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    avgprice_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        avgprice_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = avgprice_.line();
+    [[maybe_unused]] auto op0 = avgprice_[0];
+}
+
+TEST_CASE("Registry compile: AccDeOsc", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::AccDeOsc accdeosc_(data.high(), data.low(), 5);
+
+    // Process enough bars (preload sets index to 0)
+    accdeosc_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        accdeosc_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = accdeosc_.line();
+    [[maybe_unused]] auto op0 = accdeosc_[0];
 }
 
 TEST_CASE("Registry compile: AccumulationDistribution", "[registry][compile]") {
@@ -351,6 +409,25 @@ TEST_CASE("Registry compile: AwesomeOscillator", "[registry][compile]") {
     [[maybe_unused]] auto op0 = awesomeoscillator_[0];
 }
 
+TEST_CASE("Registry compile: BOP", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::BOP bop_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    bop_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        bop_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = bop_.line();
+    [[maybe_unused]] auto op0 = bop_[0];
+}
+
 TEST_CASE("Registry compile: BollingerBands", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -411,6 +488,462 @@ TEST_CASE("Registry compile: CCI", "[registry][compile]") {
 
     [[maybe_unused]] const auto& ref_line = cci_.line();
     [[maybe_unused]] auto op0 = cci_[0];
+}
+
+TEST_CASE("Registry compile: CDLDoji", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLDoji cdldoji_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdldoji_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdldoji_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdldoji_.line();
+    [[maybe_unused]] auto op0 = cdldoji_[0];
+}
+
+TEST_CASE("Registry compile: CDLEngulfing", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLEngulfing cdlengulfing_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlengulfing_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlengulfing_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlengulfing_.line();
+    [[maybe_unused]] auto op0 = cdlengulfing_[0];
+}
+
+TEST_CASE("Registry compile: CDLEveningStar", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLEveningStar cdleveningstar_(data.open(), data.high(), data.low(), data.close(), 0.3);
+
+    // Process enough bars (preload sets index to 0)
+    cdleveningstar_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdleveningstar_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdleveningstar_.line();
+    [[maybe_unused]] auto op0 = cdleveningstar_[0];
+}
+
+TEST_CASE("Registry compile: CDLHammer", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLHammer cdlhammer_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlhammer_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlhammer_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlhammer_.line();
+    [[maybe_unused]] auto op0 = cdlhammer_[0];
+}
+
+TEST_CASE("Registry compile: CDLHangingMan", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLHangingMan cdlhangingman_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlhangingman_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlhangingman_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlhangingman_.line();
+    [[maybe_unused]] auto op0 = cdlhangingman_[0];
+}
+
+TEST_CASE("Registry compile: CDLHarami", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLHarami cdlharami_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlharami_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlharami_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlharami_.line();
+    [[maybe_unused]] auto op0 = cdlharami_[0];
+}
+
+TEST_CASE("Registry compile: CDLMarubozu", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLMarubozu cdlmarubozu_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlmarubozu_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlmarubozu_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlmarubozu_.line();
+    [[maybe_unused]] auto op0 = cdlmarubozu_[0];
+}
+
+TEST_CASE("Registry compile: CDLMorningStar", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLMorningStar cdlmorningstar_(data.open(), data.high(), data.low(), data.close(), 0.3);
+
+    // Process enough bars (preload sets index to 0)
+    cdlmorningstar_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlmorningstar_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlmorningstar_.line();
+    [[maybe_unused]] auto op0 = cdlmorningstar_[0];
+}
+
+TEST_CASE("Registry compile: CDLShootingStar", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLShootingStar cdlshootingstar_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlshootingstar_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlshootingstar_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlshootingstar_.line();
+    [[maybe_unused]] auto op0 = cdlshootingstar_[0];
+}
+
+TEST_CASE("Registry compile: CDLSpinningTop", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLSpinningTop cdlspinningtop_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlspinningtop_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlspinningtop_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlspinningtop_.line();
+    [[maybe_unused]] auto op0 = cdlspinningtop_[0];
+}
+
+TEST_CASE("Registry compile: CDLThreeWhiteSoldiers", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLThreeWhiteSoldiers cdl3ws_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdl3ws_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdl3ws_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdl3ws_.line();
+    [[maybe_unused]] auto op0 = cdl3ws_[0];
+}
+
+TEST_CASE("Registry compile: CDLThreeBlackCrows", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLThreeBlackCrows cdl3bc_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdl3bc_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdl3bc_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdl3bc_.line();
+    [[maybe_unused]] auto op0 = cdl3bc_[0];
+}
+
+TEST_CASE("Registry compile: CDLPiercingLine", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLPiercingLine cdlpiercing_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlpiercing_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlpiercing_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlpiercing_.line();
+    [[maybe_unused]] auto op0 = cdlpiercing_[0];
+}
+
+TEST_CASE("Registry compile: CDLDarkCloudCover", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLDarkCloudCover cdldcc_(data.open(), data.high(), data.low(), data.close(), 0.5);
+
+    // Process enough bars (preload sets index to 0)
+    cdldcc_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdldcc_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdldcc_.line();
+    [[maybe_unused]] auto op0 = cdldcc_[0];
+}
+
+TEST_CASE("Registry compile: CDLAbandonedBaby", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLAbandonedBaby cdlab_(data.open(), data.high(), data.low(), data.close(), 0.3);
+
+    // Process enough bars (preload sets index to 0)
+    cdlab_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlab_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlab_.line();
+    [[maybe_unused]] auto op0 = cdlab_[0];
+}
+
+TEST_CASE("Registry compile: CDLThreeInside", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLThreeInside cdl3inside_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdl3inside_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdl3inside_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdl3inside_.line();
+    [[maybe_unused]] auto op0 = cdl3inside_[0];
+}
+
+TEST_CASE("Registry compile: CDLThreeOutside", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLThreeOutside cdl3outside_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdl3outside_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdl3outside_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdl3outside_.line();
+    [[maybe_unused]] auto op0 = cdl3outside_[0];
+}
+
+TEST_CASE("Registry compile: CDLKicking", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLKicking cdlkicking_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlkicking_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlkicking_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlkicking_.line();
+    [[maybe_unused]] auto op0 = cdlkicking_[0];
+}
+
+TEST_CASE("Registry compile: CDLBeltHold", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLBeltHold cdlbelthold_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlbelthold_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlbelthold_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlbelthold_.line();
+    [[maybe_unused]] auto op0 = cdlbelthold_[0];
+}
+
+TEST_CASE("Registry compile: CDLCounterAttack", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLCounterAttack cdlca_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlca_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlca_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlca_.line();
+    [[maybe_unused]] auto op0 = cdlca_[0];
+}
+
+TEST_CASE("Registry compile: CDLHomingPigeon", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLHomingPigeon cdlhp_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlhp_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlhp_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlhp_.line();
+    [[maybe_unused]] auto op0 = cdlhp_[0];
+}
+
+TEST_CASE("Registry compile: CDLMatchingLow", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLMatchingLow cdlml_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlml_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlml_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlml_.line();
+    [[maybe_unused]] auto op0 = cdlml_[0];
+}
+
+TEST_CASE("Registry compile: CDLTasukiGap", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLTasukiGap cdltg_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdltg_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdltg_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdltg_.line();
+    [[maybe_unused]] auto op0 = cdltg_[0];
+}
+
+TEST_CASE("Registry compile: CDLUpsideGap", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLUpsideGap cdlug_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlug_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlug_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlug_.line();
+    [[maybe_unused]] auto op0 = cdlug_[0];
 }
 
 TEST_CASE("Registry compile: ChaikinMoneyFlow", "[registry][compile]") {
@@ -755,6 +1288,25 @@ TEST_CASE("Registry compile: DV2", "[registry][compile]") {
 
     [[maybe_unused]] const auto& ref_line = dv2_.line();
     [[maybe_unused]] auto op0 = dv2_[0];
+}
+
+TEST_CASE("Registry compile: DX", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::DirectionalMovement dm_dx_(data.high(), data.low(), data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    dm_dx_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        dm_dx_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_dx = dm_dx_.dx();
+    [[maybe_unused]] auto op0 = dm_dx_[0];
 }
 
 TEST_CASE("Registry compile: DemarkPivotPoint", "[registry][compile]") {
@@ -1277,6 +1829,25 @@ TEST_CASE("Registry compile: HMAOscillator", "[registry][compile]") {
     [[maybe_unused]] auto op0 = hmaoscillator_[0];
 }
 
+TEST_CASE("Registry compile: HT_TRENDLINE", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::HT_Trendline ht_trendline_(data.close());
+
+    // Process enough bars (preload sets index to 0)
+    ht_trendline_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        ht_trendline_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = ht_trendline_.line();
+    [[maybe_unused]] auto op0 = ht_trendline_[0];
+}
+
 TEST_CASE("Registry compile: HeikinAshi", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -1358,6 +1929,177 @@ TEST_CASE("Registry compile: Ichimoku", "[registry][compile]") {
     [[maybe_unused]] const auto& ref_senkou_span_b = ichimoku_.senkou_span_b();
     [[maybe_unused]] const auto& ref_chikou_span = ichimoku_.chikou_span();
     [[maybe_unused]] auto op0 = ichimoku_[0];
+}
+
+TEST_CASE("Registry compile: KLEN", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KLEN klen_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    klen_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        klen_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = klen_.line();
+    [[maybe_unused]] auto op0 = klen_[0];
+}
+
+TEST_CASE("Registry compile: KLOW", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KLOW klow_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    klow_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        klow_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = klow_.line();
+    [[maybe_unused]] auto op0 = klow_[0];
+}
+
+TEST_CASE("Registry compile: KLOW2", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KLOW2 klow2_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    klow2_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        klow2_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = klow2_.line();
+    [[maybe_unused]] auto op0 = klow2_[0];
+}
+
+TEST_CASE("Registry compile: KMID", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KMID kmid_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    kmid_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        kmid_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = kmid_.line();
+    [[maybe_unused]] auto op0 = kmid_[0];
+}
+
+TEST_CASE("Registry compile: KMID2", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KMID2 kmid2_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    kmid2_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        kmid2_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = kmid2_.line();
+    [[maybe_unused]] auto op0 = kmid2_[0];
+}
+
+TEST_CASE("Registry compile: KSFT", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KSFT ksft_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    ksft_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        ksft_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = ksft_.line();
+    [[maybe_unused]] auto op0 = ksft_[0];
+}
+
+TEST_CASE("Registry compile: KSFT2", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KSFT2 ksft2_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    ksft2_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        ksft2_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = ksft2_.line();
+    [[maybe_unused]] auto op0 = ksft2_[0];
+}
+
+TEST_CASE("Registry compile: KUP", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KUP kup_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    kup_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        kup_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = kup_.line();
+    [[maybe_unused]] auto op0 = kup_[0];
+}
+
+TEST_CASE("Registry compile: KUP2", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::KUP2 kup2_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    kup2_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        kup2_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = kup2_.line();
+    [[maybe_unused]] auto op0 = kup2_[0];
 }
 
 TEST_CASE("Registry compile: KAMA", "[registry][compile]") {
@@ -1480,6 +2222,84 @@ TEST_CASE("Registry compile: KlingerOscillator", "[registry][compile]") {
     [[maybe_unused]] auto op0 = klingeroscillator_[0];
 }
 
+TEST_CASE("Registry compile: LINEARREG", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::LinearReg linearreg_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    linearreg_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        linearreg_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = linearreg_.line();
+    [[maybe_unused]] const auto& ref_slope = linearreg_.slope();
+    [[maybe_unused]] const auto& ref_intercept = linearreg_.intercept();
+    [[maybe_unused]] auto op0 = linearreg_[0];
+}
+
+TEST_CASE("Registry compile: LINEARREG_ANGLE", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::LinearRegAngle linearreg_angle_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    linearreg_angle_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        linearreg_angle_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = linearreg_angle_.line();
+    [[maybe_unused]] auto op0 = linearreg_angle_[0];
+}
+
+TEST_CASE("Registry compile: LINEARREG_INTERCEPT", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::LinearRegIntercept linearreg_intercept_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    linearreg_intercept_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        linearreg_intercept_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = linearreg_intercept_.line();
+    [[maybe_unused]] auto op0 = linearreg_intercept_[0];
+}
+
+TEST_CASE("Registry compile: LINEARREG_SLOPE", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::LinearRegSlope linearreg_slope_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    linearreg_slope_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        linearreg_slope_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = linearreg_slope_.line();
+    [[maybe_unused]] auto op0 = linearreg_slope_[0];
+}
+
 TEST_CASE("Registry compile: LaguerreFilter", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -1556,6 +2376,25 @@ TEST_CASE("Registry compile: MA", "[registry][compile]") {
     [[maybe_unused]] auto op0 = ma_[0];
 }
 
+TEST_CASE("Registry compile: MAVP", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MAVP mavp_(data.close(), data.close(), 50);
+
+    // Process enough bars (preload sets index to 0)
+    mavp_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        mavp_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = mavp_.line();
+    [[maybe_unused]] auto op0 = mavp_[0];
+}
+
 TEST_CASE("Registry compile: MACD", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -1575,6 +2414,48 @@ TEST_CASE("Registry compile: MACD", "[registry][compile]") {
     [[maybe_unused]] const auto& ref_signal = macd_.signal();
     [[maybe_unused]] const auto& ref_histogram = macd_.histogram();
     [[maybe_unused]] auto op0 = macd_[0];
+}
+
+TEST_CASE("Registry compile: MACDEXT", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MACDExt macdext_(data.close(), 12, stratforge::MaType::EMA, 26, stratforge::MaType::EMA, 9, stratforge::MaType::EMA);
+
+    // Process enough bars (preload sets index to 0)
+    macdext_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        macdext_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_macd = macdext_.macd();
+    [[maybe_unused]] const auto& ref_signal = macdext_.signal();
+    [[maybe_unused]] const auto& ref_histogram = macdext_.histogram();
+    [[maybe_unused]] auto op0 = macdext_[0];
+}
+
+TEST_CASE("Registry compile: MACDFIX", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MACDFix macdfix_(data.close(), 9);
+
+    // Process enough bars (preload sets index to 0)
+    macdfix_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        macdfix_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_macd = macdfix_.macd();
+    [[maybe_unused]] const auto& ref_signal = macdfix_.signal();
+    [[maybe_unused]] const auto& ref_histogram = macdfix_.histogram();
+    [[maybe_unused]] auto op0 = macdfix_[0];
 }
 
 TEST_CASE("Registry compile: MACDHisto", "[registry][compile]") {
@@ -1597,6 +2478,180 @@ TEST_CASE("Registry compile: MACDHisto", "[registry][compile]") {
     [[maybe_unused]] const auto& ref_histogram = macdhisto_.histogram();
     [[maybe_unused]] const auto& ref_histo = macdhisto_.histo();
     [[maybe_unused]] auto op0 = macdhisto_[0];
+}
+
+TEST_CASE("Registry compile: MAMA", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MAMA mama_(data.close(), 0.5, 0.05);
+
+    // Process enough bars (preload sets index to 0)
+    mama_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        mama_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_mama = mama_.mama();
+    [[maybe_unused]] const auto& ref_fama = mama_.fama();
+    [[maybe_unused]] auto op0 = mama_[0];
+}
+
+TEST_CASE("Registry compile: MAXINDEX", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MaxIndex maxindex_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    maxindex_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        maxindex_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = maxindex_.line();
+    [[maybe_unused]] auto op0 = maxindex_[0];
+}
+
+TEST_CASE("Registry compile: MEDPRICE", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MedPrice medprice_(data.high(), data.low());
+
+    // Process enough bars (preload sets index to 0)
+    medprice_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        medprice_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = medprice_.line();
+    [[maybe_unused]] auto op0 = medprice_[0];
+}
+
+TEST_CASE("Registry compile: MIDPOINT", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MidPoint midpoint_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    midpoint_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        midpoint_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = midpoint_.line();
+    [[maybe_unused]] auto op0 = midpoint_[0];
+}
+
+TEST_CASE("Registry compile: MIDPRICE", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MidPrice midprice_(data.high(), data.low(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    midprice_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        midprice_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = midprice_.line();
+    [[maybe_unused]] auto op0 = midprice_[0];
+}
+
+TEST_CASE("Registry compile: MININDEX", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MinIndex minindex_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    minindex_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        minindex_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = minindex_.line();
+    [[maybe_unused]] auto op0 = minindex_[0];
+}
+
+TEST_CASE("Registry compile: MINMAX", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MinMax minmax_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    minmax_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        minmax_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_max = minmax_.max();
+    [[maybe_unused]] const auto& ref_min = minmax_.min();
+    [[maybe_unused]] auto op0 = minmax_[0];
+}
+
+TEST_CASE("Registry compile: MINMAXINDEX", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MinMaxIndex minmaxindex_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    minmaxindex_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        minmaxindex_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_max_index = minmaxindex_.max_index();
+    [[maybe_unused]] const auto& ref_min_index = minmaxindex_.min_index();
+    [[maybe_unused]] auto op0 = minmaxindex_[0];
+}
+
+TEST_CASE("Registry compile: MINUS_DM", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::MinusDM minus_dm_(data.high(), data.low());
+
+    // Process enough bars (preload sets index to 0)
+    minus_dm_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        minus_dm_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = minus_dm_.line();
+    [[maybe_unused]] auto op0 = minus_dm_[0];
 }
 
 TEST_CASE("Registry compile: MeanDeviation", "[registry][compile]") {
@@ -1715,6 +2770,25 @@ TEST_CASE("Registry compile: MovingAverageEnvelope", "[registry][compile]") {
     [[maybe_unused]] auto op0 = movingaverageenvelope_[0];
 }
 
+TEST_CASE("Registry compile: NATR", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::NATR natr_(data.high(), data.low(), data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    natr_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        natr_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = natr_.line();
+    [[maybe_unused]] auto op0 = natr_[0];
+}
+
 TEST_CASE("Registry compile: NonZeroDifference", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -1755,6 +2829,29 @@ TEST_CASE("Registry compile: OBV", "[registry][compile]") {
 
     [[maybe_unused]] const auto& ref_line = obv_.line();
     [[maybe_unused]] auto op0 = obv_[0];
+}
+
+TEST_CASE("Registry compile: OLS_BetaN", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::SMA sma_a_(data.close(), 10);
+    stratforge::SMA sma_b_(data.close(), 30);
+    stratforge::OLS_BetaN ols_betan_(sma_a_.line(), sma_b_.line(), 10);
+
+    // Process enough bars (preload sets index to 0)
+    sma_a_.next(); sma_b_.next();
+    ols_betan_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        sma_a_.next(); sma_b_.next();
+        ols_betan_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = ols_betan_.line();
+    [[maybe_unused]] auto op0 = ols_betan_[0];
 }
 
 TEST_CASE("Registry compile: OLS_Slope_InterceptN", "[registry][compile]") {
@@ -1802,6 +2899,25 @@ TEST_CASE("Registry compile: Oscillator", "[registry][compile]") {
 
     [[maybe_unused]] const auto& ref_line = oscillator_.line();
     [[maybe_unused]] auto op0 = oscillator_[0];
+}
+
+TEST_CASE("Registry compile: PLUS_DM", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::PlusDM plus_dm_(data.high(), data.low());
+
+    // Process enough bars (preload sets index to 0)
+    plus_dm_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        plus_dm_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = plus_dm_.line();
+    [[maybe_unused]] auto op0 = plus_dm_[0];
 }
 
 TEST_CASE("Registry compile: ParabolicSAR", "[registry][compile]") {
@@ -2040,6 +3156,63 @@ TEST_CASE("Registry compile: ROC100", "[registry][compile]") {
     [[maybe_unused]] auto op0 = roc100_[0];
 }
 
+TEST_CASE("Registry compile: ROCP", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::ROCP rocp_(data.close(), 12);
+
+    // Process enough bars (preload sets index to 0)
+    rocp_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        rocp_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = rocp_.line();
+    [[maybe_unused]] auto op0 = rocp_[0];
+}
+
+TEST_CASE("Registry compile: ROCR", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::ROCR rocr_(data.close(), 12);
+
+    // Process enough bars (preload sets index to 0)
+    rocr_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        rocr_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = rocr_.line();
+    [[maybe_unused]] auto op0 = rocr_[0];
+}
+
+TEST_CASE("Registry compile: ROCR100", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::ROCR100 rocr100_(data.close(), 12);
+
+    // Process enough bars (preload sets index to 0)
+    rocr100_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        rocr100_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = rocr100_.line();
+    [[maybe_unused]] auto op0 = rocr100_[0];
+}
+
 TEST_CASE("Registry compile: RSI", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -2276,6 +3449,26 @@ TEST_CASE("Registry compile: SMMAOscillator", "[registry][compile]") {
     [[maybe_unused]] auto op0 = smmaoscillator_[0];
 }
 
+TEST_CASE("Registry compile: STOCHRSI", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::StochRSI stochrsi_(data.close(), 14, 14, 3);
+
+    // Process enough bars (preload sets index to 0)
+    stochrsi_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        stochrsi_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_percK = stochrsi_.percK();
+    [[maybe_unused]] const auto& ref_percD = stochrsi_.percD();
+    [[maybe_unused]] auto op0 = stochrsi_[0];
+}
+
 TEST_CASE("Registry compile: StdDev", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -2474,6 +3667,25 @@ TEST_CASE("Registry compile: TEMAOscillator", "[registry][compile]") {
     [[maybe_unused]] auto op0 = temaoscillator_[0];
 }
 
+TEST_CASE("Registry compile: TRIMA", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::TRIMA trima_(data.close(), 20);
+
+    // Process enough bars (preload sets index to 0)
+    trima_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        trima_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = trima_.line();
+    [[maybe_unused]] auto op0 = trima_[0];
+}
+
 TEST_CASE("Registry compile: TRIX", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -2493,6 +3705,25 @@ TEST_CASE("Registry compile: TRIX", "[registry][compile]") {
     [[maybe_unused]] auto op0 = trix_[0];
 }
 
+TEST_CASE("Registry compile: TSF", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::TSF tsf_(data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    tsf_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        tsf_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = tsf_.line();
+    [[maybe_unused]] auto op0 = tsf_[0];
+}
+
 TEST_CASE("Registry compile: TSI", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -2510,6 +3741,25 @@ TEST_CASE("Registry compile: TSI", "[registry][compile]") {
 
     [[maybe_unused]] const auto& ref_line = tsi_.line();
     [[maybe_unused]] auto op0 = tsi_[0];
+}
+
+TEST_CASE("Registry compile: TYPPRICE", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::TypPrice typprice_(data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    typprice_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        typprice_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = typprice_.line();
+    [[maybe_unused]] auto op0 = typprice_[0];
 }
 
 TEST_CASE("Registry compile: TrixSignal", "[registry][compile]") {
@@ -2684,6 +3934,25 @@ TEST_CASE("Registry compile: UpMove", "[registry][compile]") {
     [[maybe_unused]] auto op0 = upmove_[0];
 }
 
+TEST_CASE("Registry compile: VAR", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::Variance var_(data.close(), 5);
+
+    // Process enough bars (preload sets index to 0)
+    var_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        var_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = var_.line();
+    [[maybe_unused]] auto op0 = var_[0];
+}
+
 TEST_CASE("Registry compile: VIDYA", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -2740,6 +4009,25 @@ TEST_CASE("Registry compile: Vortex", "[registry][compile]") {
     [[maybe_unused]] const auto& ref_vi_plus = vortex_.vi_plus();
     [[maybe_unused]] const auto& ref_vi_minus = vortex_.vi_minus();
     [[maybe_unused]] auto op0 = vortex_[0];
+}
+
+TEST_CASE("Registry compile: WCLPRICE", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::WclPrice wclprice_(data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    wclprice_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        wclprice_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = wclprice_.line();
+    [[maybe_unused]] auto op0 = wclprice_[0];
 }
 
 TEST_CASE("Registry compile: WMA", "[registry][compile]") {
@@ -2957,6 +4245,25 @@ TEST_CASE("Registry compile: ZeroLagIndicator", "[registry][compile]") {
     [[maybe_unused]] auto op0 = zerolagindicator_[0];
 }
 
+TEST_CASE("Registry compile: ZeroLagIndicatorOsc", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::ZeroLagIndicatorOscillator zlindosc_(data.close(), 20, 50);
+
+    // Process enough bars (preload sets index to 0)
+    zlindosc_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        zlindosc_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = zlindosc_.line();
+    [[maybe_unused]] auto op0 = zlindosc_[0];
+}
+
 TEST_CASE("Registry compile: ZigZag", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
         .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
@@ -2994,4 +4301,707 @@ TEST_CASE("Registry compile: haDelta", "[registry][compile]") {
     [[maybe_unused]] const auto& ref_ha_delta = hadelta_.ha_delta();
     [[maybe_unused]] const auto& ref_smoothed = hadelta_.smoothed();
     [[maybe_unused]] auto op0 = hadelta_[0];
+}
+
+TEST_CASE("Registry compile: CDLTwoCrows", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLTwoCrows cdltwocrows_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdltwocrows_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdltwocrows_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdltwocrows_.line();
+    [[maybe_unused]] auto op0 = cdltwocrows_[0];
+}
+
+TEST_CASE("Registry compile: CDLThreeLineStrike", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLThreeLineStrike cdlthreelinestrike_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlthreelinestrike_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlthreelinestrike_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlthreelinestrike_.line();
+    [[maybe_unused]] auto op0 = cdlthreelinestrike_[0];
+}
+
+TEST_CASE("Registry compile: CDLThreeStarsInSouth", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLThreeStarsInSouth cdlthreestarsinsouth_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlthreestarsinsouth_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlthreestarsinsouth_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlthreestarsinsouth_.line();
+    [[maybe_unused]] auto op0 = cdlthreestarsinsouth_[0];
+}
+
+TEST_CASE("Registry compile: CDLAdvanceBlock", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLAdvanceBlock cdladvanceblock_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdladvanceblock_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdladvanceblock_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdladvanceblock_.line();
+    [[maybe_unused]] auto op0 = cdladvanceblock_[0];
+}
+
+TEST_CASE("Registry compile: CDLBreakaway", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLBreakaway cdlbreakaway_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlbreakaway_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlbreakaway_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlbreakaway_.line();
+    [[maybe_unused]] auto op0 = cdlbreakaway_[0];
+}
+
+TEST_CASE("Registry compile: CDLClosingMarubozu", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLClosingMarubozu cdlclosingmarubozu_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlclosingmarubozu_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlclosingmarubozu_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlclosingmarubozu_.line();
+    [[maybe_unused]] auto op0 = cdlclosingmarubozu_[0];
+}
+
+TEST_CASE("Registry compile: CDLConcealingBabySwallow", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLConcealingBabySwallow cdlconcealingbabyswallow_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlconcealingbabyswallow_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlconcealingbabyswallow_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlconcealingbabyswallow_.line();
+    [[maybe_unused]] auto op0 = cdlconcealingbabyswallow_[0];
+}
+
+TEST_CASE("Registry compile: CDLDojiStar", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLDojiStar cdldojistar_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdldojistar_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdldojistar_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdldojistar_.line();
+    [[maybe_unused]] auto op0 = cdldojistar_[0];
+}
+
+TEST_CASE("Registry compile: CDLDragonflyDoji", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLDragonflyDoji cdldragonflydoji_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdldragonflydoji_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdldragonflydoji_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdldragonflydoji_.line();
+    [[maybe_unused]] auto op0 = cdldragonflydoji_[0];
+}
+
+TEST_CASE("Registry compile: CDLEveningDojiStar", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLEveningDojiStar cdleveningdojistar_(data.open(), data.high(), data.low(), data.close(), 0.3);
+
+    // Process enough bars (preload sets index to 0)
+    cdleveningdojistar_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdleveningdojistar_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdleveningdojistar_.line();
+    [[maybe_unused]] auto op0 = cdleveningdojistar_[0];
+}
+
+TEST_CASE("Registry compile: CDLGapSideSideWhite", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLGapSideSideWhite cdlgapsidesidewhite_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlgapsidesidewhite_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlgapsidesidewhite_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlgapsidesidewhite_.line();
+    [[maybe_unused]] auto op0 = cdlgapsidesidewhite_[0];
+}
+
+TEST_CASE("Registry compile: CDLGravestoneDoji", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLGravestoneDoji cdlgravestonedoji_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlgravestonedoji_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlgravestonedoji_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlgravestonedoji_.line();
+    [[maybe_unused]] auto op0 = cdlgravestonedoji_[0];
+}
+
+TEST_CASE("Registry compile: CDLHaramiCross", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLHaramiCross cdlharamicross_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlharamicross_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlharamicross_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlharamicross_.line();
+    [[maybe_unused]] auto op0 = cdlharamicross_[0];
+}
+
+TEST_CASE("Registry compile: CDLHighWave", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLHighWave cdlhighwave_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlhighwave_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlhighwave_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlhighwave_.line();
+    [[maybe_unused]] auto op0 = cdlhighwave_[0];
+}
+
+TEST_CASE("Registry compile: CDLHikkake", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLHikkake cdlhikkake_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlhikkake_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlhikkake_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlhikkake_.line();
+    [[maybe_unused]] auto op0 = cdlhikkake_[0];
+}
+
+TEST_CASE("Registry compile: CDLModifiedHikkake", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLModifiedHikkake cdlmodifiedhikkake_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlmodifiedhikkake_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlmodifiedhikkake_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlmodifiedhikkake_.line();
+    [[maybe_unused]] auto op0 = cdlmodifiedhikkake_[0];
+}
+
+TEST_CASE("Registry compile: CDLIdenticalThreeCrows", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLIdenticalThreeCrows cdlidenticalthreecrows_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlidenticalthreecrows_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlidenticalthreecrows_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlidenticalthreecrows_.line();
+    [[maybe_unused]] auto op0 = cdlidenticalthreecrows_[0];
+}
+
+TEST_CASE("Registry compile: CDLInNeck", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLInNeck cdlinneck_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlinneck_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlinneck_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlinneck_.line();
+    [[maybe_unused]] auto op0 = cdlinneck_[0];
+}
+
+TEST_CASE("Registry compile: CDLInvertedHammer", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLInvertedHammer cdlinvertedhammer_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlinvertedhammer_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlinvertedhammer_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlinvertedhammer_.line();
+    [[maybe_unused]] auto op0 = cdlinvertedhammer_[0];
+}
+
+TEST_CASE("Registry compile: CDLKickingByLength", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLKickingByLength cdlkickingbylength_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlkickingbylength_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlkickingbylength_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlkickingbylength_.line();
+    [[maybe_unused]] auto op0 = cdlkickingbylength_[0];
+}
+
+TEST_CASE("Registry compile: CDLLadderBottom", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLLadderBottom cdlladderbottom_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlladderbottom_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlladderbottom_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlladderbottom_.line();
+    [[maybe_unused]] auto op0 = cdlladderbottom_[0];
+}
+
+TEST_CASE("Registry compile: CDLLongLeggedDoji", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLLongLeggedDoji cdllongleggeddoji_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdllongleggeddoji_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdllongleggeddoji_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdllongleggeddoji_.line();
+    [[maybe_unused]] auto op0 = cdllongleggeddoji_[0];
+}
+
+TEST_CASE("Registry compile: CDLLongLine", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLLongLine cdllongline_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdllongline_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdllongline_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdllongline_.line();
+    [[maybe_unused]] auto op0 = cdllongline_[0];
+}
+
+TEST_CASE("Registry compile: CDLMatHold", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLMatHold cdlmathold_(data.open(), data.high(), data.low(), data.close(), 0.5);
+
+    // Process enough bars (preload sets index to 0)
+    cdlmathold_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlmathold_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlmathold_.line();
+    [[maybe_unused]] auto op0 = cdlmathold_[0];
+}
+
+TEST_CASE("Registry compile: CDLMorningDojiStar", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLMorningDojiStar cdlmorningdojistar_(data.open(), data.high(), data.low(), data.close(), 0.3);
+
+    // Process enough bars (preload sets index to 0)
+    cdlmorningdojistar_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlmorningdojistar_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlmorningdojistar_.line();
+    [[maybe_unused]] auto op0 = cdlmorningdojistar_[0];
+}
+
+TEST_CASE("Registry compile: CDLOnNeck", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLOnNeck cdlonneck_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlonneck_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlonneck_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlonneck_.line();
+    [[maybe_unused]] auto op0 = cdlonneck_[0];
+}
+
+TEST_CASE("Registry compile: CDLRickshawMan", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLRickshawMan cdlrickshawman_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlrickshawman_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlrickshawman_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlrickshawman_.line();
+    [[maybe_unused]] auto op0 = cdlrickshawman_[0];
+}
+
+TEST_CASE("Registry compile: CDLRiseFallThreeMethods", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLRiseFallThreeMethods cdlrisefallthreemethods_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlrisefallthreemethods_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlrisefallthreemethods_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlrisefallthreemethods_.line();
+    [[maybe_unused]] auto op0 = cdlrisefallthreemethods_[0];
+}
+
+TEST_CASE("Registry compile: CDLSeparatingLines", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLSeparatingLines cdlseparatinglines_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlseparatinglines_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlseparatinglines_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlseparatinglines_.line();
+    [[maybe_unused]] auto op0 = cdlseparatinglines_[0];
+}
+
+TEST_CASE("Registry compile: CDLShortLine", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLShortLine cdlshortline_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlshortline_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlshortline_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlshortline_.line();
+    [[maybe_unused]] auto op0 = cdlshortline_[0];
+}
+
+TEST_CASE("Registry compile: CDLStalledPattern", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLStalledPattern cdlstalledpattern_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlstalledpattern_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlstalledpattern_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlstalledpattern_.line();
+    [[maybe_unused]] auto op0 = cdlstalledpattern_[0];
+}
+
+TEST_CASE("Registry compile: CDLStickSandwich", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLStickSandwich cdlsticksandwich_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlsticksandwich_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlsticksandwich_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlsticksandwich_.line();
+    [[maybe_unused]] auto op0 = cdlsticksandwich_[0];
+}
+
+TEST_CASE("Registry compile: CDLTakuri", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLTakuri cdltakuri_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdltakuri_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdltakuri_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdltakuri_.line();
+    [[maybe_unused]] auto op0 = cdltakuri_[0];
+}
+
+TEST_CASE("Registry compile: CDLThrusting", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLThrusting cdlthrusting_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlthrusting_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlthrusting_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlthrusting_.line();
+    [[maybe_unused]] auto op0 = cdlthrusting_[0];
+}
+
+TEST_CASE("Registry compile: CDLTristar", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLTristar cdltristar_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdltristar_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdltristar_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdltristar_.line();
+    [[maybe_unused]] auto op0 = cdltristar_[0];
+}
+
+TEST_CASE("Registry compile: CDLUniqueThreeRiver", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLUniqueThreeRiver cdluniquethreeriver_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdluniquethreeriver_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdluniquethreeriver_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdluniquethreeriver_.line();
+    [[maybe_unused]] auto op0 = cdluniquethreeriver_[0];
+}
+
+TEST_CASE("Registry compile: CDLXSideGapThreeMethods", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CDLXSideGapThreeMethods cdlxsidegapthreemethods_{data.open(), data.high(), data.low(), data.close()};
+
+    // Process enough bars (preload sets index to 0)
+    cdlxsidegapthreemethods_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        cdlxsidegapthreemethods_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = cdlxsidegapthreemethods_.line();
+    [[maybe_unused]] auto op0 = cdlxsidegapthreemethods_[0];
 }

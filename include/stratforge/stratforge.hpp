@@ -46,6 +46,7 @@
 
 // Indicators
 #include <stratforge/indicators/accum.hpp>
+#include <stratforge/indicators/candlestick_common.hpp>
 #include <stratforge/indicators/candlestick.hpp>
 #include <stratforge/indicators/adaptive.hpp>
 #include <stratforge/indicators/average.hpp>
@@ -197,6 +198,7 @@
 #include <stratforge/indicators/vsumd.hpp>
 #include <stratforge/indicators/wvma.hpp>
 #include <stratforge/indicators/alpha158_vwap.hpp>
+#include <stratforge/indicators/qlib_kbar.hpp>
 
 // Phase 3: TICKET_SF009 — Alpha101 (WorldQuant 101 factors)
 #include <stratforge/indicators/alpha101_ops.hpp>

@@ -1,926 +1,863 @@
 #pragma once
 
+#include <stratforge/indicators/candlestick_common.hpp>
 #include <stratforge/indicators/indicator.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <utility>
 
 namespace stratforge {
+namespace detail {
 
-/// Doji candle: body is negligible relative to range.
-/// Output: +100 if close >= open, -100 if close < open, 0 if no pattern.
-class CDLDoji : public Indicator<CDLDoji> {
+enum class CandlePattern {
+    Doji, Hammer, Engulfing, MorningStar, EveningStar, Harami,
+    ShootingStar, HangingMan, Marubozu, SpinningTop, ThreeWhiteSoldiers,
+    ThreeBlackCrows, Piercing, DarkCloudCover, AbandonedBaby, ThreeInside,
+    ThreeOutside, Kicking, BeltHold, CounterAttack, HomingPigeon, MatchingLow,
+    TasukiGap, UpsideGapTwoCrows,
+    TwoCrows, ThreeLineStrike, ThreeStarsInSouth, AdvanceBlock, Breakaway,
+    ClosingMarubozu, ConcealingBabySwallow, DojiStar, DragonflyDoji,
+    EveningDojiStar, GapSideSideWhite, GravestoneDoji, HaramiCross, HighWave,
+    Hikkake, ModifiedHikkake, IdenticalThreeCrows, InNeck, InvertedHammer,
+    KickingByLength, LadderBottom, LongLeggedDoji, LongLine, MatHold,
+    MorningDojiStar, OnNeck, RickshawMan, RiseFallThreeMethods,
+    SeparatingLines, ShortLine, StalledPattern, StickSandwich, Takuri,
+    Thrusting, Tristar, UniqueThreeRiver, XSideGapThreeMethods,
+};
+
+class CandleSeries {
+public:
+    CandleSeries(const Line<double>& open, const Line<double>& high,
+                 const Line<double>& low, const Line<double>& close,
+                 candlestick::Settings settings)
+        : open_(open), high_(high), low_(low), close_(close),
+          settings_(std::move(settings)) {}
+
+    [[nodiscard]] candlestick::Candle at(std::size_t i) const noexcept {
+        return {open_.data()[i], high_.data()[i], low_.data()[i], close_.data()[i]};
+    }
+    [[nodiscard]] double open(std::size_t i) const noexcept { return open_.data()[i]; }
+    [[nodiscard]] double high(std::size_t i) const noexcept { return high_.data()[i]; }
+    [[nodiscard]] double low(std::size_t i) const noexcept { return low_.data()[i]; }
+    [[nodiscard]] double close(std::size_t i) const noexcept { return close_.data()[i]; }
+    [[nodiscard]] int color(std::size_t i) const noexcept { return candlestick::color(at(i)); }
+    [[nodiscard]] double body(std::size_t i) const noexcept { return candlestick::real_body(at(i)); }
+    [[nodiscard]] double upper(std::size_t i) const noexcept { return candlestick::upper_shadow(at(i)); }
+    [[nodiscard]] double lower(std::size_t i) const noexcept { return candlestick::lower_shadow(at(i)); }
+    [[nodiscard]] bool body_gap_up(std::size_t i, std::size_t previous) const noexcept {
+        return candlestick::real_body_gap_up(at(i), at(previous));
+    }
+    [[nodiscard]] bool body_gap_down(std::size_t i, std::size_t previous) const noexcept {
+        return candlestick::real_body_gap_down(at(i), at(previous));
+    }
+    [[nodiscard]] bool gap_up(std::size_t i, std::size_t previous) const noexcept {
+        return candlestick::candle_gap_up(at(i), at(previous));
+    }
+    [[nodiscard]] bool gap_down(std::size_t i, std::size_t previous) const noexcept {
+        return candlestick::candle_gap_down(at(i), at(previous));
+    }
+
+    /// TA-Lib candle averages at bar i contain ranges from [i-period, i).
+    [[nodiscard]] double average(candlestick::SettingType type,
+                                 std::size_t i) const noexcept {
+        const auto setting = settings_.get(type);
+        if (setting.average_period == 0) {
+            return candlestick::average(setting, 0.0, at(i));
+        }
+        double total = 0.0;
+        for (std::size_t j = i - setting.average_period; j < i; ++j) {
+            total += candlestick::range(setting.range_type, at(j));
+        }
+        return candlestick::average(setting, total, at(i));
+    }
+
+    [[nodiscard]] const candlestick::Settings& settings() const noexcept { return settings_; }
+    [[nodiscard]] std::size_t index() const noexcept { return close_.index(); }
+    [[nodiscard]] std::size_t size() const noexcept { return close_.size(); }
+
+private:
+    const Line<double>& open_;
+    const Line<double>& high_;
+    const Line<double>& low_;
+    const Line<double>& close_;
+    candlestick::Settings settings_;
+};
+
+[[nodiscard]] inline std::size_t candle_pattern_lookback(
+    CandlePattern pattern, const candlestick::Settings& settings) {
+    using candlestick::SettingType;
+    const auto p = [&settings](SettingType type) {
+        return settings.get(type).average_period;
+    };
+    switch (pattern) {
+    case CandlePattern::Doji: return p(SettingType::BodyDoji);
+    case CandlePattern::Hammer:
+    case CandlePattern::HangingMan:
+        return std::max({p(SettingType::BodyShort), p(SettingType::ShadowLong),
+                         p(SettingType::ShadowVeryShort), p(SettingType::Near)}) + 1;
+    case CandlePattern::Engulfing: return 2;
+    case CandlePattern::MorningStar:
+    case CandlePattern::EveningStar:
+        return std::max(p(SettingType::BodyShort), p(SettingType::BodyLong)) + 2;
+    case CandlePattern::Harami:
+    case CandlePattern::HomingPigeon:
+        return std::max(p(SettingType::BodyShort), p(SettingType::BodyLong)) + 1;
+    case CandlePattern::ShootingStar:
+        return std::max({p(SettingType::BodyShort), p(SettingType::ShadowLong),
+                         p(SettingType::ShadowVeryShort)}) + 1;
+    case CandlePattern::Marubozu:
+    case CandlePattern::BeltHold:
+        return std::max(p(SettingType::BodyLong), p(SettingType::ShadowVeryShort));
+    case CandlePattern::SpinningTop: return p(SettingType::BodyShort);
+    case CandlePattern::ThreeWhiteSoldiers:
+        return std::max({p(SettingType::ShadowVeryShort), p(SettingType::BodyShort),
+                         p(SettingType::Far), p(SettingType::Near)}) + 2;
+    case CandlePattern::ThreeBlackCrows:
+        return p(SettingType::ShadowVeryShort) + 3;
+    case CandlePattern::Piercing:
+    case CandlePattern::DarkCloudCover:
+        return p(SettingType::BodyLong) + 1;
+    case CandlePattern::AbandonedBaby:
+        return std::max({p(SettingType::BodyDoji), p(SettingType::BodyLong),
+                         p(SettingType::BodyShort)}) + 2;
+    case CandlePattern::ThreeInside:
+        return std::max(p(SettingType::BodyShort), p(SettingType::BodyLong)) + 2;
+    case CandlePattern::ThreeOutside: return 3;
+    case CandlePattern::Kicking:
+        return std::max(p(SettingType::ShadowVeryShort), p(SettingType::BodyLong)) + 1;
+    case CandlePattern::CounterAttack:
+        return std::max(p(SettingType::Equal), p(SettingType::BodyLong)) + 1;
+    case CandlePattern::MatchingLow: return p(SettingType::Equal) + 1;
+    case CandlePattern::TasukiGap: return p(SettingType::Near) + 2;
+    case CandlePattern::UpsideGapTwoCrows:
+        return std::max(p(SettingType::BodyShort), p(SettingType::BodyLong)) + 2;
+    case CandlePattern::TwoCrows: return p(SettingType::BodyLong) + 2;
+    case CandlePattern::ThreeLineStrike: return p(SettingType::Near) + 3;
+    case CandlePattern::ThreeStarsInSouth:
+        return std::max({p(SettingType::ShadowVeryShort), p(SettingType::ShadowLong),
+                         p(SettingType::BodyLong), p(SettingType::BodyShort)}) + 2;
+    case CandlePattern::AdvanceBlock:
+        return std::max({p(SettingType::ShadowLong), p(SettingType::ShadowShort),
+                         p(SettingType::Far), p(SettingType::Near),
+                         p(SettingType::BodyLong)}) + 2;
+    case CandlePattern::Breakaway: return p(SettingType::BodyLong) + 4;
+    case CandlePattern::ClosingMarubozu:
+        return std::max(p(SettingType::BodyLong), p(SettingType::ShadowVeryShort));
+    case CandlePattern::ConcealingBabySwallow:
+        return p(SettingType::ShadowVeryShort) + 3;
+    case CandlePattern::DojiStar:
+    case CandlePattern::HaramiCross:
+        return std::max(p(SettingType::BodyDoji), p(SettingType::BodyLong)) + 1;
+    case CandlePattern::DragonflyDoji:
+    case CandlePattern::GravestoneDoji:
+        return std::max(p(SettingType::BodyDoji), p(SettingType::ShadowVeryShort));
+    case CandlePattern::EveningDojiStar:
+    case CandlePattern::MorningDojiStar:
+        return std::max({p(SettingType::BodyDoji), p(SettingType::BodyLong),
+                         p(SettingType::BodyShort)}) + 2;
+    case CandlePattern::GapSideSideWhite:
+        return std::max(p(SettingType::Near), p(SettingType::Equal)) + 2;
+    case CandlePattern::HighWave:
+        return std::max(p(SettingType::BodyShort), p(SettingType::ShadowVeryLong));
+    case CandlePattern::Hikkake: return 5;
+    case CandlePattern::ModifiedHikkake: return std::max<std::size_t>(1, p(SettingType::Near)) + 5;
+    case CandlePattern::IdenticalThreeCrows:
+        return std::max(p(SettingType::ShadowVeryShort), p(SettingType::Equal)) + 2;
+    case CandlePattern::InNeck:
+    case CandlePattern::OnNeck:
+    case CandlePattern::Thrusting:
+        return std::max(p(SettingType::Equal), p(SettingType::BodyLong)) + 1;
+    case CandlePattern::InvertedHammer:
+        return std::max({p(SettingType::BodyShort), p(SettingType::ShadowLong),
+                         p(SettingType::ShadowVeryShort)}) + 1;
+    case CandlePattern::KickingByLength:
+        return std::max(p(SettingType::ShadowVeryShort), p(SettingType::BodyLong)) + 1;
+    case CandlePattern::LadderBottom: return p(SettingType::ShadowVeryShort) + 4;
+    case CandlePattern::LongLeggedDoji:
+        return std::max(p(SettingType::BodyDoji), p(SettingType::ShadowLong));
+    case CandlePattern::LongLine:
+        return std::max(p(SettingType::BodyLong), p(SettingType::ShadowShort));
+    case CandlePattern::MatHold:
+    case CandlePattern::RiseFallThreeMethods:
+        return std::max(p(SettingType::BodyShort), p(SettingType::BodyLong)) + 4;
+    case CandlePattern::RickshawMan:
+        return std::max({p(SettingType::BodyDoji), p(SettingType::ShadowLong),
+                         p(SettingType::Near)});
+    case CandlePattern::SeparatingLines:
+        return std::max({p(SettingType::ShadowVeryShort), p(SettingType::BodyLong),
+                         p(SettingType::Equal)}) + 1;
+    case CandlePattern::ShortLine:
+        return std::max(p(SettingType::BodyShort), p(SettingType::ShadowShort));
+    case CandlePattern::StalledPattern:
+        return std::max({p(SettingType::BodyLong), p(SettingType::BodyShort),
+                         p(SettingType::ShadowVeryShort), p(SettingType::Near)}) + 2;
+    case CandlePattern::StickSandwich: return p(SettingType::Equal) + 2;
+    case CandlePattern::Takuri:
+        return std::max({p(SettingType::BodyDoji), p(SettingType::ShadowVeryShort),
+                         p(SettingType::ShadowVeryLong)});
+    case CandlePattern::Tristar: return p(SettingType::BodyDoji) + 2;
+    case CandlePattern::UniqueThreeRiver:
+        return std::max(p(SettingType::BodyShort), p(SettingType::BodyLong)) + 2;
+    case CandlePattern::XSideGapThreeMethods: return 2;
+    }
+    return 0;
+}
+
+[[nodiscard]] inline double evaluate_candle_pattern(
+    CandlePattern pattern, const CandleSeries& s, std::size_t i,
+    double penetration) noexcept {
+    using candlestick::SettingType;
+    const auto top = [&s](std::size_t j) { return std::max(s.open(j), s.close(j)); };
+    const auto bottom = [&s](std::size_t j) { return std::min(s.open(j), s.close(j)); };
+
+    switch (pattern) {
+    case CandlePattern::Doji:
+        return s.body(i) <= s.average(SettingType::BodyDoji, i) ? 100.0 : 0.0;
+    case CandlePattern::Hammer:
+        return s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.lower(i) > s.average(SettingType::ShadowLong, i) &&
+               s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               bottom(i) <= s.low(i - 1) + s.average(SettingType::Near, i - 1)
+            ? 100.0 : 0.0;
+    case CandlePattern::Engulfing: {
+        const bool match =
+            (s.color(i) == 1 && s.color(i - 1) == -1 &&
+             ((s.close(i) >= s.open(i - 1) && s.open(i) < s.close(i - 1)) ||
+              (s.close(i) > s.open(i - 1) && s.open(i) <= s.close(i - 1)))) ||
+            (s.color(i) == -1 && s.color(i - 1) == 1 &&
+             ((s.open(i) >= s.close(i - 1) && s.close(i) < s.open(i - 1)) ||
+              (s.open(i) > s.close(i - 1) && s.close(i) <= s.open(i - 1))));
+        if (!match) return 0.0;
+        return candlestick::signal(s.color(i),
+            s.open(i) != s.close(i - 1) && s.close(i) != s.open(i - 1) ? 100 : 80);
+    }
+    case CandlePattern::MorningStar:
+        return s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.color(i - 2) == -1 &&
+               s.body(i - 1) <= s.average(SettingType::BodyShort, i - 1) &&
+               s.body_gap_down(i - 1, i - 2) &&
+               s.body(i) > s.average(SettingType::BodyShort, i) &&
+               s.color(i) == 1 &&
+               s.close(i) > s.close(i - 2) + s.body(i - 2) * penetration ? 100.0 : 0.0;
+    case CandlePattern::EveningStar:
+        return s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.color(i - 2) == 1 &&
+               s.body(i - 1) <= s.average(SettingType::BodyShort, i - 1) &&
+               s.body_gap_up(i - 1, i - 2) &&
+               s.body(i) > s.average(SettingType::BodyShort, i) &&
+               s.color(i) == -1 &&
+               s.close(i) < s.close(i - 2) - s.body(i - 2) * penetration ? -100.0 : 0.0;
+    case CandlePattern::Harami:
+        if (s.body(i - 1) <= s.average(SettingType::BodyLong, i - 1) ||
+            s.body(i) > s.average(SettingType::BodyShort, i)) return 0.0;
+        if (top(i) < top(i - 1) && bottom(i) > bottom(i - 1))
+            return candlestick::signal(-s.color(i - 1));
+        if (top(i) <= top(i - 1) && bottom(i) >= bottom(i - 1))
+            return candlestick::signal(-s.color(i - 1), 80);
+        return 0.0;
+    case CandlePattern::ShootingStar:
+        return s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.upper(i) > s.average(SettingType::ShadowLong, i) &&
+               s.lower(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.body_gap_up(i, i - 1) ? -100.0 : 0.0;
+    case CandlePattern::HangingMan:
+        return s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.lower(i) > s.average(SettingType::ShadowLong, i) &&
+               s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               bottom(i) >= s.high(i - 1) - s.average(SettingType::Near, i - 1)
+            ? -100.0 : 0.0;
+    case CandlePattern::Marubozu:
+        return s.body(i) > s.average(SettingType::BodyLong, i) &&
+               s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.lower(i) < s.average(SettingType::ShadowVeryShort, i)
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::SpinningTop:
+        return s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.upper(i) > s.body(i) && s.lower(i) > s.body(i)
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::ThreeWhiteSoldiers:
+        return s.color(i - 2) == 1 &&
+               s.upper(i - 2) < s.average(SettingType::ShadowVeryShort, i - 2) &&
+               s.color(i - 1) == 1 &&
+               s.upper(i - 1) < s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.color(i) == 1 && s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.close(i) > s.close(i - 1) && s.close(i - 1) > s.close(i - 2) &&
+               s.open(i - 1) > s.open(i - 2) &&
+               s.open(i - 1) <= s.close(i - 2) + s.average(SettingType::Near, i - 2) &&
+               s.open(i) > s.open(i - 1) &&
+               s.open(i) <= s.close(i - 1) + s.average(SettingType::Near, i - 1) &&
+               s.body(i - 1) > s.body(i - 2) - s.average(SettingType::Far, i - 2) &&
+               s.body(i) > s.body(i - 1) - s.average(SettingType::Far, i - 1) &&
+               s.body(i) > s.average(SettingType::BodyShort, i) ? 100.0 : 0.0;
+    case CandlePattern::ThreeBlackCrows:
+        return s.color(i - 3) == 1 && s.color(i - 2) == -1 &&
+               s.lower(i - 2) < s.average(SettingType::ShadowVeryShort, i - 2) &&
+               s.color(i - 1) == -1 &&
+               s.lower(i - 1) < s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.color(i) == -1 && s.lower(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.open(i - 1) < s.open(i - 2) && s.open(i - 1) > s.close(i - 2) &&
+               s.open(i) < s.open(i - 1) && s.open(i) > s.close(i - 1) &&
+               s.high(i - 3) > s.close(i - 2) &&
+               s.close(i - 2) > s.close(i - 1) && s.close(i - 1) > s.close(i)
+            ? -100.0 : 0.0;
+    case CandlePattern::Piercing:
+        return s.color(i - 1) == -1 &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.color(i) == 1 && s.body(i) > s.average(SettingType::BodyLong, i) &&
+               s.open(i) < s.low(i - 1) && s.close(i) < s.open(i - 1) &&
+               s.close(i) > s.close(i - 1) + s.body(i - 1) * 0.5 ? 100.0 : 0.0;
+    case CandlePattern::DarkCloudCover:
+        return s.color(i - 1) == 1 &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.color(i) == -1 && s.open(i) > s.high(i - 1) &&
+               s.close(i) > s.open(i - 1) &&
+               s.close(i) < s.close(i - 1) - s.body(i - 1) * penetration ? -100.0 : 0.0;
+    case CandlePattern::AbandonedBaby:
+        if (s.body(i - 2) <= s.average(SettingType::BodyLong, i - 2) ||
+            s.body(i - 1) > s.average(SettingType::BodyDoji, i - 1) ||
+            s.body(i) <= s.average(SettingType::BodyShort, i)) return 0.0;
+        if ((s.color(i - 2) == 1 && s.color(i) == -1 &&
+             s.close(i) < s.close(i - 2) - s.body(i - 2) * penetration &&
+             s.gap_up(i - 1, i - 2) && s.gap_down(i, i - 1)) ||
+            (s.color(i - 2) == -1 && s.color(i) == 1 &&
+             s.close(i) > s.close(i - 2) + s.body(i - 2) * penetration &&
+             s.gap_down(i - 1, i - 2) && s.gap_up(i, i - 1)))
+            return candlestick::signal(s.color(i));
+        return 0.0;
+    case CandlePattern::ThreeInside:
+        return s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.body(i - 1) <= s.average(SettingType::BodyShort, i - 1) &&
+               top(i - 1) < top(i - 2) && bottom(i - 1) > bottom(i - 2) &&
+               ((s.color(i - 2) == 1 && s.color(i) == -1 && s.close(i) < s.open(i - 2)) ||
+                (s.color(i - 2) == -1 && s.color(i) == 1 && s.close(i) > s.open(i - 2)))
+            ? candlestick::signal(-s.color(i - 2)) : 0.0;
+    case CandlePattern::ThreeOutside:
+        if ((s.color(i - 1) == 1 && s.color(i - 2) == -1 &&
+             s.close(i - 1) > s.open(i - 2) && s.open(i - 1) < s.close(i - 2) &&
+             s.close(i) > s.close(i - 1)) ||
+            (s.color(i - 1) == -1 && s.color(i - 2) == 1 &&
+             s.open(i - 1) > s.close(i - 2) && s.close(i - 1) < s.open(i - 2) &&
+             s.close(i) < s.close(i - 1)))
+            return candlestick::signal(s.color(i - 1));
+        return 0.0;
+    case CandlePattern::Kicking:
+        return s.color(i - 1) == -s.color(i) &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.upper(i - 1) < s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.lower(i - 1) < s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.body(i) > s.average(SettingType::BodyLong, i) &&
+               s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.lower(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               ((s.color(i - 1) == -1 && s.gap_up(i, i - 1)) ||
+                (s.color(i - 1) == 1 && s.gap_down(i, i - 1)))
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::BeltHold:
+        return s.body(i) > s.average(SettingType::BodyLong, i) &&
+               ((s.color(i) == 1 && s.lower(i) < s.average(SettingType::ShadowVeryShort, i)) ||
+                (s.color(i) == -1 && s.upper(i) < s.average(SettingType::ShadowVeryShort, i)))
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::CounterAttack:
+        return s.color(i - 1) == -s.color(i) &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.body(i) > s.average(SettingType::BodyLong, i) &&
+               s.close(i) <= s.close(i - 1) + s.average(SettingType::Equal, i - 1) &&
+               s.close(i) >= s.close(i - 1) - s.average(SettingType::Equal, i - 1)
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::HomingPigeon:
+        return s.color(i - 1) == -1 && s.color(i) == -1 &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.body(i) <= s.average(SettingType::BodyShort, i) &&
+               s.open(i) < s.open(i - 1) && s.close(i) > s.close(i - 1) ? 100.0 : 0.0;
+    case CandlePattern::MatchingLow:
+        return s.color(i - 1) == -1 && s.color(i) == -1 &&
+               s.close(i) <= s.close(i - 1) + s.average(SettingType::Equal, i - 1) &&
+               s.close(i) >= s.close(i - 1) - s.average(SettingType::Equal, i - 1)
+            ? 100.0 : 0.0;
+    case CandlePattern::TasukiGap:
+        if ((s.body_gap_up(i - 1, i - 2) && s.color(i - 1) == 1 && s.color(i) == -1 &&
+             s.open(i) < s.close(i - 1) && s.open(i) > s.open(i - 1) &&
+             s.close(i) < s.open(i - 1) && s.close(i) > top(i - 2) &&
+             std::fabs(s.body(i - 1) - s.body(i)) < s.average(SettingType::Near, i - 1)) ||
+            (s.body_gap_down(i - 1, i - 2) && s.color(i - 1) == -1 && s.color(i) == 1 &&
+             s.open(i) < s.open(i - 1) && s.open(i) > s.close(i - 1) &&
+             s.close(i) > s.open(i - 1) && s.close(i) < bottom(i - 2) &&
+             std::fabs(s.body(i - 1) - s.body(i)) < s.average(SettingType::Near, i - 1)))
+            return candlestick::signal(s.color(i - 1));
+        return 0.0;
+    case CandlePattern::UpsideGapTwoCrows:
+        return s.color(i - 2) == 1 &&
+               s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.color(i - 1) == -1 &&
+               s.body(i - 1) <= s.average(SettingType::BodyShort, i - 1) &&
+               s.body_gap_up(i - 1, i - 2) && s.color(i) == -1 &&
+               s.open(i) > s.open(i - 1) && s.close(i) < s.close(i - 1) &&
+               s.close(i) > s.close(i - 2) ? -100.0 : 0.0;
+    case CandlePattern::TwoCrows:
+        return s.color(i - 2) == 1 &&
+               s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.color(i - 1) == -1 && s.body_gap_up(i - 1, i - 2) &&
+               s.color(i) == -1 && s.open(i) < s.open(i - 1) &&
+               s.open(i) > s.close(i - 1) && s.close(i) > s.open(i - 2) &&
+               s.close(i) < s.close(i - 2) ? -100.0 : 0.0;
+    case CandlePattern::ThreeLineStrike:
+        if (s.color(i - 3) != s.color(i - 2) ||
+            s.color(i - 2) != s.color(i - 1) ||
+            s.color(i) != -s.color(i - 1) ||
+            s.open(i - 2) < bottom(i - 3) - s.average(SettingType::Near, i - 3) ||
+            s.open(i - 2) > top(i - 3) + s.average(SettingType::Near, i - 3) ||
+            s.open(i - 1) < bottom(i - 2) - s.average(SettingType::Near, i - 2) ||
+            s.open(i - 1) > top(i - 2) + s.average(SettingType::Near, i - 2)) return 0.0;
+        if ((s.color(i - 1) == 1 && s.close(i - 1) > s.close(i - 2) &&
+             s.close(i - 2) > s.close(i - 3) && s.open(i) > s.close(i - 1) &&
+             s.close(i) < s.open(i - 3)) ||
+            (s.color(i - 1) == -1 && s.close(i - 1) < s.close(i - 2) &&
+             s.close(i - 2) < s.close(i - 3) && s.open(i) < s.close(i - 1) &&
+             s.close(i) > s.open(i - 3)))
+            return candlestick::signal(s.color(i));
+        return 0.0;
+    case CandlePattern::ThreeStarsInSouth:
+        return s.color(i - 2) == -1 && s.color(i - 1) == -1 && s.color(i) == -1 &&
+               s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.lower(i - 2) > s.average(SettingType::ShadowLong, i - 2) &&
+               s.body(i - 1) < s.body(i - 2) && s.open(i - 1) > s.close(i - 2) &&
+               s.open(i - 1) <= s.high(i - 2) && s.low(i - 1) < s.close(i - 2) &&
+               s.low(i - 1) >= s.low(i - 2) &&
+               s.lower(i - 1) > s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.lower(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.low(i) > s.low(i - 1) && s.high(i) < s.high(i - 1) ? 100.0 : 0.0;
+    case CandlePattern::AdvanceBlock:
+        if (s.color(i - 2) != 1 || s.color(i - 1) != 1 || s.color(i) != 1 ||
+            s.close(i) <= s.close(i - 1) || s.close(i - 1) <= s.close(i - 2) ||
+            s.open(i - 1) <= s.open(i - 2) ||
+            s.open(i - 1) > s.close(i - 2) + s.average(SettingType::Near, i - 2) ||
+            s.open(i) <= s.open(i - 1) ||
+            s.open(i) > s.close(i - 1) + s.average(SettingType::Near, i - 1) ||
+            s.body(i - 2) <= s.average(SettingType::BodyLong, i - 2) ||
+            s.upper(i - 2) >= s.average(SettingType::ShadowShort, i - 2)) return 0.0;
+        return ((s.body(i - 1) < s.body(i - 2) - s.average(SettingType::Far, i - 2) &&
+                 s.body(i) < s.body(i - 1) + s.average(SettingType::Near, i - 1)) ||
+                s.body(i) < s.body(i - 1) - s.average(SettingType::Far, i - 1) ||
+                (s.body(i) < s.body(i - 1) && s.body(i - 1) < s.body(i - 2) &&
+                 (s.upper(i) > s.average(SettingType::ShadowShort, i) ||
+                  s.upper(i - 1) > s.average(SettingType::ShadowShort, i - 1))) ||
+                (s.body(i) < s.body(i - 1) &&
+                 s.upper(i) > s.average(SettingType::ShadowLong, i))) ? -100.0 : 0.0;
+    case CandlePattern::Breakaway:
+        if (s.body(i - 4) <= s.average(SettingType::BodyLong, i - 4) ||
+            s.color(i - 4) != s.color(i - 3) || s.color(i - 3) != s.color(i - 1) ||
+            s.color(i - 1) != -s.color(i)) return 0.0;
+        if ((s.color(i - 4) == -1 && s.body_gap_down(i - 3, i - 4) &&
+             s.high(i - 2) < s.high(i - 3) && s.low(i - 2) < s.low(i - 3) &&
+             s.high(i - 1) < s.high(i - 2) && s.low(i - 1) < s.low(i - 2) &&
+             s.close(i) > s.open(i - 3) && s.close(i) < s.close(i - 4)) ||
+            (s.color(i - 4) == 1 && s.body_gap_up(i - 3, i - 4) &&
+             s.high(i - 2) > s.high(i - 3) && s.low(i - 2) > s.low(i - 3) &&
+             s.high(i - 1) > s.high(i - 2) && s.low(i - 1) > s.low(i - 2) &&
+             s.close(i) < s.open(i - 3) && s.close(i) > s.close(i - 4)))
+            return candlestick::signal(s.color(i));
+        return 0.0;
+    case CandlePattern::ClosingMarubozu:
+        return s.body(i) > s.average(SettingType::BodyLong, i) &&
+               ((s.color(i) == 1 && s.upper(i) < s.average(SettingType::ShadowVeryShort, i)) ||
+                (s.color(i) == -1 && s.lower(i) < s.average(SettingType::ShadowVeryShort, i)))
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::ConcealingBabySwallow:
+        return s.color(i - 3) == -1 && s.color(i - 2) == -1 &&
+               s.color(i - 1) == -1 && s.color(i) == -1 &&
+               s.lower(i - 3) < s.average(SettingType::ShadowVeryShort, i - 3) &&
+               s.upper(i - 3) < s.average(SettingType::ShadowVeryShort, i - 3) &&
+               s.lower(i - 2) < s.average(SettingType::ShadowVeryShort, i - 2) &&
+               s.upper(i - 2) < s.average(SettingType::ShadowVeryShort, i - 2) &&
+               s.body_gap_down(i - 1, i - 2) &&
+               s.upper(i - 1) > s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.high(i - 1) > s.close(i - 2) && s.high(i) > s.high(i - 1) &&
+               s.low(i) < s.low(i - 1) ? 100.0 : 0.0;
+    case CandlePattern::DojiStar:
+        return s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.body(i) <= s.average(SettingType::BodyDoji, i) &&
+               ((s.color(i - 1) == 1 && s.body_gap_up(i, i - 1)) ||
+                (s.color(i - 1) == -1 && s.body_gap_down(i, i - 1)))
+            ? candlestick::signal(-s.color(i - 1)) : 0.0;
+    case CandlePattern::DragonflyDoji:
+        return s.body(i) <= s.average(SettingType::BodyDoji, i) &&
+               s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.lower(i) > s.average(SettingType::ShadowVeryShort, i) ? 100.0 : 0.0;
+    case CandlePattern::EveningDojiStar:
+        return s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.color(i - 2) == 1 &&
+               s.body(i - 1) <= s.average(SettingType::BodyDoji, i - 1) &&
+               s.body_gap_up(i - 1, i - 2) &&
+               s.body(i) > s.average(SettingType::BodyShort, i) && s.color(i) == -1 &&
+               s.close(i) < s.close(i - 2) - s.body(i - 2) * penetration ? -100.0 : 0.0;
+    case CandlePattern::GapSideSideWhite:
+        return ((s.body_gap_up(i - 1, i - 2) && s.body_gap_up(i, i - 2)) ||
+                (s.body_gap_down(i - 1, i - 2) && s.body_gap_down(i, i - 2))) &&
+               s.color(i - 1) == 1 && s.color(i) == 1 &&
+               s.body(i) >= s.body(i - 1) - s.average(SettingType::Near, i - 1) &&
+               s.body(i) <= s.body(i - 1) + s.average(SettingType::Near, i - 1) &&
+               s.open(i) >= s.open(i - 1) - s.average(SettingType::Equal, i - 1) &&
+               s.open(i) <= s.open(i - 1) + s.average(SettingType::Equal, i - 1)
+            ? (s.body_gap_up(i - 1, i - 2) ? 100.0 : -100.0) : 0.0;
+    case CandlePattern::GravestoneDoji:
+        return s.body(i) <= s.average(SettingType::BodyDoji, i) &&
+               s.lower(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.upper(i) > s.average(SettingType::ShadowVeryShort, i) ? 100.0 : 0.0;
+    case CandlePattern::HaramiCross:
+        if (s.body(i - 1) <= s.average(SettingType::BodyLong, i - 1) ||
+            s.body(i) > s.average(SettingType::BodyDoji, i)) return 0.0;
+        if (top(i) < top(i - 1) && bottom(i) > bottom(i - 1))
+            return candlestick::signal(-s.color(i - 1));
+        if (top(i) <= top(i - 1) && bottom(i) >= bottom(i - 1))
+            return candlestick::signal(-s.color(i - 1), 80);
+        return 0.0;
+    case CandlePattern::HighWave:
+        return s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.upper(i) > s.average(SettingType::ShadowVeryLong, i) &&
+               s.lower(i) > s.average(SettingType::ShadowVeryLong, i)
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::Hikkake: {
+        const auto detected = [&s](std::size_t j) {
+            if (!(s.high(j - 1) < s.high(j - 2) && s.low(j - 1) > s.low(j - 2)))
+                return 0;
+            if (s.high(j) < s.high(j - 1) && s.low(j) < s.low(j - 1)) return 100;
+            if (s.high(j) > s.high(j - 1) && s.low(j) > s.low(j - 1)) return -100;
+            return 0;
+        };
+        if (const int result = detected(i); result != 0) return result;
+        for (std::size_t distance = 1; distance <= 3; ++distance) {
+            const auto j = i - distance;
+            if (const int result = detected(j); result != 0) {
+                return (result > 0 && s.close(i) > s.high(j - 1)) ||
+                       (result < 0 && s.close(i) < s.low(j - 1))
+                    ? static_cast<double>(result * 2) : 0.0;
+            }
+        }
+        return 0.0;
+    }
+    case CandlePattern::ModifiedHikkake: {
+        const auto detected = [&s](std::size_t j) {
+            if (s.high(j - 2) >= s.high(j - 3) || s.low(j - 2) <= s.low(j - 3) ||
+                s.high(j - 1) >= s.high(j - 2) || s.low(j - 1) <= s.low(j - 2))
+                return 0;
+            if (s.high(j) < s.high(j - 1) && s.low(j) < s.low(j - 1) &&
+                s.close(j - 2) <= s.low(j - 2) + s.average(SettingType::Near, j - 2))
+                return 100;
+            if (s.high(j) > s.high(j - 1) && s.low(j) > s.low(j - 1) &&
+                s.close(j - 2) >= s.high(j - 2) - s.average(SettingType::Near, j - 2))
+                return -100;
+            return 0;
+        };
+        if (const int result = detected(i); result != 0) return result;
+        for (std::size_t distance = 1; distance <= 3; ++distance) {
+            const auto j = i - distance;
+            if (const int result = detected(j); result != 0) {
+                return (result > 0 && s.close(i) > s.high(j - 1)) ||
+                       (result < 0 && s.close(i) < s.low(j - 1))
+                    ? static_cast<double>(result * 2) : 0.0;
+            }
+        }
+        return 0.0;
+    }
+    case CandlePattern::IdenticalThreeCrows:
+        return s.color(i - 2) == -1 &&
+               s.lower(i - 2) < s.average(SettingType::ShadowVeryShort, i - 2) &&
+               s.color(i - 1) == -1 &&
+               s.lower(i - 1) < s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.color(i) == -1 && s.lower(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.close(i - 2) > s.close(i - 1) && s.close(i - 1) > s.close(i) &&
+               std::fabs(s.open(i - 1) - s.close(i - 2)) <= s.average(SettingType::Equal, i - 2) &&
+               std::fabs(s.open(i) - s.close(i - 1)) <= s.average(SettingType::Equal, i - 1)
+            ? -100.0 : 0.0;
+    case CandlePattern::InNeck:
+        return s.color(i - 1) == -1 &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.color(i) == 1 && s.open(i) < s.low(i - 1) &&
+               s.close(i) <= s.close(i - 1) + s.average(SettingType::Equal, i - 1) &&
+               s.close(i) >= s.close(i - 1) ? -100.0 : 0.0;
+    case CandlePattern::InvertedHammer:
+        return s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.upper(i) > s.average(SettingType::ShadowLong, i) &&
+               s.lower(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.body_gap_down(i, i - 1) ? 100.0 : 0.0;
+    case CandlePattern::KickingByLength:
+        if (s.color(i - 1) == -s.color(i) &&
+            s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+            s.upper(i - 1) < s.average(SettingType::ShadowVeryShort, i - 1) &&
+            s.lower(i - 1) < s.average(SettingType::ShadowVeryShort, i - 1) &&
+            s.body(i) > s.average(SettingType::BodyLong, i) &&
+            s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+            s.lower(i) < s.average(SettingType::ShadowVeryShort, i) &&
+            ((s.color(i - 1) == -1 && s.gap_up(i, i - 1)) ||
+             (s.color(i - 1) == 1 && s.gap_down(i, i - 1))))
+            return candlestick::signal(s.body(i) > s.body(i - 1) ? s.color(i) : s.color(i - 1));
+        return 0.0;
+    case CandlePattern::LadderBottom:
+        return s.color(i - 4) == -1 && s.color(i - 3) == -1 && s.color(i - 2) == -1 &&
+               s.open(i - 4) > s.open(i - 3) && s.open(i - 3) > s.open(i - 2) &&
+               s.close(i - 4) > s.close(i - 3) && s.close(i - 3) > s.close(i - 2) &&
+               s.color(i - 1) == -1 &&
+               s.upper(i - 1) > s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.color(i) == 1 && s.open(i) > s.open(i - 1) &&
+               s.close(i) > s.high(i - 1) ? 100.0 : 0.0;
+    case CandlePattern::LongLeggedDoji:
+        return s.body(i) <= s.average(SettingType::BodyDoji, i) &&
+               (s.lower(i) > s.average(SettingType::ShadowLong, i) ||
+                s.upper(i) > s.average(SettingType::ShadowLong, i)) ? 100.0 : 0.0;
+    case CandlePattern::LongLine:
+        return s.body(i) > s.average(SettingType::BodyLong, i) &&
+               s.upper(i) < s.average(SettingType::ShadowShort, i) &&
+               s.lower(i) < s.average(SettingType::ShadowShort, i)
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::MatHold:
+        return s.body(i - 4) > s.average(SettingType::BodyLong, i - 4) &&
+               s.body(i - 3) < s.average(SettingType::BodyShort, i - 3) &&
+               s.body(i - 2) < s.average(SettingType::BodyShort, i - 2) &&
+               s.body(i - 1) < s.average(SettingType::BodyShort, i - 1) &&
+               s.color(i - 4) == 1 && s.color(i - 3) == -1 && s.color(i) == 1 &&
+               s.body_gap_up(i - 3, i - 4) && bottom(i - 2) < s.close(i - 4) &&
+               bottom(i - 1) < s.close(i - 4) &&
+               bottom(i - 2) > s.close(i - 4) - s.body(i - 4) * penetration &&
+               bottom(i - 1) > s.close(i - 4) - s.body(i - 4) * penetration &&
+               top(i - 2) < s.open(i - 3) && top(i - 1) < top(i - 2) &&
+               s.open(i) > s.close(i - 1) &&
+               s.close(i) > std::max({s.high(i - 3), s.high(i - 2), s.high(i - 1)})
+            ? 100.0 : 0.0;
+    case CandlePattern::MorningDojiStar:
+        return s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.color(i - 2) == -1 &&
+               s.body(i - 1) <= s.average(SettingType::BodyDoji, i - 1) &&
+               s.body_gap_down(i - 1, i - 2) &&
+               s.body(i) > s.average(SettingType::BodyShort, i) && s.color(i) == 1 &&
+               s.close(i) > s.close(i - 2) + s.body(i - 2) * penetration ? 100.0 : 0.0;
+    case CandlePattern::OnNeck:
+        return s.color(i - 1) == -1 &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.color(i) == 1 && s.open(i) < s.low(i - 1) &&
+               std::fabs(s.close(i) - s.low(i - 1)) <= s.average(SettingType::Equal, i - 1)
+            ? -100.0 : 0.0;
+    case CandlePattern::RickshawMan: {
+        const double midpoint = s.low(i) + (s.high(i) - s.low(i)) * 0.5;
+        return s.body(i) <= s.average(SettingType::BodyDoji, i) &&
+               s.lower(i) > s.average(SettingType::ShadowLong, i) &&
+               s.upper(i) > s.average(SettingType::ShadowLong, i) &&
+               bottom(i) <= midpoint + s.average(SettingType::Near, i) &&
+               top(i) >= midpoint - s.average(SettingType::Near, i) ? 100.0 : 0.0;
+    }
+    case CandlePattern::RiseFallThreeMethods: {
+        const int direction = s.color(i - 4);
+        return s.body(i - 4) > s.average(SettingType::BodyLong, i - 4) &&
+               s.body(i - 3) < s.average(SettingType::BodyShort, i - 3) &&
+               s.body(i - 2) < s.average(SettingType::BodyShort, i - 2) &&
+               s.body(i - 1) < s.average(SettingType::BodyShort, i - 1) &&
+               s.body(i) > s.average(SettingType::BodyLong, i) &&
+               direction == -s.color(i - 3) && s.color(i - 3) == s.color(i - 2) &&
+               s.color(i - 2) == s.color(i - 1) && s.color(i - 1) == -s.color(i) &&
+               bottom(i - 3) < s.high(i - 4) && top(i - 3) > s.low(i - 4) &&
+               bottom(i - 2) < s.high(i - 4) && top(i - 2) > s.low(i - 4) &&
+               bottom(i - 1) < s.high(i - 4) && top(i - 1) > s.low(i - 4) &&
+               s.close(i - 2) * direction < s.close(i - 3) * direction &&
+               s.close(i - 1) * direction < s.close(i - 2) * direction &&
+               s.open(i) * direction > s.close(i - 1) * direction &&
+               s.close(i) * direction > s.close(i - 4) * direction
+            ? candlestick::signal(direction) : 0.0;
+    }
+    case CandlePattern::SeparatingLines:
+        return s.color(i - 1) == -s.color(i) &&
+               std::fabs(s.open(i) - s.open(i - 1)) <= s.average(SettingType::Equal, i - 1) &&
+               s.body(i) > s.average(SettingType::BodyLong, i) &&
+               ((s.color(i) == 1 && s.lower(i) < s.average(SettingType::ShadowVeryShort, i)) ||
+                (s.color(i) == -1 && s.upper(i) < s.average(SettingType::ShadowVeryShort, i)))
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::ShortLine:
+        return s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.upper(i) < s.average(SettingType::ShadowShort, i) &&
+               s.lower(i) < s.average(SettingType::ShadowShort, i)
+            ? candlestick::signal(s.color(i)) : 0.0;
+    case CandlePattern::StalledPattern:
+        return s.color(i - 2) == 1 && s.color(i - 1) == 1 && s.color(i) == 1 &&
+               s.close(i) > s.close(i - 1) && s.close(i - 1) > s.close(i - 2) &&
+               s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.upper(i - 1) < s.average(SettingType::ShadowVeryShort, i - 1) &&
+               s.open(i - 1) > s.open(i - 2) &&
+               s.open(i - 1) <= s.close(i - 2) + s.average(SettingType::Near, i - 2) &&
+               s.body(i) < s.average(SettingType::BodyShort, i) &&
+               s.open(i) >= s.close(i - 1) - s.body(i) - s.average(SettingType::Near, i - 1)
+            ? -100.0 : 0.0;
+    case CandlePattern::StickSandwich:
+        return s.color(i - 2) == -1 && s.color(i - 1) == 1 && s.color(i) == -1 &&
+               s.low(i - 1) > s.close(i - 2) &&
+               std::fabs(s.close(i) - s.close(i - 2)) <= s.average(SettingType::Equal, i - 2)
+            ? 100.0 : 0.0;
+    case CandlePattern::Takuri:
+        return s.body(i) <= s.average(SettingType::BodyDoji, i) &&
+               s.upper(i) < s.average(SettingType::ShadowVeryShort, i) &&
+               s.lower(i) > s.average(SettingType::ShadowVeryLong, i) ? 100.0 : 0.0;
+    case CandlePattern::Thrusting:
+        return s.color(i - 1) == -1 &&
+               s.body(i - 1) > s.average(SettingType::BodyLong, i - 1) &&
+               s.color(i) == 1 && s.open(i) < s.low(i - 1) &&
+               s.close(i) > s.close(i - 1) + s.average(SettingType::Equal, i - 1) &&
+               s.close(i) <= s.close(i - 1) + s.body(i - 1) * 0.5 ? -100.0 : 0.0;
+    case CandlePattern::Tristar:
+        if (s.body(i - 2) > s.average(SettingType::BodyDoji, i - 2) ||
+            s.body(i - 1) > s.average(SettingType::BodyDoji, i - 2) ||
+            s.body(i) > s.average(SettingType::BodyDoji, i - 2)) return 0.0;
+        if (s.body_gap_up(i - 1, i - 2) && top(i) < top(i - 1)) return -100.0;
+        if (s.body_gap_down(i - 1, i - 2) && bottom(i) > bottom(i - 1)) return 100.0;
+        return 0.0;
+    case CandlePattern::UniqueThreeRiver:
+        return s.body(i - 2) > s.average(SettingType::BodyLong, i - 2) &&
+               s.color(i - 2) == -1 && s.color(i - 1) == -1 &&
+               s.close(i - 1) > s.close(i - 2) && s.open(i - 1) <= s.open(i - 2) &&
+               s.low(i - 1) < s.low(i - 2) &&
+               s.body(i) < s.average(SettingType::BodyShort, i) && s.color(i) == 1 &&
+               s.open(i) > s.low(i - 1) ? 100.0 : 0.0;
+    case CandlePattern::XSideGapThreeMethods:
+        return s.color(i - 2) == s.color(i - 1) && s.color(i - 1) == -s.color(i) &&
+               s.open(i) < top(i - 1) && s.open(i) > bottom(i - 1) &&
+               s.close(i) < top(i - 2) && s.close(i) > bottom(i - 2) &&
+               ((s.color(i - 2) == 1 && s.body_gap_up(i - 1, i - 2)) ||
+                (s.color(i - 2) == -1 && s.body_gap_down(i - 1, i - 2)))
+            ? candlestick::signal(s.color(i - 2)) : 0.0;
+    }
+    return 0.0;
+}
+
+template <CandlePattern Pattern>
+class CandleIndicator : public Indicator<CandleIndicator<Pattern>> {
+public:
+    CandleIndicator(const Line<double>& open, const Line<double>& high,
+                    const Line<double>& low, const Line<double>& close,
+                    double penetration, candlestick::Settings settings)
+        : series_(open, high, low, close, std::move(settings)),
+          penetration_(candlestick::validate_penetration(penetration)),
+          lookback_(candle_pattern_lookback(Pattern, series_.settings())) {}
+
+    void next_impl() {
+        if (this->line_.empty()) [[unlikely]] { this->reserve_output(series_.size()); }
+        const auto i = series_.index();
+        this->line_.forward(i < lookback_ ? 0.0
+            : evaluate_candle_pattern(Pattern, series_, i, penetration_));
+    }
+    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return lookback_ + 1; }
+
+private:
+    CandleSeries series_;
+    double penetration_;
+    std::size_t lookback_;
+};
+
+} // namespace detail
+
+#define STRATFORGE_CANDLE_CLASS(Name, PatternName)                               \
+class Name : public detail::CandleIndicator<detail::CandlePattern::PatternName> { \
+    using Base = detail::CandleIndicator<detail::CandlePattern::PatternName>;    \
+public:                                                                           \
+    Name(const Line<double>& open, const Line<double>& high,                      \
+         const Line<double>& low, const Line<double>& close,                      \
+         candlestick::Settings settings = {})                                     \
+        : Base(open, high, low, close, 0.0, std::move(settings)) {}               \
+}
+
+#define STRATFORGE_CANDLE_PENETRATION_CLASS(Name, PatternName, DefaultValue)      \
+class Name : public detail::CandleIndicator<detail::CandlePattern::PatternName> { \
+    using Base = detail::CandleIndicator<detail::CandlePattern::PatternName>;    \
+public:                                                                           \
+    Name(const Line<double>& open, const Line<double>& high,                      \
+         const Line<double>& low, const Line<double>& close,                      \
+         double penetration = DefaultValue, candlestick::Settings settings = {})  \
+        : Base(open, high, low, close, penetration, std::move(settings)) {}       \
+}
+
+class CDLDoji : public detail::CandleIndicator<detail::CandlePattern::Doji> {
+    using Base = detail::CandleIndicator<detail::CandlePattern::Doji>;
+
+    static candlestick::Settings settings_with_factor(double factor) {
+        candlestick::Settings settings;
+        settings.set(candlestick::SettingType::BodyDoji,
+                     {candlestick::RangeType::HighLow, 10, factor});
+        return settings;
+    }
+
 public:
     CDLDoji(const Line<double>& open, const Line<double>& high,
             const Line<double>& low, const Line<double>& close,
-            double body_threshold = 0.05)
-        : open_(open), high_(high), low_(low), close_(close),
-          body_threshold_(body_threshold) {}
+            candlestick::Settings settings = {})
+        : Base(open, high, low, close, 0.0, std::move(settings)) {}
 
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        const double o = open_.data()[idx];
-        const double h = high_.data()[idx];
-        const double l = low_.data()[idx];
-        const double c = close_.data()[idx];
-        const double range = h - l;
-        if (range <= 0.0) { line_.forward(0.0); return; }
-        const double body = std::fabs(c - o);
-        if (body <= body_threshold_ * range) {
-            line_.forward(c >= o ? 100.0 : -100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 1; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-    double body_threshold_;
+    CDLDoji(const Line<double>& open, const Line<double>& high,
+            const Line<double>& low, const Line<double>& close,
+            double body_threshold)
+        : Base(open, high, low, close, 0.0,
+               settings_with_factor(body_threshold)) {}
 };
-
-/// Hammer: small body at top, long lower shadow, minimal upper shadow. Bullish reversal.
-/// Output: +100 if pattern detected, 0 otherwise.
-class CDLHammer : public Indicator<CDLHammer> {
-public:
-    CDLHammer(const Line<double>& open, const Line<double>& high,
-              const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        const double o = open_.data()[idx];
-        const double h = high_.data()[idx];
-        const double l = low_.data()[idx];
-        const double c = close_.data()[idx];
-        const double range = h - l;
-        if (range <= 0.0) { line_.forward(0.0); return; }
-        const double body = std::fabs(c - o);
-        const double body_top = std::max(o, c);
-        const double body_bot = std::min(o, c);
-        const double upper_shadow = h - body_top;
-        const double lower_shadow = body_bot - l;
-        if (body < range / 3.0 && lower_shadow >= 2.0 * body && upper_shadow <= body * 0.1) {
-            line_.forward(100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 1; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Engulfing: current body fully contains previous body, opposite colors.
-/// Output: +100 bullish engulfing, -100 bearish engulfing, 0 no pattern.
-class CDLEngulfing : public Indicator<CDLEngulfing> {
-public:
-    CDLEngulfing(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                 [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 1) { line_.forward(0.0); return; }
-        const double o1 = open_.data()[idx - 1];
-        const double c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx];
-        const double c2 = close_.data()[idx];
-        const double body1_top = std::max(o1, c1);
-        const double body1_bot = std::min(o1, c1);
-        const double body2_top = std::max(o2, c2);
-        const double body2_bot = std::min(o2, c2);
-        const bool prev_bearish = c1 < o1;
-        const bool prev_bullish = c1 > o1;
-        const bool curr_bullish = c2 > o2;
-        const bool curr_bearish = c2 < o2;
-        if (prev_bearish && curr_bullish && body2_top >= body1_top && body2_bot <= body1_bot) {
-            line_.forward(100.0);
-        } else if (prev_bullish && curr_bearish && body2_top >= body1_top && body2_bot <= body1_bot) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 2; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Morning Star: 3-bar bullish reversal pattern.
-/// Bar 0: large bearish, Bar 1: small body (gap down), Bar 2: large bullish closing above bar 0 midpoint.
-/// Output: +100 if pattern detected, 0 otherwise.
-class CDLMorningStar : public Indicator<CDLMorningStar> {
-public:
-    CDLMorningStar(const Line<double>& open, const Line<double>& high,
-                   const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double o0 = open_.data()[idx - 2];
-        const double c0 = close_.data()[idx - 2];
-        const double h0 = high_.data()[idx - 2];
-        const double l0 = low_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1];
-        const double c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx];
-        const double c2 = close_.data()[idx];
-        const double range0 = h0 - l0;
-        const double body0 = std::fabs(c0 - o0);
-        const double body1 = std::fabs(c1 - o1);
-        const double body2 = std::fabs(c2 - o2);
-        const double midpoint0 = (o0 + c0) / 2.0;
-        if (range0 <= 0.0) { line_.forward(0.0); return; }
-        if (c0 < o0 && body0 >= 0.5 * range0 &&
-            body1 < body0 * 0.5 &&
-            c2 > o2 && body2 >= body1 &&
-            c2 >= midpoint0) {
-            line_.forward(100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Evening Star: 3-bar bearish reversal pattern. Mirror of Morning Star.
-/// Output: -100 if pattern detected, 0 otherwise.
-class CDLEveningStar : public Indicator<CDLEveningStar> {
-public:
-    CDLEveningStar(const Line<double>& open, const Line<double>& high,
-                   const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double o0 = open_.data()[idx - 2];
-        const double c0 = close_.data()[idx - 2];
-        const double h0 = high_.data()[idx - 2];
-        const double l0 = low_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1];
-        const double c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx];
-        const double c2 = close_.data()[idx];
-        const double range0 = h0 - l0;
-        const double body0 = std::fabs(c0 - o0);
-        const double body1 = std::fabs(c1 - o1);
-        const double body2 = std::fabs(c2 - o2);
-        const double midpoint0 = (o0 + c0) / 2.0;
-        if (range0 <= 0.0) { line_.forward(0.0); return; }
-        if (c0 > o0 && body0 >= 0.5 * range0 &&
-            body1 < body0 * 0.5 &&
-            c2 < o2 && body2 >= body1 &&
-            c2 <= midpoint0) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Harami: current body contained within previous body, opposite colors.
-/// Output: +100 bullish harami, -100 bearish harami, 0 no pattern.
-class CDLHarami : public Indicator<CDLHarami> {
-public:
-    CDLHarami(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-              [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 1) { line_.forward(0.0); return; }
-        const double o1 = open_.data()[idx - 1];
-        const double c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx];
-        const double c2 = close_.data()[idx];
-        const double body1_top = std::max(o1, c1);
-        const double body1_bot = std::min(o1, c1);
-        const double body2_top = std::max(o2, c2);
-        const double body2_bot = std::min(o2, c2);
-        const bool prev_bearish = c1 < o1;
-        const bool prev_bullish = c1 > o1;
-        const bool curr_bullish = c2 > o2;
-        const bool curr_bearish = c2 < o2;
-        if (prev_bearish && curr_bullish && body2_top <= body1_top && body2_bot >= body1_bot) {
-            line_.forward(100.0);
-        } else if (prev_bullish && curr_bearish && body2_top <= body1_top && body2_bot >= body1_bot) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 2; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Shooting Star: small body at bottom, long upper shadow, minimal lower shadow. Bearish reversal.
-/// Output: -100 if pattern detected, 0 otherwise.
-class CDLShootingStar : public Indicator<CDLShootingStar> {
-public:
-    CDLShootingStar(const Line<double>& open, const Line<double>& high,
-                    const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        const double o = open_.data()[idx];
-        const double h = high_.data()[idx];
-        const double l = low_.data()[idx];
-        const double c = close_.data()[idx];
-        const double range = h - l;
-        if (range <= 0.0) { line_.forward(0.0); return; }
-        const double body = std::fabs(c - o);
-        const double body_top = std::max(o, c);
-        const double body_bot = std::min(o, c);
-        const double upper_shadow = h - body_top;
-        const double lower_shadow = body_bot - l;
-        if (body < range / 3.0 && upper_shadow >= 2.0 * body && lower_shadow <= body * 0.1) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 1; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Hanging Man: same shape as hammer (small body at top, long lower shadow) but bearish signal.
-/// Output: -100 if pattern detected, 0 otherwise.
-class CDLHangingMan : public Indicator<CDLHangingMan> {
-public:
-    CDLHangingMan(const Line<double>& open, const Line<double>& high,
-                  const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        const double o = open_.data()[idx];
-        const double h = high_.data()[idx];
-        const double l = low_.data()[idx];
-        const double c = close_.data()[idx];
-        const double range = h - l;
-        if (range <= 0.0) { line_.forward(0.0); return; }
-        const double body = std::fabs(c - o);
-        const double body_top = std::max(o, c);
-        const double body_bot = std::min(o, c);
-        const double upper_shadow = h - body_top;
-        const double lower_shadow = body_bot - l;
-        if (body < range / 3.0 && lower_shadow >= 2.0 * body && upper_shadow <= body * 0.1) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 1; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Marubozu: full body candle with negligible shadows.
-/// Output: +100 bullish (close > open), -100 bearish (close < open), 0 no pattern.
-class CDLMarubozu : public Indicator<CDLMarubozu> {
-public:
-    CDLMarubozu(const Line<double>& open, const Line<double>& high,
-                const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        const double o = open_.data()[idx];
-        const double h = high_.data()[idx];
-        const double l = low_.data()[idx];
-        const double c = close_.data()[idx];
-        const double range = h - l;
-        if (range <= 0.0) { line_.forward(0.0); return; }
-        const double body = std::fabs(c - o);
-        if (body >= 0.95 * range) {
-            line_.forward(c > o ? 100.0 : -100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 1; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Spinning Top: small body with both shadows present.
-/// Output: +100 if close >= open, -100 if close < open, 0 no pattern.
-class CDLSpinningTop : public Indicator<CDLSpinningTop> {
-public:
-    CDLSpinningTop(const Line<double>& open, const Line<double>& high,
-                   const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        const double o = open_.data()[idx];
-        const double h = high_.data()[idx];
-        const double l = low_.data()[idx];
-        const double c = close_.data()[idx];
-        const double range = h - l;
-        if (range <= 0.0) { line_.forward(0.0); return; }
-        const double body = std::fabs(c - o);
-        const double body_top = std::max(o, c);
-        const double body_bot = std::min(o, c);
-        const double upper_shadow = h - body_top;
-        const double lower_shadow = body_bot - l;
-        if (body < 0.3 * range && upper_shadow > 0.2 * range && lower_shadow > 0.2 * range) {
-            line_.forward(c >= o ? 100.0 : -100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 1; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Three White Soldiers: three consecutive bullish candles with higher closes.
-/// Output: +100 if pattern detected, 0 otherwise.
-class CDLThreeWhiteSoldiers : public Indicator<CDLThreeWhiteSoldiers> {
-public:
-    CDLThreeWhiteSoldiers(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                          [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double o0 = open_.data()[idx - 2], c0 = close_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        if (c0 > o0 && c1 > o1 && c2 > o2 &&
-            c1 > c0 && c2 > c1 &&
-            o1 >= o0 && o1 <= c0 &&
-            o2 >= o1 && o2 <= c1) {
-            line_.forward(100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Three Black Crows: three consecutive bearish candles with lower closes.
-/// Output: -100 if pattern detected, 0 otherwise.
-class CDLThreeBlackCrows : public Indicator<CDLThreeBlackCrows> {
-public:
-    CDLThreeBlackCrows(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                       [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double o0 = open_.data()[idx - 2], c0 = close_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        if (c0 < o0 && c1 < o1 && c2 < o2 &&
-            c1 < c0 && c2 < c1 &&
-            o1 <= o0 && o1 >= c0 &&
-            o2 <= o1 && o2 >= c1) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Piercing Line: bearish candle followed by bullish candle closing above midpoint.
-/// Output: +100 if pattern detected, 0 otherwise.
-class CDLPiercingLine : public Indicator<CDLPiercingLine> {
-public:
-    CDLPiercingLine(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                    [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 1) { line_.forward(0.0); return; }
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        const double midpoint = (o1 + c1) / 2.0;
-        if (c1 < o1 && c2 > o2 && o2 < c1 && c2 > midpoint && c2 < o1) {
-            line_.forward(100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 2; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Dark Cloud Cover: bullish candle followed by bearish candle closing below midpoint.
-/// Output: -100 if pattern detected, 0 otherwise.
-class CDLDarkCloudCover : public Indicator<CDLDarkCloudCover> {
-public:
-    CDLDarkCloudCover(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                      [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 1) { line_.forward(0.0); return; }
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        const double midpoint = (o1 + c1) / 2.0;
-        if (c1 > o1 && c2 < o2 && o2 > c1 && c2 < midpoint && c2 > o1) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 2; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Abandoned Baby: star pattern with gaps on both sides (doji star).
-/// Output: +100 bullish, -100 bearish, 0 no pattern.
-class CDLAbandonedBaby : public Indicator<CDLAbandonedBaby> {
-public:
-    CDLAbandonedBaby(const Line<double>& open, const Line<double>& high,
-                     const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double o0 = open_.data()[idx - 2], c0 = close_.data()[idx - 2];
-        const double h0 = high_.data()[idx - 2], l0 = low_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double h1 = high_.data()[idx - 1], l1 = low_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        const double h2 = high_.data()[idx],     l2 = low_.data()[idx];
-        const double body1 = std::fabs(c1 - o1);
-        const double range1 = h1 - l1;
-        const bool star_doji = range1 > 0.0 && body1 <= 0.1 * range1;
-        // Bullish: bearish bar 0, gap-down doji, gap-up bullish bar 2
-        if (c0 < o0 && star_doji && h1 < l0 && l2 > h1 && c2 > o2) {
-            line_.forward(100.0);
-        }
-        // Bearish: bullish bar 0, gap-up doji, gap-down bearish bar 2
-        else if (c0 > o0 && star_doji && l1 > h0 && h2 < l1 && c2 < o2) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Three Inside: harami pattern followed by confirmation bar.
-/// Output: +100 bullish, -100 bearish, 0 no pattern.
-class CDLThreeInside : public Indicator<CDLThreeInside> {
-public:
-    CDLThreeInside(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                   [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double o0 = open_.data()[idx - 2], c0 = close_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double c2 = close_.data()[idx];
-        const double body0_top = std::max(o0, c0);
-        const double body0_bot = std::min(o0, c0);
-        const double body1_top = std::max(o1, c1);
-        const double body1_bot = std::min(o1, c1);
-        // Bullish: bearish bar 0, bullish harami bar 1, bar 2 closes above bar 0 open
-        if (c0 < o0 && c1 > o1 &&
-            body1_top <= body0_top && body1_bot >= body0_bot &&
-            c2 > body0_top) {
-            line_.forward(100.0);
-        }
-        // Bearish: bullish bar 0, bearish harami bar 1, bar 2 closes below bar 0 open
-        else if (c0 > o0 && c1 < o1 &&
-                 body1_top <= body0_top && body1_bot >= body0_bot &&
-                 c2 < body0_bot) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Three Outside: engulfing pattern followed by confirmation bar.
-/// Output: +100 bullish, -100 bearish, 0 no pattern.
-class CDLThreeOutside : public Indicator<CDLThreeOutside> {
-public:
-    CDLThreeOutside(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                    [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double o0 = open_.data()[idx - 2], c0 = close_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double c2 = close_.data()[idx];
-        const double body0_top = std::max(o0, c0);
-        const double body0_bot = std::min(o0, c0);
-        const double body1_top = std::max(o1, c1);
-        const double body1_bot = std::min(o1, c1);
-        // Bullish: bearish bar 0, bullish engulfing bar 1, bar 2 closes higher
-        if (c0 < o0 && c1 > o1 &&
-            body1_top >= body0_top && body1_bot <= body0_bot &&
-            c2 > c1) {
-            line_.forward(100.0);
-        }
-        // Bearish: bullish bar 0, bearish engulfing bar 1, bar 2 closes lower
-        else if (c0 > o0 && c1 < o1 &&
-                 body1_top >= body0_top && body1_bot <= body0_bot &&
-                 c2 < c1) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Kicking: marubozu gap reversal. Opposite-color marubozus with a gap between.
-/// Output: +100 bullish, -100 bearish, 0 no pattern.
-class CDLKicking : public Indicator<CDLKicking> {
-public:
-    CDLKicking(const Line<double>& open, const Line<double>& high,
-               const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 1) { line_.forward(0.0); return; }
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double h1 = high_.data()[idx - 1], l1 = low_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        const double h2 = high_.data()[idx],     l2 = low_.data()[idx];
-        const double range1 = h1 - l1;
-        const double range2 = h2 - l2;
-        if (range1 <= 0.0 || range2 <= 0.0) { line_.forward(0.0); return; }
-        const double body1 = std::fabs(c1 - o1);
-        const double body2 = std::fabs(c2 - o2);
-        const bool maru1 = body1 >= 0.9 * range1;
-        const bool maru2 = body2 >= 0.9 * range2;
-        // Bullish kicking: bearish marubozu then gap-up bullish marubozu
-        if (maru1 && maru2 && c1 < o1 && c2 > o2 && l2 > h1) {
-            line_.forward(100.0);
-        }
-        // Bearish kicking: bullish marubozu then gap-down bearish marubozu
-        else if (maru1 && maru2 && c1 > o1 && c2 < o2 && h2 < l1) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 2; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Belt Hold: opens at extreme (high or low) and closes strongly in opposite direction.
-/// Output: +100 bullish, -100 bearish, 0 no pattern.
-class CDLBeltHold : public Indicator<CDLBeltHold> {
-public:
-    CDLBeltHold(const Line<double>& open, const Line<double>& high,
-                const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        const double o = open_.data()[idx];
-        const double h = high_.data()[idx];
-        const double l = low_.data()[idx];
-        const double c = close_.data()[idx];
-        const double range = h - l;
-        if (range <= 0.0) { line_.forward(0.0); return; }
-        const double body = std::fabs(c - o);
-        // Bullish belt hold: opens at low, strong bullish body
-        if (o == l && c > o && body >= 0.6 * range) {
-            line_.forward(100.0);
-        }
-        // Bearish belt hold: opens at high, strong bearish body
-        else if (o == h && c < o && body >= 0.6 * range) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 1; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Counter Attack: opposite-color candles that close at approximately the same level.
-/// Output: +100 bullish, -100 bearish, 0 no pattern.
-class CDLCounterAttack : public Indicator<CDLCounterAttack> {
-public:
-    CDLCounterAttack(const Line<double>& open, const Line<double>& high,
-                     const Line<double>& low, const Line<double>& close,
-                     double tolerance = 0.005)
-        : open_(open), high_(high), low_(low), close_(close),
-          tolerance_(tolerance) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 1) { line_.forward(0.0); return; }
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double h1 = high_.data()[idx - 1], l1 = low_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        const double range1 = h1 - l1;
-        if (range1 <= 0.0) { line_.forward(0.0); return; }
-        const double body1 = std::fabs(c1 - o1);
-        const double body2 = std::fabs(c2 - o2);
-        const double close_diff = std::fabs(c2 - c1);
-        const bool closes_match = close_diff <= tolerance_ * range1;
-        // Bullish: bearish bar 1, bullish bar 2, closes match
-        if (c1 < o1 && c2 > o2 && body1 >= 0.3 * range1 && body2 > 0.0 && closes_match) {
-            line_.forward(100.0);
-        }
-        // Bearish: bullish bar 1, bearish bar 2, closes match
-        else if (c1 > o1 && c2 < o2 && body1 >= 0.3 * range1 && body2 > 0.0 && closes_match) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 2; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-    double tolerance_;
-};
-
-/// Homing Pigeon: two bullish candles where the second is contained within the first.
-/// Output: +100 if pattern detected, 0 otherwise.
-class CDLHomingPigeon : public Indicator<CDLHomingPigeon> {
-public:
-    CDLHomingPigeon(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                    [[maybe_unused]] const Line<double>& low, const Line<double>& close)
-        : open_(open), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 1) { line_.forward(0.0); return; }
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        // Both bullish, second body inside first body
-        if (c1 > o1 && c2 > o2 &&
-            o2 >= o1 && c2 <= c1) {
-            line_.forward(100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 2; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-};
-
-/// Matching Low: two bearish candles with same (or very close) close.
-/// Output: +100 if pattern detected (bullish reversal), 0 otherwise.
-class CDLMatchingLow : public Indicator<CDLMatchingLow> {
-public:
-    CDLMatchingLow(const Line<double>& open, [[maybe_unused]] const Line<double>& high,
-                   [[maybe_unused]] const Line<double>& low, const Line<double>& close,
-                   double tolerance = 0.001)
-        : open_(open), close_(close),
-          tolerance_(tolerance) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 1) { line_.forward(0.0); return; }
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        if (c1 < o1 && c2 < o2) {
-            const double price_scale = std::fabs(c1) > 0.0 ? std::fabs(c1) : 1.0;
-            if (std::fabs(c2 - c1) <= tolerance_ * price_scale) {
-                line_.forward(100.0);
-                return;
-            }
-        }
-        line_.forward(0.0);
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 2; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& close_;
-    double tolerance_;
-};
-
-/// Tasuki Gap: gap followed by partial fill by third bar.
-/// Output: +100 bullish (upside gap), -100 bearish (downside gap), 0 no pattern.
-class CDLTasukiGap : public Indicator<CDLTasukiGap> {
-public:
-    CDLTasukiGap(const Line<double>& open, const Line<double>& high,
-                 const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double o0 = open_.data()[idx - 2], c0 = close_.data()[idx - 2];
-        const double h0 = high_.data()[idx - 2], l0 = low_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double h1 = high_.data()[idx - 1], l1 = low_.data()[idx - 1];
-        const double o2 = open_.data()[idx],     c2 = close_.data()[idx];
-        // Upside Tasuki Gap: two bullish bars with gap up, third bar bearish partially fills gap
-        if (c0 > o0 && c1 > o1 && l1 > h0 &&
-            c2 < o2 &&
-            o2 >= o1 && o2 <= c1 &&
-            c2 < l1 && c2 > h0) {
-            line_.forward(100.0);
-        }
-        // Downside Tasuki Gap: two bearish bars with gap down, third bar bullish partially fills gap
-        else if (c0 < o0 && c1 < o1 && h1 < l0 &&
-                 c2 > o2 &&
-                 o2 <= o1 && o2 >= c1 &&
-                 c2 > h1 && c2 < l0) {
-            line_.forward(-100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
-
-/// Upside Gap Two Crows (simplified as Upside Gap): two bullish candles with upside gap,
-/// third candle doesn't fill the gap.
-/// Output: +100 if pattern detected, 0 otherwise.
-class CDLUpsideGap : public Indicator<CDLUpsideGap> {
-public:
-    CDLUpsideGap(const Line<double>& open, const Line<double>& high,
-                 const Line<double>& low, const Line<double>& close)
-        : open_(open), high_(high), low_(low), close_(close) {}
-
-    void next_impl() {
-        if (line_.empty()) [[unlikely]] { reserve_output(close_.size()); }
-        const auto idx = close_.index();
-        if (idx < 2) { line_.forward(0.0); return; }
-        const double c0 = close_.data()[idx - 2];
-        const double h0 = high_.data()[idx - 2];
-        const double o1 = open_.data()[idx - 1], c1 = close_.data()[idx - 1];
-        const double l1 = low_.data()[idx - 1];
-        const double o2 = open_.data()[idx], c2 = close_.data()[idx];
-        const double l2 = low_.data()[idx];
-        // Two bullish bars with gap up, third bullish bar doesn't fill gap
-        if (c0 > open_.data()[idx - 2] && c1 > o1 && l1 > h0 && // gap up
-            c2 > o2 && l2 > h0) { // third bar bullish and gap still open
-            line_.forward(100.0);
-        } else {
-            line_.forward(0.0);
-        }
-    }
-
-    [[nodiscard]] std::size_t minimum_period_impl() const noexcept { return 3; }
-
-private:
-    const Line<double>& open_;
-    const Line<double>& high_;
-    const Line<double>& low_;
-    const Line<double>& close_;
-};
+STRATFORGE_CANDLE_CLASS(CDLHammer, Hammer);
+STRATFORGE_CANDLE_CLASS(CDLEngulfing, Engulfing);
+STRATFORGE_CANDLE_PENETRATION_CLASS(CDLMorningStar, MorningStar, 0.3);
+STRATFORGE_CANDLE_PENETRATION_CLASS(CDLEveningStar, EveningStar, 0.3);
+STRATFORGE_CANDLE_CLASS(CDLHarami, Harami);
+STRATFORGE_CANDLE_CLASS(CDLShootingStar, ShootingStar);
+STRATFORGE_CANDLE_CLASS(CDLHangingMan, HangingMan);
+STRATFORGE_CANDLE_CLASS(CDLMarubozu, Marubozu);
+STRATFORGE_CANDLE_CLASS(CDLSpinningTop, SpinningTop);
+STRATFORGE_CANDLE_CLASS(CDLThreeWhiteSoldiers, ThreeWhiteSoldiers);
+STRATFORGE_CANDLE_CLASS(CDLThreeBlackCrows, ThreeBlackCrows);
+STRATFORGE_CANDLE_CLASS(CDLPiercingLine, Piercing);
+STRATFORGE_CANDLE_PENETRATION_CLASS(CDLDarkCloudCover, DarkCloudCover, 0.5);
+STRATFORGE_CANDLE_PENETRATION_CLASS(CDLAbandonedBaby, AbandonedBaby, 0.3);
+STRATFORGE_CANDLE_CLASS(CDLThreeInside, ThreeInside);
+STRATFORGE_CANDLE_CLASS(CDLThreeOutside, ThreeOutside);
+STRATFORGE_CANDLE_CLASS(CDLKicking, Kicking);
+STRATFORGE_CANDLE_CLASS(CDLBeltHold, BeltHold);
+STRATFORGE_CANDLE_CLASS(CDLCounterAttack, CounterAttack);
+STRATFORGE_CANDLE_CLASS(CDLHomingPigeon, HomingPigeon);
+STRATFORGE_CANDLE_CLASS(CDLMatchingLow, MatchingLow);
+STRATFORGE_CANDLE_CLASS(CDLTasukiGap, TasukiGap);
+STRATFORGE_CANDLE_CLASS(CDLUpsideGap, UpsideGapTwoCrows);
+STRATFORGE_CANDLE_CLASS(CDLTwoCrows, TwoCrows);
+STRATFORGE_CANDLE_CLASS(CDLThreeLineStrike, ThreeLineStrike);
+STRATFORGE_CANDLE_CLASS(CDLThreeStarsInSouth, ThreeStarsInSouth);
+STRATFORGE_CANDLE_CLASS(CDLAdvanceBlock, AdvanceBlock);
+STRATFORGE_CANDLE_CLASS(CDLBreakaway, Breakaway);
+STRATFORGE_CANDLE_CLASS(CDLClosingMarubozu, ClosingMarubozu);
+STRATFORGE_CANDLE_CLASS(CDLConcealingBabySwallow, ConcealingBabySwallow);
+STRATFORGE_CANDLE_CLASS(CDLDojiStar, DojiStar);
+STRATFORGE_CANDLE_CLASS(CDLDragonflyDoji, DragonflyDoji);
+STRATFORGE_CANDLE_PENETRATION_CLASS(CDLEveningDojiStar, EveningDojiStar, 0.3);
+STRATFORGE_CANDLE_CLASS(CDLGapSideSideWhite, GapSideSideWhite);
+STRATFORGE_CANDLE_CLASS(CDLGravestoneDoji, GravestoneDoji);
+STRATFORGE_CANDLE_CLASS(CDLHaramiCross, HaramiCross);
+STRATFORGE_CANDLE_CLASS(CDLHighWave, HighWave);
+STRATFORGE_CANDLE_CLASS(CDLHikkake, Hikkake);
+STRATFORGE_CANDLE_CLASS(CDLModifiedHikkake, ModifiedHikkake);
+STRATFORGE_CANDLE_CLASS(CDLIdenticalThreeCrows, IdenticalThreeCrows);
+STRATFORGE_CANDLE_CLASS(CDLInNeck, InNeck);
+STRATFORGE_CANDLE_CLASS(CDLInvertedHammer, InvertedHammer);
+STRATFORGE_CANDLE_CLASS(CDLKickingByLength, KickingByLength);
+STRATFORGE_CANDLE_CLASS(CDLLadderBottom, LadderBottom);
+STRATFORGE_CANDLE_CLASS(CDLLongLeggedDoji, LongLeggedDoji);
+STRATFORGE_CANDLE_CLASS(CDLLongLine, LongLine);
+STRATFORGE_CANDLE_PENETRATION_CLASS(CDLMatHold, MatHold, 0.5);
+STRATFORGE_CANDLE_PENETRATION_CLASS(CDLMorningDojiStar, MorningDojiStar, 0.3);
+STRATFORGE_CANDLE_CLASS(CDLOnNeck, OnNeck);
+STRATFORGE_CANDLE_CLASS(CDLRickshawMan, RickshawMan);
+STRATFORGE_CANDLE_CLASS(CDLRiseFallThreeMethods, RiseFallThreeMethods);
+STRATFORGE_CANDLE_CLASS(CDLSeparatingLines, SeparatingLines);
+STRATFORGE_CANDLE_CLASS(CDLShortLine, ShortLine);
+STRATFORGE_CANDLE_CLASS(CDLStalledPattern, StalledPattern);
+STRATFORGE_CANDLE_CLASS(CDLStickSandwich, StickSandwich);
+STRATFORGE_CANDLE_CLASS(CDLTakuri, Takuri);
+STRATFORGE_CANDLE_CLASS(CDLThrusting, Thrusting);
+STRATFORGE_CANDLE_CLASS(CDLTristar, Tristar);
+STRATFORGE_CANDLE_CLASS(CDLUniqueThreeRiver, UniqueThreeRiver);
+STRATFORGE_CANDLE_CLASS(CDLXSideGapThreeMethods, XSideGapThreeMethods);
+
+#undef STRATFORGE_CANDLE_CLASS
+#undef STRATFORGE_CANDLE_PENETRATION_CLASS
 
 } // namespace stratforge

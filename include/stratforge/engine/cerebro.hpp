@@ -4,6 +4,7 @@
 #include <stratforge/broker/broker.hpp>
 #include <stratforge/corrective/candidate_collector.hpp>
 #include <stratforge/data/data_feed.hpp>
+#include <stratforge/data/epoch_time.hpp>
 #include <stratforge/data/interval.hpp>
 #include <stratforge/observers/increment_batcher.hpp>
 #include <stratforge/observers/observer.hpp>
@@ -393,8 +394,7 @@ public:
                             const auto& dt = data_feeds_[0]->datetime().data();
                             if (bar < dt.size()) {
                                 warmup_end_timestamp_ms_ =
-                                    std::chrono::duration_cast<std::chrono::milliseconds>(
-                                        dt[bar].time_since_epoch()).count();
+                                    datetime_to_epoch_milliseconds(dt[bar]);
                             }
                         }
                         strat->nextstart();

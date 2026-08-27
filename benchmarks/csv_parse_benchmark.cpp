@@ -36,10 +36,9 @@ std::pair<std::string, std::size_t> generate_csv(std::size_t num_rows) {
         double close = price_dist(rng);
         int volume = vol_dist(rng);
 
-        char date_buf[16];
-        std::snprintf(date_buf, sizeof(date_buf), "%04d-%02d-%02d", year, month, day);
-
-        out << date_buf << ','
+        out << std::setfill('0') << std::setw(4) << year << '-'
+            << std::setw(2) << month << '-' << std::setw(2) << day
+            << std::setfill(' ') << ','
             << open << ',' << high << ',' << low << ',' << close << ','
             << volume << ",0\n";
 

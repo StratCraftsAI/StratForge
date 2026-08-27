@@ -63,6 +63,7 @@
 #include <stratforge/indicators/pivotpoint.hpp>
 #include <stratforge/indicators/prettygoodoscillator.hpp>
 #include <stratforge/indicators/psar.hpp>
+#include <stratforge/indicators/qlib_kbar.hpp>
 #include <stratforge/indicators/roc_variants.hpp>
 #include <stratforge/indicators/rsi.hpp>
 #include <stratforge/indicators/sma.hpp>
@@ -643,29 +644,22 @@ inline Result resolve_generated(std::string_view identity,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLDoji" || identity == "Doji") {
-        for (const auto& [name, value] : parameters) {
-            static_cast<void>(value);
-            if (name != "body_threshold") {
-                return std::unexpected(Error{ErrorCode::InvalidParameter,
-                    "unknown parameter '" + name + "'"});
-            }
+    if (identity == "CDLDoji" || identity == "Doji" || identity == "CDLDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
         }
-        auto body_threshold_result = read_double(
-            parameters, "body_threshold", 0.05);
-        if (!body_threshold_result) return std::unexpected(body_threshold_result.error());
-        const auto body_threshold = *body_threshold_result;
         if (!(accessor == "line" || accessor == "line()")) {
             return std::unexpected(Error{ErrorCode::UnknownAccessor,
                 "unknown accessor: " + std::string(accessor)});
         }
-        stratforge::CDLDoji indicator(open, high, low, close, body_threshold);
+        stratforge::CDLDoji indicator(open, high, low, close);
         if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
         return std::unexpected(Error{ErrorCode::UnknownAccessor,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLEngulfing" || identity == "Engulfing") {
+    if (identity == "CDLEngulfing" || identity == "Engulfing" || identity == "CDLENGULFING") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -680,22 +674,29 @@ inline Result resolve_generated(std::string_view identity,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLEveningStar" || identity == "EveningStar") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+    if (identity == "CDLEveningStar" || identity == "EveningStar" || identity == "CDLEVENINGSTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
         if (!(accessor == "line" || accessor == "line()")) {
             return std::unexpected(Error{ErrorCode::UnknownAccessor,
                 "unknown accessor: " + std::string(accessor)});
         }
-        stratforge::CDLEveningStar indicator(open, high, low, close);
+        stratforge::CDLEveningStar indicator(open, high, low, close, penetration);
         if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
         return std::unexpected(Error{ErrorCode::UnknownAccessor,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLHammer" || identity == "Hammer") {
+    if (identity == "CDLHammer" || identity == "Hammer" || identity == "CDLHAMMER") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -710,7 +711,7 @@ inline Result resolve_generated(std::string_view identity,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLHangingMan" || identity == "HangingMan") {
+    if (identity == "CDLHangingMan" || identity == "HangingMan" || identity == "CDLHANGINGMAN") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -725,7 +726,7 @@ inline Result resolve_generated(std::string_view identity,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLHarami" || identity == "Harami") {
+    if (identity == "CDLHarami" || identity == "Harami" || identity == "CDLHARAMI") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -740,7 +741,7 @@ inline Result resolve_generated(std::string_view identity,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLMarubozu" || identity == "Marubozu") {
+    if (identity == "CDLMarubozu" || identity == "Marubozu" || identity == "CDLMARUBOZU") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -755,22 +756,29 @@ inline Result resolve_generated(std::string_view identity,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLMorningStar" || identity == "MorningStar") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+    if (identity == "CDLMorningStar" || identity == "MorningStar" || identity == "CDLMORNINGSTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
         if (!(accessor == "line" || accessor == "line()")) {
             return std::unexpected(Error{ErrorCode::UnknownAccessor,
                 "unknown accessor: " + std::string(accessor)});
         }
-        stratforge::CDLMorningStar indicator(open, high, low, close);
+        stratforge::CDLMorningStar indicator(open, high, low, close, penetration);
         if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
         return std::unexpected(Error{ErrorCode::UnknownAccessor,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLShootingStar" || identity == "ShootingStar") {
+    if (identity == "CDLShootingStar" || identity == "ShootingStar" || identity == "CDLSHOOTINGSTAR") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -785,7 +793,7 @@ inline Result resolve_generated(std::string_view identity,
             "unknown accessor: " + std::string(accessor)});
     }
 
-    if (identity == "CDLSpinningTop" || identity == "SpinningTop") {
+    if (identity == "CDLSpinningTop" || identity == "SpinningTop" || identity == "CDLSPINNINGTOP") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -846,30 +854,44 @@ inline Result resolve_generated(std::string_view identity,
     }
 
     if (identity == "CDLDarkCloudCover" || identity == "DarkCloudCover" || identity == "CDLDARKCLOUDCOVER") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.5);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
         if (!(accessor == "line" || accessor == "line()")) {
             return std::unexpected(Error{ErrorCode::UnknownAccessor,
                 "unknown accessor: " + std::string(accessor)});
         }
-        stratforge::CDLDarkCloudCover indicator(open, high, low, close);
+        stratforge::CDLDarkCloudCover indicator(open, high, low, close, penetration);
         if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
         return std::unexpected(Error{ErrorCode::UnknownAccessor,
             "unknown accessor: " + std::string(accessor)});
     }
 
     if (identity == "CDLAbandonedBaby" || identity == "AbandonedBaby" || identity == "CDLABANDONEDBABY") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
         if (!(accessor == "line" || accessor == "line()")) {
             return std::unexpected(Error{ErrorCode::UnknownAccessor,
                 "unknown accessor: " + std::string(accessor)});
         }
-        stratforge::CDLAbandonedBaby indicator(open, high, low, close);
+        stratforge::CDLAbandonedBaby indicator(open, high, low, close, penetration);
         if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
         return std::unexpected(Error{ErrorCode::UnknownAccessor,
             "unknown accessor: " + std::string(accessor)});
@@ -2428,6 +2450,141 @@ inline Result resolve_generated(std::string_view identity,
         if (accessor == "senkou_span_a" || accessor == "senkou_span_a()") return accessor_period(indicator, "senkou_span_a");
         if (accessor == "senkou_span_b" || accessor == "senkou_span_b()") return accessor_period(indicator, "senkou_span_b");
         if (accessor == "chikou_span" || accessor == "chikou_span()") return accessor_period(indicator, "chikou_span");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KLEN" || identity == "KLen") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KLEN indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KLOW" || identity == "KLow") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KLOW indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KLOW2" || identity == "KLow2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KLOW2 indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KMID" || identity == "KMid") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KMID indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KMID2" || identity == "KMid2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KMID2 indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KSFT" || identity == "KSft") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KSFT indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KSFT2" || identity == "KSft2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KSFT2 indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KUP" || identity == "KUp") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KUP indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "KUP2" || identity == "KUp2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::KUP2 indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
         return std::unexpected(Error{ErrorCode::UnknownAccessor,
             "unknown accessor: " + std::string(accessor)});
     }
@@ -5656,6 +5813,582 @@ inline Result resolve_generated(std::string_view identity,
             "unknown accessor: " + std::string(accessor)});
     }
 
+    if (identity == "CDLTwoCrows" || identity == "TwoCrows" || identity == "CDL2CROWS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLTwoCrows indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLThreeLineStrike" || identity == "ThreeLineStrike" || identity == "CDL3LINESTRIKE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLThreeLineStrike indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLThreeStarsInSouth" || identity == "ThreeStarsInTheSouth" || identity == "CDL3STARSINSOUTH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLThreeStarsInSouth indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLAdvanceBlock" || identity == "AdvanceBlock" || identity == "CDLADVANCEBLOCK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLAdvanceBlock indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLBreakaway" || identity == "Breakaway" || identity == "CDLBREAKAWAY") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLBreakaway indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLClosingMarubozu" || identity == "ClosingMarubozu" || identity == "CDLCLOSINGMARUBOZU") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLClosingMarubozu indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLConcealingBabySwallow" || identity == "ConcealingBabySwallow" || identity == "CDLCONCEALBABYSWALL") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLConcealingBabySwallow indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLDojiStar" || identity == "DojiStar" || identity == "CDLDOJISTAR") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLDojiStar indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLDragonflyDoji" || identity == "DragonflyDoji" || identity == "CDLDRAGONFLYDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLDragonflyDoji indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLEveningDojiStar" || identity == "EveningDojiStar" || identity == "CDLEVENINGDOJISTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLEveningDojiStar indicator(open, high, low, close, penetration);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLGapSideSideWhite" || identity == "UpDowngapSidebysideWhiteLines" || identity == "CDLGAPSIDESIDEWHITE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLGapSideSideWhite indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLGravestoneDoji" || identity == "GravestoneDoji" || identity == "CDLGRAVESTONEDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLGravestoneDoji indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLHaramiCross" || identity == "HaramiCross" || identity == "CDLHARAMICROSS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLHaramiCross indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLHighWave" || identity == "HighWaveCandle" || identity == "CDLHIGHWAVE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLHighWave indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLHikkake" || identity == "Hikkake" || identity == "CDLHIKKAKE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLHikkake indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLModifiedHikkake" || identity == "ModifiedHikkake" || identity == "CDLHIKKAKEMOD") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLModifiedHikkake indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLIdenticalThreeCrows" || identity == "IdenticalThreeCrows" || identity == "CDLIDENTICAL3CROWS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLIdenticalThreeCrows indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLInNeck" || identity == "InNeck" || identity == "CDLINNECK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLInNeck indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLInvertedHammer" || identity == "InvertedHammer" || identity == "CDLINVERTEDHAMMER") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLInvertedHammer indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLKickingByLength" || identity == "KickingByLength" || identity == "CDLKICKINGBYLENGTH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLKickingByLength indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLLadderBottom" || identity == "LadderBottom" || identity == "CDLLADDERBOTTOM") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLLadderBottom indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLLongLeggedDoji" || identity == "LongLeggedDoji" || identity == "CDLLONGLEGGEDDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLLongLeggedDoji indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLLongLine" || identity == "LongLineCandle" || identity == "CDLLONGLINE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLLongLine indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLMatHold" || identity == "MatHold" || identity == "CDLMATHOLD") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.5);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLMatHold indicator(open, high, low, close, penetration);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLMorningDojiStar" || identity == "MorningDojiStar" || identity == "CDLMORNINGDOJISTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLMorningDojiStar indicator(open, high, low, close, penetration);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLOnNeck" || identity == "OnNeck" || identity == "CDLONNECK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLOnNeck indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLRickshawMan" || identity == "RickshawMan" || identity == "CDLRICKSHAWMAN") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLRickshawMan indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLRiseFallThreeMethods" || identity == "RisingFallingThreeMethods" || identity == "CDLRISEFALL3METHODS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLRiseFallThreeMethods indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLSeparatingLines" || identity == "SeparatingLines" || identity == "CDLSEPARATINGLINES") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLSeparatingLines indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLShortLine" || identity == "ShortLineCandle" || identity == "CDLSHORTLINE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLShortLine indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLStalledPattern" || identity == "StalledPattern" || identity == "CDLSTALLEDPATTERN") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLStalledPattern indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLStickSandwich" || identity == "StickSandwich" || identity == "CDLSTICKSANDWICH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLStickSandwich indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLTakuri" || identity == "Takuri" || identity == "CDLTAKURI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLTakuri indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLThrusting" || identity == "ThrustingPattern" || identity == "CDLTHRUSTING") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLThrusting indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLTristar" || identity == "TristarPattern" || identity == "CDLTRISTAR") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLTristar indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLUniqueThreeRiver" || identity == "UniqueThreeRiver" || identity == "CDLUNIQUE3RIVER") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLUniqueThreeRiver indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CDLXSideGapThreeMethods" || identity == "UpsideDownsideGapThreeMethods" || identity == "CDLXSIDEGAP3METHODS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "line" || accessor == "line()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CDLXSideGapThreeMethods indicator(open, high, low, close);
+        if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
     return std::unexpected(Error{ErrorCode::UnknownIndicator,
         "unknown indicator: " + std::string(identity)});
 }
@@ -5984,23 +6717,16 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLDoji" || identity == "Doji") {
-        for (const auto& [name, value] : parameters) {
-            static_cast<void>(value);
-            if (name != "body_threshold") {
-                return std::unexpected(Error{ErrorCode::InvalidParameter,
-                    "unknown parameter '" + name + "'"});
-            }
+    if (identity == "CDLDoji" || identity == "Doji" || identity == "CDLDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
         }
-        auto body_threshold_result = read_double(
-            parameters, "body_threshold", 0.05);
-        if (!body_threshold_result) return std::unexpected(body_threshold_result.error());
-        const auto body_threshold = *body_threshold_result;
-        stratforge::CDLDoji indicator(open, high, low, close, body_threshold);
+        stratforge::CDLDoji indicator(open, high, low, close);
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLEngulfing" || identity == "Engulfing") {
+    if (identity == "CDLEngulfing" || identity == "Engulfing" || identity == "CDLENGULFING") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -6009,16 +6735,23 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLEveningStar" || identity == "EveningStar") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+    if (identity == "CDLEveningStar" || identity == "EveningStar" || identity == "CDLEVENINGSTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
-        stratforge::CDLEveningStar indicator(open, high, low, close);
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLEveningStar indicator(open, high, low, close, penetration);
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLHammer" || identity == "Hammer") {
+    if (identity == "CDLHammer" || identity == "Hammer" || identity == "CDLHAMMER") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -6027,7 +6760,7 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLHangingMan" || identity == "HangingMan") {
+    if (identity == "CDLHangingMan" || identity == "HangingMan" || identity == "CDLHANGINGMAN") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -6036,7 +6769,7 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLHarami" || identity == "Harami") {
+    if (identity == "CDLHarami" || identity == "Harami" || identity == "CDLHARAMI") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -6045,7 +6778,7 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLMarubozu" || identity == "Marubozu") {
+    if (identity == "CDLMarubozu" || identity == "Marubozu" || identity == "CDLMARUBOZU") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -6054,16 +6787,23 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLMorningStar" || identity == "MorningStar") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+    if (identity == "CDLMorningStar" || identity == "MorningStar" || identity == "CDLMORNINGSTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
-        stratforge::CDLMorningStar indicator(open, high, low, close);
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLMorningStar indicator(open, high, low, close, penetration);
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLShootingStar" || identity == "ShootingStar") {
+    if (identity == "CDLShootingStar" || identity == "ShootingStar" || identity == "CDLSHOOTINGSTAR") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -6072,7 +6812,7 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
-    if (identity == "CDLSpinningTop" || identity == "SpinningTop") {
+    if (identity == "CDLSpinningTop" || identity == "SpinningTop" || identity == "CDLSPINNINGTOP") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -6109,20 +6849,34 @@ inline Result aggregate_generated(std::string_view identity,
     }
 
     if (identity == "CDLDarkCloudCover" || identity == "DarkCloudCover" || identity == "CDLDARKCLOUDCOVER") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
-        stratforge::CDLDarkCloudCover indicator(open, high, low, close);
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.5);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLDarkCloudCover indicator(open, high, low, close, penetration);
         return indicator.minimum_period();
     }
 
     if (identity == "CDLAbandonedBaby" || identity == "AbandonedBaby" || identity == "CDLABANDONEDBABY") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
-        stratforge::CDLAbandonedBaby indicator(open, high, low, close);
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLAbandonedBaby indicator(open, high, low, close, penetration);
         return indicator.minimum_period();
     }
 
@@ -7048,6 +7802,87 @@ inline Result aggregate_generated(std::string_view identity,
         if (!chikou_result) return std::unexpected(chikou_result.error());
         const auto chikou = *chikou_result;
         stratforge::Ichimoku indicator(high, low, close, tenkan, kijun, senkou, senkou_lead, chikou);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KLEN" || identity == "KLen") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KLEN indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KLOW" || identity == "KLow") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KLOW indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KLOW2" || identity == "KLow2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KLOW2 indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KMID" || identity == "KMid") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KMID indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KMID2" || identity == "KMid2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KMID2 indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KSFT" || identity == "KSft") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KSFT indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KSFT2" || identity == "KSft2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KSFT2 indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KUP" || identity == "KUp") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KUP indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "KUP2" || identity == "KUp2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KUP2 indicator(open, high, low, close);
         return indicator.minimum_period();
     }
 
@@ -8990,6 +9825,360 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
+    if (identity == "CDLTwoCrows" || identity == "TwoCrows" || identity == "CDL2CROWS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLTwoCrows indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLThreeLineStrike" || identity == "ThreeLineStrike" || identity == "CDL3LINESTRIKE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLThreeLineStrike indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLThreeStarsInSouth" || identity == "ThreeStarsInTheSouth" || identity == "CDL3STARSINSOUTH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLThreeStarsInSouth indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLAdvanceBlock" || identity == "AdvanceBlock" || identity == "CDLADVANCEBLOCK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLAdvanceBlock indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLBreakaway" || identity == "Breakaway" || identity == "CDLBREAKAWAY") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLBreakaway indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLClosingMarubozu" || identity == "ClosingMarubozu" || identity == "CDLCLOSINGMARUBOZU") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLClosingMarubozu indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLConcealingBabySwallow" || identity == "ConcealingBabySwallow" || identity == "CDLCONCEALBABYSWALL") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLConcealingBabySwallow indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLDojiStar" || identity == "DojiStar" || identity == "CDLDOJISTAR") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLDojiStar indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLDragonflyDoji" || identity == "DragonflyDoji" || identity == "CDLDRAGONFLYDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLDragonflyDoji indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLEveningDojiStar" || identity == "EveningDojiStar" || identity == "CDLEVENINGDOJISTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLEveningDojiStar indicator(open, high, low, close, penetration);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLGapSideSideWhite" || identity == "UpDowngapSidebysideWhiteLines" || identity == "CDLGAPSIDESIDEWHITE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLGapSideSideWhite indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLGravestoneDoji" || identity == "GravestoneDoji" || identity == "CDLGRAVESTONEDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLGravestoneDoji indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLHaramiCross" || identity == "HaramiCross" || identity == "CDLHARAMICROSS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLHaramiCross indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLHighWave" || identity == "HighWaveCandle" || identity == "CDLHIGHWAVE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLHighWave indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLHikkake" || identity == "Hikkake" || identity == "CDLHIKKAKE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLHikkake indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLModifiedHikkake" || identity == "ModifiedHikkake" || identity == "CDLHIKKAKEMOD") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLModifiedHikkake indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLIdenticalThreeCrows" || identity == "IdenticalThreeCrows" || identity == "CDLIDENTICAL3CROWS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLIdenticalThreeCrows indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLInNeck" || identity == "InNeck" || identity == "CDLINNECK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLInNeck indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLInvertedHammer" || identity == "InvertedHammer" || identity == "CDLINVERTEDHAMMER") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLInvertedHammer indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLKickingByLength" || identity == "KickingByLength" || identity == "CDLKICKINGBYLENGTH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLKickingByLength indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLLadderBottom" || identity == "LadderBottom" || identity == "CDLLADDERBOTTOM") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLLadderBottom indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLLongLeggedDoji" || identity == "LongLeggedDoji" || identity == "CDLLONGLEGGEDDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLLongLeggedDoji indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLLongLine" || identity == "LongLineCandle" || identity == "CDLLONGLINE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLLongLine indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLMatHold" || identity == "MatHold" || identity == "CDLMATHOLD") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.5);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLMatHold indicator(open, high, low, close, penetration);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLMorningDojiStar" || identity == "MorningDojiStar" || identity == "CDLMORNINGDOJISTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLMorningDojiStar indicator(open, high, low, close, penetration);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLOnNeck" || identity == "OnNeck" || identity == "CDLONNECK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLOnNeck indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLRickshawMan" || identity == "RickshawMan" || identity == "CDLRICKSHAWMAN") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLRickshawMan indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLRiseFallThreeMethods" || identity == "RisingFallingThreeMethods" || identity == "CDLRISEFALL3METHODS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLRiseFallThreeMethods indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLSeparatingLines" || identity == "SeparatingLines" || identity == "CDLSEPARATINGLINES") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLSeparatingLines indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLShortLine" || identity == "ShortLineCandle" || identity == "CDLSHORTLINE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLShortLine indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLStalledPattern" || identity == "StalledPattern" || identity == "CDLSTALLEDPATTERN") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLStalledPattern indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLStickSandwich" || identity == "StickSandwich" || identity == "CDLSTICKSANDWICH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLStickSandwich indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLTakuri" || identity == "Takuri" || identity == "CDLTAKURI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLTakuri indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLThrusting" || identity == "ThrustingPattern" || identity == "CDLTHRUSTING") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLThrusting indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLTristar" || identity == "TristarPattern" || identity == "CDLTRISTAR") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLTristar indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLUniqueThreeRiver" || identity == "UniqueThreeRiver" || identity == "CDLUNIQUE3RIVER") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLUniqueThreeRiver indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CDLXSideGapThreeMethods" || identity == "UpsideDownsideGapThreeMethods" || identity == "CDLXSIDEGAP3METHODS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLXSideGapThreeMethods indicator(open, high, low, close);
+        return indicator.minimum_period();
+    }
+
     return std::unexpected(Error{ErrorCode::UnknownIndicator,
         "unknown indicator: " + std::string(identity)});
 }
@@ -9907,19 +11096,12 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLDoji" || identity == "Doji") {
-        for (const auto& [name, value] : parameters) {
-            static_cast<void>(value);
-            if (name != "body_threshold") {
-                return std::unexpected(Error{ErrorCode::InvalidParameter,
-                    "unknown parameter '" + name + "'"});
-            }
+    if (identity == "CDLDoji" || identity == "Doji" || identity == "CDLDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
         }
-        auto body_threshold_result = read_double(
-            parameters, "body_threshold", 0.05);
-        if (!body_threshold_result) return std::unexpected(body_threshold_result.error());
-        const auto body_threshold = *body_threshold_result;
-        stratforge::CDLDoji indicator(open, high, low, close, body_threshold);
+        stratforge::CDLDoji indicator(open, high, low, close);
         const auto aggregate = indicator.minimum_period();
         if (aggregate > 100000) {
             return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
@@ -9948,7 +11130,7 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLEngulfing" || identity == "Engulfing") {
+    if (identity == "CDLEngulfing" || identity == "Engulfing" || identity == "CDLENGULFING") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -9982,12 +11164,19 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLEveningStar" || identity == "EveningStar") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+    if (identity == "CDLEveningStar" || identity == "EveningStar" || identity == "CDLEVENINGSTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
-        stratforge::CDLEveningStar indicator(open, high, low, close);
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLEveningStar indicator(open, high, low, close, penetration);
         const auto aggregate = indicator.minimum_period();
         if (aggregate > 100000) {
             return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
@@ -10016,7 +11205,7 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLHammer" || identity == "Hammer") {
+    if (identity == "CDLHammer" || identity == "Hammer" || identity == "CDLHAMMER") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -10050,7 +11239,7 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLHangingMan" || identity == "HangingMan") {
+    if (identity == "CDLHangingMan" || identity == "HangingMan" || identity == "CDLHANGINGMAN") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -10084,7 +11273,7 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLHarami" || identity == "Harami") {
+    if (identity == "CDLHarami" || identity == "Harami" || identity == "CDLHARAMI") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -10118,7 +11307,7 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLMarubozu" || identity == "Marubozu") {
+    if (identity == "CDLMarubozu" || identity == "Marubozu" || identity == "CDLMARUBOZU") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -10152,12 +11341,19 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLMorningStar" || identity == "MorningStar") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+    if (identity == "CDLMorningStar" || identity == "MorningStar" || identity == "CDLMORNINGSTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
-        stratforge::CDLMorningStar indicator(open, high, low, close);
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLMorningStar indicator(open, high, low, close, penetration);
         const auto aggregate = indicator.minimum_period();
         if (aggregate > 100000) {
             return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
@@ -10186,7 +11382,7 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLShootingStar" || identity == "ShootingStar") {
+    if (identity == "CDLShootingStar" || identity == "ShootingStar" || identity == "CDLSHOOTINGSTAR") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -10220,7 +11416,7 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
-    if (identity == "CDLSpinningTop" || identity == "SpinningTop") {
+    if (identity == "CDLSpinningTop" || identity == "SpinningTop" || identity == "CDLSPINNINGTOP") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
                 "indicator accepts no constructor parameters"});
@@ -10357,11 +11553,18 @@ inline Result observed_readiness_generated(std::string_view identity,
     }
 
     if (identity == "CDLDarkCloudCover" || identity == "DarkCloudCover" || identity == "CDLDARKCLOUDCOVER") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
-        stratforge::CDLDarkCloudCover indicator(open, high, low, close);
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.5);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLDarkCloudCover indicator(open, high, low, close, penetration);
         const auto aggregate = indicator.minimum_period();
         if (aggregate > 100000) {
             return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
@@ -10391,11 +11594,18 @@ inline Result observed_readiness_generated(std::string_view identity,
     }
 
     if (identity == "CDLAbandonedBaby" || identity == "AbandonedBaby" || identity == "CDLABANDONEDBABY") {
-        if (!parameters.empty()) {
-            return std::unexpected(Error{ErrorCode::InvalidParameter,
-                "indicator accepts no constructor parameters"});
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
         }
-        stratforge::CDLAbandonedBaby indicator(open, high, low, close);
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLAbandonedBaby indicator(open, high, low, close, penetration);
         const auto aggregate = indicator.minimum_period();
         if (aggregate > 100000) {
             return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
@@ -13061,6 +14271,312 @@ inline Result observed_readiness_generated(std::string_view identity,
             if (accessor == "chikou_span" || accessor == "chikou_span()") {
                 const auto& output = indicator.chikou_span();
                 const auto ready_at = accessor_period(indicator, "chikou_span");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KLEN" || identity == "KLen") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KLEN indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KLOW" || identity == "KLow") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KLOW indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KLOW2" || identity == "KLow2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KLOW2 indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KMID" || identity == "KMid") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KMID indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KMID2" || identity == "KMid2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KMID2 indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KSFT" || identity == "KSft") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KSFT indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KSFT2" || identity == "KSft2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KSFT2 indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KUP" || identity == "KUp") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KUP indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "KUP2" || identity == "KUp2") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::KUP2 indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
                 if (bar + 1 == ready_at && !output.empty()) {
                     static_cast<void>(output[0]);
                     return bar + 1;
@@ -18234,6 +19750,1285 @@ inline Result observed_readiness_generated(std::string_view identity,
             "deterministic runtime probe did not observe structural readiness"});
     }
 
+    if (identity == "CDLTwoCrows" || identity == "TwoCrows" || identity == "CDL2CROWS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLTwoCrows indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLThreeLineStrike" || identity == "ThreeLineStrike" || identity == "CDL3LINESTRIKE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLThreeLineStrike indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLThreeStarsInSouth" || identity == "ThreeStarsInTheSouth" || identity == "CDL3STARSINSOUTH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLThreeStarsInSouth indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLAdvanceBlock" || identity == "AdvanceBlock" || identity == "CDLADVANCEBLOCK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLAdvanceBlock indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLBreakaway" || identity == "Breakaway" || identity == "CDLBREAKAWAY") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLBreakaway indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLClosingMarubozu" || identity == "ClosingMarubozu" || identity == "CDLCLOSINGMARUBOZU") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLClosingMarubozu indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLConcealingBabySwallow" || identity == "ConcealingBabySwallow" || identity == "CDLCONCEALBABYSWALL") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLConcealingBabySwallow indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLDojiStar" || identity == "DojiStar" || identity == "CDLDOJISTAR") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLDojiStar indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLDragonflyDoji" || identity == "DragonflyDoji" || identity == "CDLDRAGONFLYDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLDragonflyDoji indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLEveningDojiStar" || identity == "EveningDojiStar" || identity == "CDLEVENINGDOJISTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLEveningDojiStar indicator(open, high, low, close, penetration);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLGapSideSideWhite" || identity == "UpDowngapSidebysideWhiteLines" || identity == "CDLGAPSIDESIDEWHITE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLGapSideSideWhite indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLGravestoneDoji" || identity == "GravestoneDoji" || identity == "CDLGRAVESTONEDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLGravestoneDoji indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLHaramiCross" || identity == "HaramiCross" || identity == "CDLHARAMICROSS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLHaramiCross indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLHighWave" || identity == "HighWaveCandle" || identity == "CDLHIGHWAVE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLHighWave indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLHikkake" || identity == "Hikkake" || identity == "CDLHIKKAKE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLHikkake indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLModifiedHikkake" || identity == "ModifiedHikkake" || identity == "CDLHIKKAKEMOD") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLModifiedHikkake indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLIdenticalThreeCrows" || identity == "IdenticalThreeCrows" || identity == "CDLIDENTICAL3CROWS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLIdenticalThreeCrows indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLInNeck" || identity == "InNeck" || identity == "CDLINNECK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLInNeck indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLInvertedHammer" || identity == "InvertedHammer" || identity == "CDLINVERTEDHAMMER") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLInvertedHammer indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLKickingByLength" || identity == "KickingByLength" || identity == "CDLKICKINGBYLENGTH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLKickingByLength indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLLadderBottom" || identity == "LadderBottom" || identity == "CDLLADDERBOTTOM") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLLadderBottom indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLLongLeggedDoji" || identity == "LongLeggedDoji" || identity == "CDLLONGLEGGEDDOJI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLLongLeggedDoji indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLLongLine" || identity == "LongLineCandle" || identity == "CDLLONGLINE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLLongLine indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLMatHold" || identity == "MatHold" || identity == "CDLMATHOLD") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.5);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLMatHold indicator(open, high, low, close, penetration);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLMorningDojiStar" || identity == "MorningDojiStar" || identity == "CDLMORNINGDOJISTAR") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "penetration") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto penetration_result = read_double(
+            parameters, "penetration", 0.3);
+        if (!penetration_result) return std::unexpected(penetration_result.error());
+        const auto penetration = *penetration_result;
+        stratforge::CDLMorningDojiStar indicator(open, high, low, close, penetration);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLOnNeck" || identity == "OnNeck" || identity == "CDLONNECK") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLOnNeck indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLRickshawMan" || identity == "RickshawMan" || identity == "CDLRICKSHAWMAN") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLRickshawMan indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLRiseFallThreeMethods" || identity == "RisingFallingThreeMethods" || identity == "CDLRISEFALL3METHODS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLRiseFallThreeMethods indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLSeparatingLines" || identity == "SeparatingLines" || identity == "CDLSEPARATINGLINES") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLSeparatingLines indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLShortLine" || identity == "ShortLineCandle" || identity == "CDLSHORTLINE") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLShortLine indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLStalledPattern" || identity == "StalledPattern" || identity == "CDLSTALLEDPATTERN") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLStalledPattern indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLStickSandwich" || identity == "StickSandwich" || identity == "CDLSTICKSANDWICH") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLStickSandwich indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLTakuri" || identity == "Takuri" || identity == "CDLTAKURI") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLTakuri indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLThrusting" || identity == "ThrustingPattern" || identity == "CDLTHRUSTING") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLThrusting indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLTristar" || identity == "TristarPattern" || identity == "CDLTRISTAR") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLTristar indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLUniqueThreeRiver" || identity == "UniqueThreeRiver" || identity == "CDLUNIQUE3RIVER") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLUniqueThreeRiver indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CDLXSideGapThreeMethods" || identity == "UpsideDownsideGapThreeMethods" || identity == "CDLXSIDEGAP3METHODS") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::CDLXSideGapThreeMethods indicator(open, high, low, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "line" || accessor == "line()") {
+                const auto& output = indicator.line();
+                const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
     return std::unexpected(Error{ErrorCode::UnknownIndicator,
         "unknown indicator: " + std::string(identity)});
 }
@@ -18260,21 +21055,21 @@ inline std::span<const IndicatorDescriptor> descriptors_generated() {
         IndicatorDescriptor{"BollingerBands", {"BollingerBands", "BBands", "BB", "BBANDS"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{20}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"devfactor", ParameterType::Double, Parameter{double{2.0}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"mid", "top", "bottom"}},
         IndicatorDescriptor{"BollingerBandsPct", {"BollingerBandsPct", "BBandsPct", "BollingerBandBandwidth", "BBANDSPCT"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{20}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"devfactor", ParameterType::Double, Parameter{double{2.0}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"mid", "top", "bottom", "pctb"}},
         IndicatorDescriptor{"CCI", {"CCI", "CommodityChannelIndex", "COMMODITYCHANNELINDEX"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{20}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"factor", ParameterType::Double, Parameter{double{0.015}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
-        IndicatorDescriptor{"CDLDoji", {"CDLDoji", "Doji"}, {ParameterDescriptor{"body_threshold", ParameterType::Double, Parameter{double{0.05}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
-        IndicatorDescriptor{"CDLEngulfing", {"CDLEngulfing", "Engulfing"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLEveningStar", {"CDLEveningStar", "EveningStar"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLHammer", {"CDLHammer", "Hammer"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLHangingMan", {"CDLHangingMan", "HangingMan"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLHarami", {"CDLHarami", "Harami"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLMarubozu", {"CDLMarubozu", "Marubozu"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLMorningStar", {"CDLMorningStar", "MorningStar"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLShootingStar", {"CDLShootingStar", "ShootingStar"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLSpinningTop", {"CDLSpinningTop", "SpinningTop"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLDoji", {"CDLDoji", "Doji", "CDLDOJI"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLEngulfing", {"CDLEngulfing", "Engulfing", "CDLENGULFING"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLEveningStar", {"CDLEveningStar", "EveningStar", "CDLEVENINGSTAR"}, {ParameterDescriptor{"penetration", ParameterType::Double, Parameter{double{0.3}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
+        IndicatorDescriptor{"CDLHammer", {"CDLHammer", "Hammer", "CDLHAMMER"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLHangingMan", {"CDLHangingMan", "HangingMan", "CDLHANGINGMAN"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLHarami", {"CDLHarami", "Harami", "CDLHARAMI"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLMarubozu", {"CDLMarubozu", "Marubozu", "CDLMARUBOZU"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLMorningStar", {"CDLMorningStar", "MorningStar", "CDLMORNINGSTAR"}, {ParameterDescriptor{"penetration", ParameterType::Double, Parameter{double{0.3}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
+        IndicatorDescriptor{"CDLShootingStar", {"CDLShootingStar", "ShootingStar", "CDLSHOOTINGSTAR"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLSpinningTop", {"CDLSpinningTop", "SpinningTop", "CDLSPINNINGTOP"}, {}, {"line"}},
         IndicatorDescriptor{"CDLThreeWhiteSoldiers", {"CDLThreeWhiteSoldiers", "ThreeWhiteSoldiers", "CDL3WHITESOLDIERS"}, {}, {"line"}},
         IndicatorDescriptor{"CDLThreeBlackCrows", {"CDLThreeBlackCrows", "ThreeBlackCrows", "CDL3BLACKCROWS"}, {}, {"line"}},
         IndicatorDescriptor{"CDLPiercingLine", {"CDLPiercingLine", "PiercingLine", "CDLPIERCING"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLDarkCloudCover", {"CDLDarkCloudCover", "DarkCloudCover", "CDLDARKCLOUDCOVER"}, {}, {"line"}},
-        IndicatorDescriptor{"CDLAbandonedBaby", {"CDLAbandonedBaby", "AbandonedBaby", "CDLABANDONEDBABY"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLDarkCloudCover", {"CDLDarkCloudCover", "DarkCloudCover", "CDLDARKCLOUDCOVER"}, {ParameterDescriptor{"penetration", ParameterType::Double, Parameter{double{0.5}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
+        IndicatorDescriptor{"CDLAbandonedBaby", {"CDLAbandonedBaby", "AbandonedBaby", "CDLABANDONEDBABY"}, {ParameterDescriptor{"penetration", ParameterType::Double, Parameter{double{0.3}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
         IndicatorDescriptor{"CDLThreeInside", {"CDLThreeInside", "ThreeInside", "CDL3INSIDE"}, {}, {"line"}},
         IndicatorDescriptor{"CDLThreeOutside", {"CDLThreeOutside", "ThreeOutside", "CDL3OUTSIDE"}, {}, {"line"}},
         IndicatorDescriptor{"CDLKicking", {"CDLKicking", "Kicking", "CDLKICKING"}, {}, {"line"}},
@@ -18333,6 +21128,15 @@ inline std::span<const IndicatorDescriptor> descriptors_generated() {
         IndicatorDescriptor{"Highest", {"Highest", "HighestValue"}, {ParameterDescriptor{"period", ParameterType::Int, Parameter{std::int64_t{14}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
         IndicatorDescriptor{"HurstExponent", {"HurstExponent", "Hurst", "HURST"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{40}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"lag_start", ParameterType::Size, Parameter{std::uint64_t{2}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"lag_end", ParameterType::Size, Parameter{std::uint64_t{0}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
         IndicatorDescriptor{"Ichimoku", {"Ichimoku", "IchimokuCloud", "ICHIMOKUCLOUD"}, {ParameterDescriptor{"tenkan", ParameterType::Size, Parameter{std::uint64_t{9}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"kijun", ParameterType::Size, Parameter{std::uint64_t{26}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"senkou", ParameterType::Size, Parameter{std::uint64_t{52}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"senkou_lead", ParameterType::Size, Parameter{std::uint64_t{26}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"chikou", ParameterType::Size, Parameter{std::uint64_t{26}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"tenkan_sen", "kijun_sen", "senkou_span_a", "senkou_span_b", "chikou_span"}},
+        IndicatorDescriptor{"KLEN", {"KLEN", "KLen"}, {}, {"line"}},
+        IndicatorDescriptor{"KLOW", {"KLOW", "KLow"}, {}, {"line"}},
+        IndicatorDescriptor{"KLOW2", {"KLOW2", "KLow2"}, {}, {"line"}},
+        IndicatorDescriptor{"KMID", {"KMID", "KMid"}, {}, {"line"}},
+        IndicatorDescriptor{"KMID2", {"KMID2", "KMid2"}, {}, {"line"}},
+        IndicatorDescriptor{"KSFT", {"KSFT", "KSft"}, {}, {"line"}},
+        IndicatorDescriptor{"KSFT2", {"KSFT2", "KSft2"}, {}, {"line"}},
+        IndicatorDescriptor{"KUP", {"KUP", "KUp"}, {}, {"line"}},
+        IndicatorDescriptor{"KUP2", {"KUP2", "KUp2"}, {}, {"line"}},
         IndicatorDescriptor{"KAMA", {"KAMA", "KaufmanAdaptiveMovingAverage", "ADAPTIVEMOVINGAVERAGE", "KAUFMANADAPTIVEMOVINGAVERAGE"}, {ParameterDescriptor{"period", ParameterType::Int, Parameter{std::int64_t{14}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"fast", ParameterType::Int, Parameter{std::int64_t{2}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"slow", ParameterType::Int, Parameter{std::int64_t{30}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
         IndicatorDescriptor{"KAMAEnvelope", {"KAMAEnvelope", "AdaptiveMovingAverageEnvelope"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{30}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"fast", ParameterType::Size, Parameter{std::uint64_t{2}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"slow", ParameterType::Size, Parameter{std::uint64_t{30}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"perc", ParameterType::Double, Parameter{double{2.5}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"src", "top", "bottom"}},
         IndicatorDescriptor{"KAMAOscillator", {"KAMAOscillator", "AdaptiveMovingAverageOscillator"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{30}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"fast", ParameterType::Size, Parameter{std::uint64_t{2}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"slow", ParameterType::Size, Parameter{std::uint64_t{30}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
@@ -18445,6 +21249,43 @@ inline std::span<const IndicatorDescriptor> descriptors_generated() {
         IndicatorDescriptor{"ZeroLagIndicatorOsc", {"ZeroLagIndicatorOsc", "ZeroLagIndicatorOscillator", "ZLIndicatorOscillator", "ECOscillator"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{20}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"gainlimit", ParameterType::Int, Parameter{std::int64_t{50}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
         IndicatorDescriptor{"ZigZag", {"ZigZag", "PercentThresholdPivotDetector"}, {ParameterDescriptor{"retrace", ParameterType::Double, Parameter{double{0.05}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
         IndicatorDescriptor{"haDelta", {"haDelta", "haD", "HeikinAshiDelta", "HADELTA"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{3}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"autoheikin", ParameterType::Bool, Parameter{bool{true}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"ha_delta", "smoothed"}},
+        IndicatorDescriptor{"CDLTwoCrows", {"CDLTwoCrows", "TwoCrows", "CDL2CROWS"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLThreeLineStrike", {"CDLThreeLineStrike", "ThreeLineStrike", "CDL3LINESTRIKE"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLThreeStarsInSouth", {"CDLThreeStarsInSouth", "ThreeStarsInTheSouth", "CDL3STARSINSOUTH"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLAdvanceBlock", {"CDLAdvanceBlock", "AdvanceBlock", "CDLADVANCEBLOCK"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLBreakaway", {"CDLBreakaway", "Breakaway", "CDLBREAKAWAY"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLClosingMarubozu", {"CDLClosingMarubozu", "ClosingMarubozu", "CDLCLOSINGMARUBOZU"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLConcealingBabySwallow", {"CDLConcealingBabySwallow", "ConcealingBabySwallow", "CDLCONCEALBABYSWALL"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLDojiStar", {"CDLDojiStar", "DojiStar", "CDLDOJISTAR"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLDragonflyDoji", {"CDLDragonflyDoji", "DragonflyDoji", "CDLDRAGONFLYDOJI"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLEveningDojiStar", {"CDLEveningDojiStar", "EveningDojiStar", "CDLEVENINGDOJISTAR"}, {ParameterDescriptor{"penetration", ParameterType::Double, Parameter{double{0.3}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
+        IndicatorDescriptor{"CDLGapSideSideWhite", {"CDLGapSideSideWhite", "UpDowngapSidebysideWhiteLines", "CDLGAPSIDESIDEWHITE"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLGravestoneDoji", {"CDLGravestoneDoji", "GravestoneDoji", "CDLGRAVESTONEDOJI"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLHaramiCross", {"CDLHaramiCross", "HaramiCross", "CDLHARAMICROSS"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLHighWave", {"CDLHighWave", "HighWaveCandle", "CDLHIGHWAVE"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLHikkake", {"CDLHikkake", "Hikkake", "CDLHIKKAKE"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLModifiedHikkake", {"CDLModifiedHikkake", "ModifiedHikkake", "CDLHIKKAKEMOD"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLIdenticalThreeCrows", {"CDLIdenticalThreeCrows", "IdenticalThreeCrows", "CDLIDENTICAL3CROWS"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLInNeck", {"CDLInNeck", "InNeck", "CDLINNECK"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLInvertedHammer", {"CDLInvertedHammer", "InvertedHammer", "CDLINVERTEDHAMMER"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLKickingByLength", {"CDLKickingByLength", "KickingByLength", "CDLKICKINGBYLENGTH"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLLadderBottom", {"CDLLadderBottom", "LadderBottom", "CDLLADDERBOTTOM"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLLongLeggedDoji", {"CDLLongLeggedDoji", "LongLeggedDoji", "CDLLONGLEGGEDDOJI"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLLongLine", {"CDLLongLine", "LongLineCandle", "CDLLONGLINE"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLMatHold", {"CDLMatHold", "MatHold", "CDLMATHOLD"}, {ParameterDescriptor{"penetration", ParameterType::Double, Parameter{double{0.5}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
+        IndicatorDescriptor{"CDLMorningDojiStar", {"CDLMorningDojiStar", "MorningDojiStar", "CDLMORNINGDOJISTAR"}, {ParameterDescriptor{"penetration", ParameterType::Double, Parameter{double{0.3}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
+        IndicatorDescriptor{"CDLOnNeck", {"CDLOnNeck", "OnNeck", "CDLONNECK"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLRickshawMan", {"CDLRickshawMan", "RickshawMan", "CDLRICKSHAWMAN"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLRiseFallThreeMethods", {"CDLRiseFallThreeMethods", "RisingFallingThreeMethods", "CDLRISEFALL3METHODS"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLSeparatingLines", {"CDLSeparatingLines", "SeparatingLines", "CDLSEPARATINGLINES"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLShortLine", {"CDLShortLine", "ShortLineCandle", "CDLSHORTLINE"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLStalledPattern", {"CDLStalledPattern", "StalledPattern", "CDLSTALLEDPATTERN"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLStickSandwich", {"CDLStickSandwich", "StickSandwich", "CDLSTICKSANDWICH"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLTakuri", {"CDLTakuri", "Takuri", "CDLTAKURI"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLThrusting", {"CDLThrusting", "ThrustingPattern", "CDLTHRUSTING"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLTristar", {"CDLTristar", "TristarPattern", "CDLTRISTAR"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLUniqueThreeRiver", {"CDLUniqueThreeRiver", "UniqueThreeRiver", "CDLUNIQUE3RIVER"}, {}, {"line"}},
+        IndicatorDescriptor{"CDLXSideGapThreeMethods", {"CDLXSideGapThreeMethods", "UpsideDownsideGapThreeMethods", "CDLXSIDEGAP3METHODS"}, {}, {"line"}},
     };
     return descriptors;
 }

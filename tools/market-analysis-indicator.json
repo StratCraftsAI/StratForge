@@ -816,20 +816,14 @@
     "name": "Doji",
     "aliases": [
       "CDLDoji",
-      "Doji"
+      "Doji",
+      "CDLDOJI"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
-    "code_template": "stratforge::CDLDoji cdldoji_{{body_threshold}};",
-    "constructor_params": [
-      {
-        "name": "body_threshold",
-        "type": "double",
-        "position": 1,
-        "default": 0.05
-      }
-    ],
-    "data_input": "single_line",
+    "code_template": "stratforge::CDLDoji cdldoji_{};",
+    "constructor_params": [],
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -837,7 +831,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLDoji cdldoji_{14};",
+      "stratforge::CDLDoji cdldoji_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdldoji_.line()[0];"
     ],
     "template_keys": [],
@@ -852,13 +846,14 @@
     "name": "Engulfing",
     "aliases": [
       "CDLEngulfing",
-      "Engulfing"
+      "Engulfing",
+      "CDLENGULFING"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLEngulfing cdlengulfing_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -866,7 +861,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLEngulfing cdlengulfing_{};",
+      "stratforge::CDLEngulfing cdlengulfing_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlengulfing_.line()[0];"
     ],
     "template_keys": [],
@@ -881,13 +876,21 @@
     "name": "Evening Star",
     "aliases": [
       "CDLEveningStar",
-      "EveningStar"
+      "EveningStar",
+      "CDLEVENINGSTAR"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
-    "code_template": "stratforge::CDLEveningStar cdleveningstar_{};",
-    "constructor_params": [],
-    "data_input": "single_line",
+    "code_template": "stratforge::CDLEveningStar cdleveningstar_{{penetration}};",
+    "constructor_params": [
+      {
+        "name": "penetration",
+        "type": "double",
+        "position": 1,
+        "default": 0.3
+      }
+    ],
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -895,7 +898,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLEveningStar cdleveningstar_{};",
+      "stratforge::CDLEveningStar cdleveningstar_{data.open(), data.high(), data.low(), data.close(), 0.3};",
       "const double line = cdleveningstar_.line()[0];"
     ],
     "template_keys": [],
@@ -910,13 +913,14 @@
     "name": "Hammer",
     "aliases": [
       "CDLHammer",
-      "Hammer"
+      "Hammer",
+      "CDLHAMMER"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLHammer cdlhammer_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -924,7 +928,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLHammer cdlhammer_{};",
+      "stratforge::CDLHammer cdlhammer_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlhammer_.line()[0];"
     ],
     "template_keys": [],
@@ -939,13 +943,14 @@
     "name": "Hanging Man",
     "aliases": [
       "CDLHangingMan",
-      "HangingMan"
+      "HangingMan",
+      "CDLHANGINGMAN"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLHangingMan cdlhangingman_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -953,7 +958,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLHangingMan cdlhangingman_{};",
+      "stratforge::CDLHangingMan cdlhangingman_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlhangingman_.line()[0];"
     ],
     "template_keys": [],
@@ -968,13 +973,14 @@
     "name": "Harami",
     "aliases": [
       "CDLHarami",
-      "Harami"
+      "Harami",
+      "CDLHARAMI"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLHarami cdlharami_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -982,7 +988,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLHarami cdlharami_{};",
+      "stratforge::CDLHarami cdlharami_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlharami_.line()[0];"
     ],
     "template_keys": [],
@@ -997,13 +1003,14 @@
     "name": "Marubozu",
     "aliases": [
       "CDLMarubozu",
-      "Marubozu"
+      "Marubozu",
+      "CDLMARUBOZU"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLMarubozu cdlmarubozu_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1011,7 +1018,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLMarubozu cdlmarubozu_{};",
+      "stratforge::CDLMarubozu cdlmarubozu_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlmarubozu_.line()[0];"
     ],
     "template_keys": [],
@@ -1026,13 +1033,21 @@
     "name": "Morning Star",
     "aliases": [
       "CDLMorningStar",
-      "MorningStar"
+      "MorningStar",
+      "CDLMORNINGSTAR"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
-    "code_template": "stratforge::CDLMorningStar cdlmorningstar_{};",
-    "constructor_params": [],
-    "data_input": "single_line",
+    "code_template": "stratforge::CDLMorningStar cdlmorningstar_{{penetration}};",
+    "constructor_params": [
+      {
+        "name": "penetration",
+        "type": "double",
+        "position": 1,
+        "default": 0.3
+      }
+    ],
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1040,7 +1055,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLMorningStar cdlmorningstar_{};",
+      "stratforge::CDLMorningStar cdlmorningstar_{data.open(), data.high(), data.low(), data.close(), 0.3};",
       "const double line = cdlmorningstar_.line()[0];"
     ],
     "template_keys": [],
@@ -1055,13 +1070,14 @@
     "name": "Shooting Star",
     "aliases": [
       "CDLShootingStar",
-      "ShootingStar"
+      "ShootingStar",
+      "CDLSHOOTINGSTAR"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLShootingStar cdlshootingstar_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1069,7 +1085,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLShootingStar cdlshootingstar_{};",
+      "stratforge::CDLShootingStar cdlshootingstar_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlshootingstar_.line()[0];"
     ],
     "template_keys": [],
@@ -1084,13 +1100,14 @@
     "name": "Spinning Top",
     "aliases": [
       "CDLSpinningTop",
-      "SpinningTop"
+      "SpinningTop",
+      "CDLSPINNINGTOP"
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLSpinningTop cdlspinningtop_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1098,7 +1115,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLSpinningTop cdlspinningtop_{};",
+      "stratforge::CDLSpinningTop cdlspinningtop_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlspinningtop_.line()[0];"
     ],
     "template_keys": [],
@@ -1120,7 +1137,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLThreeWhiteSoldiers cdl3ws_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1128,7 +1145,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLThreeWhiteSoldiers cdl3ws_{};",
+      "stratforge::CDLThreeWhiteSoldiers cdl3ws_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdl3ws_.line()[0];"
     ],
     "template_keys": [],
@@ -1150,7 +1167,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLThreeBlackCrows cdl3bc_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1158,7 +1175,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLThreeBlackCrows cdl3bc_{};",
+      "stratforge::CDLThreeBlackCrows cdl3bc_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdl3bc_.line()[0];"
     ],
     "template_keys": [],
@@ -1180,7 +1197,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLPiercingLine cdlpiercing_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1188,7 +1205,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLPiercingLine cdlpiercing_{};",
+      "stratforge::CDLPiercingLine cdlpiercing_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlpiercing_.line()[0];"
     ],
     "template_keys": [],
@@ -1208,9 +1225,16 @@
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
-    "code_template": "stratforge::CDLDarkCloudCover cdldcc_{};",
-    "constructor_params": [],
-    "data_input": "single_line",
+    "code_template": "stratforge::CDLDarkCloudCover cdldcc_{{penetration}};",
+    "constructor_params": [
+      {
+        "name": "penetration",
+        "type": "double",
+        "position": 1,
+        "default": 0.5
+      }
+    ],
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1218,7 +1242,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLDarkCloudCover cdldcc_{};",
+      "stratforge::CDLDarkCloudCover cdldcc_{data.open(), data.high(), data.low(), data.close(), 0.5};",
       "const double line = cdldcc_.line()[0];"
     ],
     "template_keys": [],
@@ -1238,9 +1262,16 @@
     ],
     "category": "candlestick",
     "include": "stratforge/indicators/candlestick.hpp",
-    "code_template": "stratforge::CDLAbandonedBaby cdlab_{};",
-    "constructor_params": [],
-    "data_input": "single_line",
+    "code_template": "stratforge::CDLAbandonedBaby cdlab_{{penetration}};",
+    "constructor_params": [
+      {
+        "name": "penetration",
+        "type": "double",
+        "position": 1,
+        "default": 0.3
+      }
+    ],
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1248,7 +1279,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLAbandonedBaby cdlab_{};",
+      "stratforge::CDLAbandonedBaby cdlab_{data.open(), data.high(), data.low(), data.close(), 0.3};",
       "const double line = cdlab_.line()[0];"
     ],
     "template_keys": [],
@@ -1270,7 +1301,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLThreeInside cdl3inside_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1278,7 +1309,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLThreeInside cdl3inside_{};",
+      "stratforge::CDLThreeInside cdl3inside_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdl3inside_.line()[0];"
     ],
     "template_keys": [],
@@ -1300,7 +1331,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLThreeOutside cdl3outside_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1308,7 +1339,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLThreeOutside cdl3outside_{};",
+      "stratforge::CDLThreeOutside cdl3outside_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdl3outside_.line()[0];"
     ],
     "template_keys": [],
@@ -1330,7 +1361,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLKicking cdlkicking_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1338,7 +1369,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLKicking cdlkicking_{};",
+      "stratforge::CDLKicking cdlkicking_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlkicking_.line()[0];"
     ],
     "template_keys": [],
@@ -1360,7 +1391,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLBeltHold cdlbelthold_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1368,7 +1399,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLBeltHold cdlbelthold_{};",
+      "stratforge::CDLBeltHold cdlbelthold_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlbelthold_.line()[0];"
     ],
     "template_keys": [],
@@ -1390,7 +1421,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLCounterAttack cdlca_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1398,7 +1429,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLCounterAttack cdlca_{};",
+      "stratforge::CDLCounterAttack cdlca_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlca_.line()[0];"
     ],
     "template_keys": [],
@@ -1420,7 +1451,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLHomingPigeon cdlhp_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1428,7 +1459,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLHomingPigeon cdlhp_{};",
+      "stratforge::CDLHomingPigeon cdlhp_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlhp_.line()[0];"
     ],
     "template_keys": [],
@@ -1450,7 +1481,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLMatchingLow cdlml_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1458,7 +1489,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLMatchingLow cdlml_{};",
+      "stratforge::CDLMatchingLow cdlml_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlml_.line()[0];"
     ],
     "template_keys": [],
@@ -1480,7 +1511,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLTasukiGap cdltg_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1488,7 +1519,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLTasukiGap cdltg_{};",
+      "stratforge::CDLTasukiGap cdltg_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdltg_.line()[0];"
     ],
     "template_keys": [],
@@ -1510,7 +1541,7 @@
     "include": "stratforge/indicators/candlestick.hpp",
     "code_template": "stratforge::CDLUpsideGap cdlug_{};",
     "constructor_params": [],
-    "data_input": "single_line",
+    "data_input": "full_data",
     "output_lines": [
       "line"
     ],
@@ -1518,7 +1549,7 @@
       "line": "line()"
     },
     "example_usage": [
-      "stratforge::CDLUpsideGap cdlug_{};",
+      "stratforge::CDLUpsideGap cdlug_{data.open(), data.high(), data.low(), data.close()};",
       "const double line = cdlug_.line()[0];"
     ],
     "template_keys": [],
@@ -3638,6 +3669,153 @@
       "standalone": true,
       "strategy_template": true
     }
+  },
+  {
+    "slug": "KLEN",
+    "display_name": "KLEN",
+    "name": "Qlib K-Bar Length",
+    "aliases": ["KLEN", "KLen"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KLEN klen_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": [
+      "stratforge::KLEN klen_{data.open(), data.high(), data.low(), data.close()};",
+      "const double value = klen_.line()[0];"
+    ],
+    "template_keys": ["volatility_filter"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
+  },
+  {
+    "slug": "KLOW",
+    "display_name": "KLOW",
+    "name": "Qlib Lower Shadow to Open",
+    "aliases": ["KLOW", "KLow"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KLOW klow_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": ["stratforge::KLOW klow_{data.open(), data.high(), data.low(), data.close()};", "const double value = klow_.line()[0];"],
+    "template_keys": ["momentum"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
+  },
+  {
+    "slug": "KLOW2",
+    "display_name": "KLOW2",
+    "name": "Qlib Lower Shadow to Range",
+    "aliases": ["KLOW2", "KLow2"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KLOW2 klow2_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": ["stratforge::KLOW2 klow2_{data.open(), data.high(), data.low(), data.close()};", "const double value = klow2_.line()[0];"],
+    "template_keys": ["momentum"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
+  },
+  {
+    "slug": "KMID",
+    "display_name": "KMID",
+    "name": "Qlib K-Bar Body to Open",
+    "aliases": ["KMID", "KMid"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KMID kmid_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": ["stratforge::KMID kmid_{data.open(), data.high(), data.low(), data.close()};", "const double value = kmid_.line()[0];"],
+    "template_keys": ["momentum"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
+  },
+  {
+    "slug": "KMID2",
+    "display_name": "KMID2",
+    "name": "Qlib K-Bar Body to Range",
+    "aliases": ["KMID2", "KMid2"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KMID2 kmid2_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": ["stratforge::KMID2 kmid2_{data.open(), data.high(), data.low(), data.close()};", "const double value = kmid2_.line()[0];"],
+    "template_keys": ["momentum"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
+  },
+  {
+    "slug": "KSFT",
+    "display_name": "KSFT",
+    "name": "Qlib K-Bar Shift to Open",
+    "aliases": ["KSFT", "KSft"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KSFT ksft_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": ["stratforge::KSFT ksft_{data.open(), data.high(), data.low(), data.close()};", "const double value = ksft_.line()[0];"],
+    "template_keys": ["momentum"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
+  },
+  {
+    "slug": "KSFT2",
+    "display_name": "KSFT2",
+    "name": "Qlib K-Bar Shift to Range",
+    "aliases": ["KSFT2", "KSft2"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KSFT2 ksft2_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": ["stratforge::KSFT2 ksft2_{data.open(), data.high(), data.low(), data.close()};", "const double value = ksft2_.line()[0];"],
+    "template_keys": ["momentum"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
+  },
+  {
+    "slug": "KUP",
+    "display_name": "KUP",
+    "name": "Qlib Upper Shadow to Open",
+    "aliases": ["KUP", "KUp"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KUP kup_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": ["stratforge::KUP kup_{data.open(), data.high(), data.low(), data.close()};", "const double value = kup_.line()[0];"],
+    "template_keys": ["momentum"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
+  },
+  {
+    "slug": "KUP2",
+    "display_name": "KUP2",
+    "name": "Qlib Upper Shadow to Range",
+    "aliases": ["KUP2", "KUp2"],
+    "category": "price_transform",
+    "include": "stratforge/indicators/qlib_kbar.hpp",
+    "code_template": "stratforge::KUP2 kup2_{data.open(), data.high(), data.low(), data.close()};",
+    "constructor_params": [],
+    "data_input": "full_data",
+    "output_lines": ["line"],
+    "output_accessors": {"line": "line()"},
+    "example_usage": ["stratforge::KUP2 kup2_{data.open(), data.high(), data.low(), data.close()};", "const double value = kup2_.line()[0];"],
+    "template_keys": ["momentum"],
+    "usage_modes": {"standalone": true, "strategy_template": true}
   },
   {
     "slug": "KAMA",
@@ -8412,5 +8590,1210 @@
       "standalone": true,
       "strategy_template": true
     }
-  }
+  },
+  {
+      "slug": "CDLTwoCrows",
+      "display_name": "CDL2CROWS",
+      "name": "Two Crows",
+      "aliases": [
+        "CDLTwoCrows",
+        "TwoCrows",
+        "CDL2CROWS"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLTwoCrows cdltwocrows_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLTwoCrows cdltwocrows_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdltwocrows_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLThreeLineStrike",
+      "display_name": "CDL3LINESTRIKE",
+      "name": "Three-Line Strike",
+      "aliases": [
+        "CDLThreeLineStrike",
+        "ThreeLineStrike",
+        "CDL3LINESTRIKE"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLThreeLineStrike cdlthreelinestrike_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLThreeLineStrike cdlthreelinestrike_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlthreelinestrike_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLThreeStarsInSouth",
+      "display_name": "CDL3STARSINSOUTH",
+      "name": "Three Stars In The South",
+      "aliases": [
+        "CDLThreeStarsInSouth",
+        "ThreeStarsInTheSouth",
+        "CDL3STARSINSOUTH"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLThreeStarsInSouth cdlthreestarsinsouth_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLThreeStarsInSouth cdlthreestarsinsouth_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlthreestarsinsouth_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLAdvanceBlock",
+      "display_name": "CDLADVANCEBLOCK",
+      "name": "Advance Block",
+      "aliases": [
+        "CDLAdvanceBlock",
+        "AdvanceBlock",
+        "CDLADVANCEBLOCK"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLAdvanceBlock cdladvanceblock_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLAdvanceBlock cdladvanceblock_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdladvanceblock_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLBreakaway",
+      "display_name": "CDLBREAKAWAY",
+      "name": "Breakaway",
+      "aliases": [
+        "CDLBreakaway",
+        "Breakaway",
+        "CDLBREAKAWAY"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLBreakaway cdlbreakaway_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLBreakaway cdlbreakaway_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlbreakaway_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLClosingMarubozu",
+      "display_name": "CDLCLOSINGMARUBOZU",
+      "name": "Closing Marubozu",
+      "aliases": [
+        "CDLClosingMarubozu",
+        "ClosingMarubozu",
+        "CDLCLOSINGMARUBOZU"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLClosingMarubozu cdlclosingmarubozu_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLClosingMarubozu cdlclosingmarubozu_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlclosingmarubozu_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLConcealingBabySwallow",
+      "display_name": "CDLCONCEALBABYSWALL",
+      "name": "Concealing Baby Swallow",
+      "aliases": [
+        "CDLConcealingBabySwallow",
+        "ConcealingBabySwallow",
+        "CDLCONCEALBABYSWALL"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLConcealingBabySwallow cdlconcealingbabyswallow_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLConcealingBabySwallow cdlconcealingbabyswallow_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlconcealingbabyswallow_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLDojiStar",
+      "display_name": "CDLDOJISTAR",
+      "name": "Doji Star",
+      "aliases": [
+        "CDLDojiStar",
+        "DojiStar",
+        "CDLDOJISTAR"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLDojiStar cdldojistar_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLDojiStar cdldojistar_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdldojistar_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLDragonflyDoji",
+      "display_name": "CDLDRAGONFLYDOJI",
+      "name": "Dragonfly Doji",
+      "aliases": [
+        "CDLDragonflyDoji",
+        "DragonflyDoji",
+        "CDLDRAGONFLYDOJI"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLDragonflyDoji cdldragonflydoji_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLDragonflyDoji cdldragonflydoji_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdldragonflydoji_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLEveningDojiStar",
+      "display_name": "CDLEVENINGDOJISTAR",
+      "name": "Evening Doji Star",
+      "aliases": [
+        "CDLEveningDojiStar",
+        "EveningDojiStar",
+        "CDLEVENINGDOJISTAR"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLEveningDojiStar cdleveningdojistar_{{penetration}};",
+      "constructor_params": [
+        {
+          "name": "penetration",
+          "type": "double",
+          "position": 1,
+          "default": 0.3
+        }
+      ],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLEveningDojiStar cdleveningdojistar_{data.open(), data.high(), data.low(), data.close(), 0.3};",
+        "const double signal = cdleveningdojistar_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLGapSideSideWhite",
+      "display_name": "CDLGAPSIDESIDEWHITE",
+      "name": "Up/Down-gap Side-by-side White Lines",
+      "aliases": [
+        "CDLGapSideSideWhite",
+        "UpDowngapSidebysideWhiteLines",
+        "CDLGAPSIDESIDEWHITE"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLGapSideSideWhite cdlgapsidesidewhite_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLGapSideSideWhite cdlgapsidesidewhite_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlgapsidesidewhite_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLGravestoneDoji",
+      "display_name": "CDLGRAVESTONEDOJI",
+      "name": "Gravestone Doji",
+      "aliases": [
+        "CDLGravestoneDoji",
+        "GravestoneDoji",
+        "CDLGRAVESTONEDOJI"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLGravestoneDoji cdlgravestonedoji_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLGravestoneDoji cdlgravestonedoji_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlgravestonedoji_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLHaramiCross",
+      "display_name": "CDLHARAMICROSS",
+      "name": "Harami Cross",
+      "aliases": [
+        "CDLHaramiCross",
+        "HaramiCross",
+        "CDLHARAMICROSS"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLHaramiCross cdlharamicross_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLHaramiCross cdlharamicross_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlharamicross_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLHighWave",
+      "display_name": "CDLHIGHWAVE",
+      "name": "High-Wave Candle",
+      "aliases": [
+        "CDLHighWave",
+        "HighWaveCandle",
+        "CDLHIGHWAVE"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLHighWave cdlhighwave_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLHighWave cdlhighwave_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlhighwave_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLHikkake",
+      "display_name": "CDLHIKKAKE",
+      "name": "Hikkake",
+      "aliases": [
+        "CDLHikkake",
+        "Hikkake",
+        "CDLHIKKAKE"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLHikkake cdlhikkake_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLHikkake cdlhikkake_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlhikkake_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLModifiedHikkake",
+      "display_name": "CDLHIKKAKEMOD",
+      "name": "Modified Hikkake",
+      "aliases": [
+        "CDLModifiedHikkake",
+        "ModifiedHikkake",
+        "CDLHIKKAKEMOD"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLModifiedHikkake cdlmodifiedhikkake_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLModifiedHikkake cdlmodifiedhikkake_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlmodifiedhikkake_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLIdenticalThreeCrows",
+      "display_name": "CDLIDENTICAL3CROWS",
+      "name": "Identical Three Crows",
+      "aliases": [
+        "CDLIdenticalThreeCrows",
+        "IdenticalThreeCrows",
+        "CDLIDENTICAL3CROWS"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLIdenticalThreeCrows cdlidenticalthreecrows_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLIdenticalThreeCrows cdlidenticalthreecrows_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlidenticalthreecrows_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLInNeck",
+      "display_name": "CDLINNECK",
+      "name": "In-Neck",
+      "aliases": [
+        "CDLInNeck",
+        "InNeck",
+        "CDLINNECK"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLInNeck cdlinneck_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLInNeck cdlinneck_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlinneck_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLInvertedHammer",
+      "display_name": "CDLINVERTEDHAMMER",
+      "name": "Inverted Hammer",
+      "aliases": [
+        "CDLInvertedHammer",
+        "InvertedHammer",
+        "CDLINVERTEDHAMMER"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLInvertedHammer cdlinvertedhammer_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLInvertedHammer cdlinvertedhammer_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlinvertedhammer_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLKickingByLength",
+      "display_name": "CDLKICKINGBYLENGTH",
+      "name": "Kicking By Length",
+      "aliases": [
+        "CDLKickingByLength",
+        "KickingByLength",
+        "CDLKICKINGBYLENGTH"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLKickingByLength cdlkickingbylength_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLKickingByLength cdlkickingbylength_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlkickingbylength_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLLadderBottom",
+      "display_name": "CDLLADDERBOTTOM",
+      "name": "Ladder Bottom",
+      "aliases": [
+        "CDLLadderBottom",
+        "LadderBottom",
+        "CDLLADDERBOTTOM"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLLadderBottom cdlladderbottom_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLLadderBottom cdlladderbottom_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlladderbottom_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLLongLeggedDoji",
+      "display_name": "CDLLONGLEGGEDDOJI",
+      "name": "Long Legged Doji",
+      "aliases": [
+        "CDLLongLeggedDoji",
+        "LongLeggedDoji",
+        "CDLLONGLEGGEDDOJI"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLLongLeggedDoji cdllongleggeddoji_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLLongLeggedDoji cdllongleggeddoji_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdllongleggeddoji_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLLongLine",
+      "display_name": "CDLLONGLINE",
+      "name": "Long Line Candle",
+      "aliases": [
+        "CDLLongLine",
+        "LongLineCandle",
+        "CDLLONGLINE"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLLongLine cdllongline_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLLongLine cdllongline_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdllongline_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLMatHold",
+      "display_name": "CDLMATHOLD",
+      "name": "Mat Hold",
+      "aliases": [
+        "CDLMatHold",
+        "MatHold",
+        "CDLMATHOLD"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLMatHold cdlmathold_{{penetration}};",
+      "constructor_params": [
+        {
+          "name": "penetration",
+          "type": "double",
+          "position": 1,
+          "default": 0.5
+        }
+      ],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLMatHold cdlmathold_{data.open(), data.high(), data.low(), data.close(), 0.5};",
+        "const double signal = cdlmathold_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLMorningDojiStar",
+      "display_name": "CDLMORNINGDOJISTAR",
+      "name": "Morning Doji Star",
+      "aliases": [
+        "CDLMorningDojiStar",
+        "MorningDojiStar",
+        "CDLMORNINGDOJISTAR"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLMorningDojiStar cdlmorningdojistar_{{penetration}};",
+      "constructor_params": [
+        {
+          "name": "penetration",
+          "type": "double",
+          "position": 1,
+          "default": 0.3
+        }
+      ],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLMorningDojiStar cdlmorningdojistar_{data.open(), data.high(), data.low(), data.close(), 0.3};",
+        "const double signal = cdlmorningdojistar_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLOnNeck",
+      "display_name": "CDLONNECK",
+      "name": "On-Neck",
+      "aliases": [
+        "CDLOnNeck",
+        "OnNeck",
+        "CDLONNECK"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLOnNeck cdlonneck_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLOnNeck cdlonneck_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlonneck_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLRickshawMan",
+      "display_name": "CDLRICKSHAWMAN",
+      "name": "Rickshaw Man",
+      "aliases": [
+        "CDLRickshawMan",
+        "RickshawMan",
+        "CDLRICKSHAWMAN"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLRickshawMan cdlrickshawman_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLRickshawMan cdlrickshawman_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlrickshawman_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLRiseFallThreeMethods",
+      "display_name": "CDLRISEFALL3METHODS",
+      "name": "Rising/Falling Three Methods",
+      "aliases": [
+        "CDLRiseFallThreeMethods",
+        "RisingFallingThreeMethods",
+        "CDLRISEFALL3METHODS"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLRiseFallThreeMethods cdlrisefallthreemethods_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLRiseFallThreeMethods cdlrisefallthreemethods_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlrisefallthreemethods_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLSeparatingLines",
+      "display_name": "CDLSEPARATINGLINES",
+      "name": "Separating Lines",
+      "aliases": [
+        "CDLSeparatingLines",
+        "SeparatingLines",
+        "CDLSEPARATINGLINES"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLSeparatingLines cdlseparatinglines_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLSeparatingLines cdlseparatinglines_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlseparatinglines_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLShortLine",
+      "display_name": "CDLSHORTLINE",
+      "name": "Short Line Candle",
+      "aliases": [
+        "CDLShortLine",
+        "ShortLineCandle",
+        "CDLSHORTLINE"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLShortLine cdlshortline_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLShortLine cdlshortline_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlshortline_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLStalledPattern",
+      "display_name": "CDLSTALLEDPATTERN",
+      "name": "Stalled Pattern",
+      "aliases": [
+        "CDLStalledPattern",
+        "StalledPattern",
+        "CDLSTALLEDPATTERN"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLStalledPattern cdlstalledpattern_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLStalledPattern cdlstalledpattern_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlstalledpattern_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLStickSandwich",
+      "display_name": "CDLSTICKSANDWICH",
+      "name": "Stick Sandwich",
+      "aliases": [
+        "CDLStickSandwich",
+        "StickSandwich",
+        "CDLSTICKSANDWICH"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLStickSandwich cdlsticksandwich_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLStickSandwich cdlsticksandwich_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlsticksandwich_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLTakuri",
+      "display_name": "CDLTAKURI",
+      "name": "Takuri",
+      "aliases": [
+        "CDLTakuri",
+        "Takuri",
+        "CDLTAKURI"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLTakuri cdltakuri_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLTakuri cdltakuri_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdltakuri_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLThrusting",
+      "display_name": "CDLTHRUSTING",
+      "name": "Thrusting Pattern",
+      "aliases": [
+        "CDLThrusting",
+        "ThrustingPattern",
+        "CDLTHRUSTING"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLThrusting cdlthrusting_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLThrusting cdlthrusting_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlthrusting_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLTristar",
+      "display_name": "CDLTRISTAR",
+      "name": "Tristar Pattern",
+      "aliases": [
+        "CDLTristar",
+        "TristarPattern",
+        "CDLTRISTAR"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLTristar cdltristar_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLTristar cdltristar_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdltristar_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLUniqueThreeRiver",
+      "display_name": "CDLUNIQUE3RIVER",
+      "name": "Unique Three River",
+      "aliases": [
+        "CDLUniqueThreeRiver",
+        "UniqueThreeRiver",
+        "CDLUNIQUE3RIVER"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLUniqueThreeRiver cdluniquethreeriver_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLUniqueThreeRiver cdluniquethreeriver_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdluniquethreeriver_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    },
+    {
+      "slug": "CDLXSideGapThreeMethods",
+      "display_name": "CDLXSIDEGAP3METHODS",
+      "name": "Upside/Downside Gap Three Methods",
+      "aliases": [
+        "CDLXSideGapThreeMethods",
+        "UpsideDownsideGapThreeMethods",
+        "CDLXSIDEGAP3METHODS"
+      ],
+      "category": "candlestick",
+      "include": "stratforge/indicators/candlestick.hpp",
+      "code_template": "stratforge::CDLXSideGapThreeMethods cdlxsidegapthreemethods_{};",
+      "constructor_params": [],
+      "data_input": "full_data",
+      "output_lines": [
+        "line"
+      ],
+      "output_accessors": {
+        "line": "line()"
+      },
+      "example_usage": [
+        "stratforge::CDLXSideGapThreeMethods cdlxsidegapthreemethods_{data.open(), data.high(), data.low(), data.close()};",
+        "const double signal = cdlxsidegapthreemethods_.line()[0];"
+      ],
+      "template_keys": [
+        "candlestick_pattern"
+      ],
+      "usage_modes": {
+        "standalone": true,
+        "strategy_template": true
+      }
+    }
 ]

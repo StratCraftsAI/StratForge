@@ -19,9 +19,9 @@
 #pragma once
 
 #include <stratforge/data/data_feed.hpp>
+#include <stratforge/data/epoch_time.hpp>
 #include <stratforge/observers/increment_types.hpp>
 
-#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <iomanip>
@@ -85,8 +85,7 @@ inline void json_escape_into(std::ostringstream& os, std::string_view s) {
         const auto& b = s.new_bars[i];
         if (i) os << ',';
         os << '{'
-           << R"("timestamp":)" << std::chrono::duration_cast<std::chrono::milliseconds>(
-                  b.timestamp.time_since_epoch()).count()
+           << R"("timestamp":)" << datetime_to_epoch_milliseconds(b.timestamp)
            << R"(,"open":)"   << b.open
            << R"(,"high":)"   << b.high
            << R"(,"low":)"    << b.low
@@ -101,8 +100,7 @@ inline void json_escape_into(std::ostringstream& os, std::string_view s) {
         const auto& e = s.new_equity_points[i];
         if (i) os << ',';
         os << '{'
-           << R"("timestamp":)" << std::chrono::duration_cast<std::chrono::milliseconds>(
-                  e.timestamp.time_since_epoch()).count()
+           << R"("timestamp":)" << datetime_to_epoch_milliseconds(e.timestamp)
            << R"(,"equity":)"   << e.portfolio_value
            << R"(,"drawdown":)" << e.drawdown_pct
            << '}';
@@ -122,10 +120,8 @@ inline void json_escape_into(std::ostringstream& os, std::string_view s) {
         const double quantity = std::abs(t.size);
 
         os << '{'
-           << R"("entryTime":)" << std::chrono::duration_cast<std::chrono::milliseconds>(
-                  t.entry_time.time_since_epoch()).count()
-           << R"(,"exitTime":)" << std::chrono::duration_cast<std::chrono::milliseconds>(
-                  t.exit_time.time_since_epoch()).count()
+           << R"("entryTime":)" << datetime_to_epoch_milliseconds(t.entry_time)
+           << R"(,"exitTime":)" << datetime_to_epoch_milliseconds(t.exit_time)
            << R"(,"symbol":")";
         detail::json_escape_into(os, symbol_sv);
         os << R"(","side":")" << side << R"(")"

@@ -39,6 +39,12 @@
 
 namespace stratforge::talib {
 
+using Candle = stratforge::candlestick::Candle;
+using CandleRangeType = stratforge::candlestick::RangeType;
+using CandleSetting = stratforge::candlestick::Setting;
+using CandleSettingType = stratforge::candlestick::SettingType;
+using CandleSettings = stratforge::candlestick::Settings;
+
 // --- Moving Averages ---
 using SMA   = stratforge::SMA;
 using EMA   = stratforge::EMA;
@@ -110,5 +116,42 @@ using CDLHOMINGPIGEON       = stratforge::CDLHomingPigeon;
 using CDLMATCHINGLOW        = stratforge::CDLMatchingLow;
 using CDLTASUKIGAP          = stratforge::CDLTasukiGap;
 using CDLUPSIDEGAP2CROWS    = stratforge::CDLUpsideGap;
+using CDL2CROWS             = stratforge::CDLTwoCrows;
+using CDL3LINESTRIKE        = stratforge::CDLThreeLineStrike;
+using CDL3STARSINSOUTH      = stratforge::CDLThreeStarsInSouth;
+using CDLADVANCEBLOCK       = stratforge::CDLAdvanceBlock;
+using CDLBREAKAWAY          = stratforge::CDLBreakaway;
+using CDLCLOSINGMARUBOZU    = stratforge::CDLClosingMarubozu;
+using CDLCONCEALBABYSWALL   = stratforge::CDLConcealingBabySwallow;
+using CDLDOJISTAR           = stratforge::CDLDojiStar;
+using CDLDRAGONFLYDOJI      = stratforge::CDLDragonflyDoji;
+using CDLEVENINGDOJISTAR    = stratforge::CDLEveningDojiStar;
+using CDLGAPSIDESIDEWHITE   = stratforge::CDLGapSideSideWhite;
+using CDLGRAVESTONEDOJI     = stratforge::CDLGravestoneDoji;
+using CDLHARAMICROSS        = stratforge::CDLHaramiCross;
+using CDLHIGHWAVE           = stratforge::CDLHighWave;
+using CDLHIKKAKE            = stratforge::CDLHikkake;
+using CDLHIKKAKEMOD         = stratforge::CDLModifiedHikkake;
+using CDLIDENTICAL3CROWS    = stratforge::CDLIdenticalThreeCrows;
+using CDLINNECK             = stratforge::CDLInNeck;
+using CDLINVERTEDHAMMER     = stratforge::CDLInvertedHammer;
+using CDLKICKINGBYLENGTH    = stratforge::CDLKickingByLength;
+using CDLLADDERBOTTOM       = stratforge::CDLLadderBottom;
+using CDLLONGLEGGEDDOJI     = stratforge::CDLLongLeggedDoji;
+using CDLLONGLINE           = stratforge::CDLLongLine;
+using CDLMATHOLD            = stratforge::CDLMatHold;
+using CDLMORNINGDOJISTAR    = stratforge::CDLMorningDojiStar;
+using CDLONNECK             = stratforge::CDLOnNeck;
+using CDLRICKSHAWMAN        = stratforge::CDLRickshawMan;
+using CDLRISEFALL3METHODS   = stratforge::CDLRiseFallThreeMethods;
+using CDLSEPARATINGLINES    = stratforge::CDLSeparatingLines;
+using CDLSHORTLINE          = stratforge::CDLShortLine;
+using CDLSTALLEDPATTERN     = stratforge::CDLStalledPattern;
+using CDLSTICKSANDWICH      = stratforge::CDLStickSandwich;
+using CDLTAKURI             = stratforge::CDLTakuri;
+using CDLTHRUSTING          = stratforge::CDLThrusting;
+using CDLTRISTAR            = stratforge::CDLTristar;
+using CDLUNIQUE3RIVER       = stratforge::CDLUniqueThreeRiver;
+using CDLXSIDEGAP3METHODS   = stratforge::CDLXSideGapThreeMethods;
 
 } // namespace stratforge::talib

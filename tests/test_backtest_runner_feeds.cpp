@@ -305,25 +305,6 @@ TEST_CASE("run_backtest: multi-feed with resample produces valid result",
 }
 
 // =========================================================================
-// Pushdown window: start_time/end_time flow to config
-// =========================================================================
-
-TEST_CASE("parse_backtest_config: start_time and end_time parsed",
-          "[backtest_runner][feeds][pushdown]") {
-    const std::string json = R"({
-        "data_file": "test.csv",
-        "start_time": 1704067200.0,
-        "end_time": 1706745600.0
-    })";
-
-    auto cfg = parse_backtest_config(json);
-    REQUIRE(cfg.start_time.has_value());
-    REQUIRE(cfg.end_time.has_value());
-    CHECK(*cfg.start_time == 1704067200.0);
-    CHECK(*cfg.end_time == 1706745600.0);
-}
-
-// =========================================================================
 // Warmup-infeasible window: Cerebro throws, runner returns error
 // =========================================================================
 

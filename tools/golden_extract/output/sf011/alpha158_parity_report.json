@@ -1,0 +1,1613 @@
+{
+  "factors": [
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KMID",
+      "factor_id": "a158_kmid",
+      "formula": "($close-$open)/$open",
+      "name": "KMID",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KLEN",
+      "factor_id": "a158_klen",
+      "formula": "($high-$low)/$open",
+      "name": "KLEN",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KMID2",
+      "factor_id": "a158_kmid2",
+      "formula": "($close-$open)/($high-$low+1e-12)",
+      "name": "KMID2",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KUP",
+      "factor_id": "a158_kup",
+      "formula": "($high-Greater($open, $close))/$open",
+      "name": "KUP",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KUP2",
+      "factor_id": "a158_kup2",
+      "formula": "($high-Greater($open, $close))/($high-$low+1e-12)",
+      "name": "KUP2",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KLOW",
+      "factor_id": "a158_klow",
+      "formula": "(Less($open, $close)-$low)/$open",
+      "name": "KLOW",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KLOW2",
+      "factor_id": "a158_klow2",
+      "formula": "(Less($open, $close)-$low)/($high-$low+1e-12)",
+      "name": "KLOW2",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KSFT",
+      "factor_id": "a158_ksft",
+      "formula": "(2*$close-$high-$low)/$open",
+      "name": "KSFT",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::KSFT2",
+      "factor_id": "a158_ksft2",
+      "formula": "(2*$close-$high-$low)/($high-$low+1e-12)",
+      "name": "KSFT2",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_roc5",
+      "formula": "Ref($close, 5)/$close",
+      "name": "ROC5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 5
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_roc10",
+      "formula": "Ref($close, 10)/$close",
+      "name": "ROC10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 10
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_roc20",
+      "formula": "Ref($close, 20)/$close",
+      "name": "ROC20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 20
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_roc30",
+      "formula": "Ref($close, 30)/$close",
+      "name": "ROC30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 30
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_roc60",
+      "formula": "Ref($close, 60)/$close",
+      "name": "ROC60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 60
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_ma5",
+      "formula": "Mean($close, 5)/$close",
+      "name": "MA5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_ma10",
+      "formula": "Mean($close, 10)/$close",
+      "name": "MA10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_ma20",
+      "formula": "Mean($close, 20)/$close",
+      "name": "MA20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_ma30",
+      "formula": "Mean($close, 30)/$close",
+      "name": "MA30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_ma60",
+      "formula": "Mean($close, 60)/$close",
+      "name": "MA60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_std5",
+      "formula": "Std($close, 5)/$close",
+      "name": "STD5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_std10",
+      "formula": "Std($close, 10)/$close",
+      "name": "STD10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_std20",
+      "formula": "Std($close, 20)/$close",
+      "name": "STD20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_std30",
+      "formula": "Std($close, 30)/$close",
+      "name": "STD30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_std60",
+      "formula": "Std($close, 60)/$close",
+      "name": "STD60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_beta5",
+      "formula": "Slope($close, 5)/$close",
+      "name": "BETA5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_beta10",
+      "formula": "Slope($close, 10)/$close",
+      "name": "BETA10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_beta20",
+      "formula": "Slope($close, 20)/$close",
+      "name": "BETA20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_beta30",
+      "formula": "Slope($close, 30)/$close",
+      "name": "BETA30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_beta60",
+      "formula": "Slope($close, 60)/$close",
+      "name": "BETA60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_max5",
+      "formula": "Max($high, 5)/$close",
+      "name": "MAX5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_max10",
+      "formula": "Max($high, 10)/$close",
+      "name": "MAX10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_max20",
+      "formula": "Max($high, 20)/$close",
+      "name": "MAX20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_max30",
+      "formula": "Max($high, 30)/$close",
+      "name": "MAX30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_max60",
+      "formula": "Max($high, 60)/$close",
+      "name": "MAX60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_min5",
+      "formula": "Min($low, 5)/$close",
+      "name": "MIN5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_min10",
+      "formula": "Min($low, 10)/$close",
+      "name": "MIN10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_min20",
+      "formula": "Min($low, 20)/$close",
+      "name": "MIN20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_min30",
+      "formula": "Min($low, 30)/$close",
+      "name": "MIN30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_min60",
+      "formula": "Min($low, 60)/$close",
+      "name": "MIN60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_qtlu5",
+      "formula": "Quantile($close, 5, 0.8)/$close",
+      "name": "QTLU5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_qtlu10",
+      "formula": "Quantile($close, 10, 0.8)/$close",
+      "name": "QTLU10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_qtlu20",
+      "formula": "Quantile($close, 20, 0.8)/$close",
+      "name": "QTLU20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_qtlu30",
+      "formula": "Quantile($close, 30, 0.8)/$close",
+      "name": "QTLU30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_qtlu60",
+      "formula": "Quantile($close, 60, 0.8)/$close",
+      "name": "QTLU60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_rsv5",
+      "formula": "($close-Min($low, 5))/(Max($high, 5)-Min($low, 5)+1e-12)",
+      "name": "RSV5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_rsv10",
+      "formula": "($close-Min($low, 10))/(Max($high, 10)-Min($low, 10)+1e-12)",
+      "name": "RSV10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_rsv20",
+      "formula": "($close-Min($low, 20))/(Max($high, 20)-Min($low, 20)+1e-12)",
+      "name": "RSV20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_rsv30",
+      "formula": "($close-Min($low, 30))/(Max($high, 30)-Min($low, 30)+1e-12)",
+      "name": "RSV30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_rsv60",
+      "formula": "($close-Min($low, 60))/(Max($high, 60)-Min($low, 60)+1e-12)",
+      "name": "RSV60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_corr5",
+      "formula": "Corr($close, Log($volume+1), 5)",
+      "name": "CORR5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_corr10",
+      "formula": "Corr($close, Log($volume+1), 10)",
+      "name": "CORR10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_corr20",
+      "formula": "Corr($close, Log($volume+1), 20)",
+      "name": "CORR20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_corr30",
+      "formula": "Corr($close, Log($volume+1), 30)",
+      "name": "CORR30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_corr60",
+      "formula": "Corr($close, Log($volume+1), 60)",
+      "name": "CORR60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_cord5",
+      "formula": "Corr($close/Ref($close,1), Log($volume/Ref($volume, 1)+1), 5)",
+      "name": "CORD5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_cord10",
+      "formula": "Corr($close/Ref($close,1), Log($volume/Ref($volume, 1)+1), 10)",
+      "name": "CORD10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_cord20",
+      "formula": "Corr($close/Ref($close,1), Log($volume/Ref($volume, 1)+1), 20)",
+      "name": "CORD20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_cord30",
+      "formula": "Corr($close/Ref($close,1), Log($volume/Ref($volume, 1)+1), 30)",
+      "name": "CORD30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_cord60",
+      "formula": "Corr($close/Ref($close,1), Log($volume/Ref($volume, 1)+1), 60)",
+      "name": "CORD60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vma5",
+      "formula": "Mean($volume, 5)/($volume+1e-12)",
+      "name": "VMA5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vma10",
+      "formula": "Mean($volume, 10)/($volume+1e-12)",
+      "name": "VMA10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vma20",
+      "formula": "Mean($volume, 20)/($volume+1e-12)",
+      "name": "VMA20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vma30",
+      "formula": "Mean($volume, 30)/($volume+1e-12)",
+      "name": "VMA30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vma60",
+      "formula": "Mean($volume, 60)/($volume+1e-12)",
+      "name": "VMA60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vstd5",
+      "formula": "Std($volume, 5)/($volume+1e-12)",
+      "name": "VSTD5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vstd10",
+      "formula": "Std($volume, 10)/($volume+1e-12)",
+      "name": "VSTD10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vstd20",
+      "formula": "Std($volume, 20)/($volume+1e-12)",
+      "name": "VSTD20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vstd30",
+      "formula": "Std($volume, 30)/($volume+1e-12)",
+      "name": "VSTD30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_vstd60",
+      "formula": "Std($volume, 60)/($volume+1e-12)",
+      "name": "VSTD60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_open_0",
+      "formula": "$open/$close",
+      "name": "OPEN0",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_high_0",
+      "formula": "$high/$close",
+      "name": "HIGH0",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "expression",
+      "cpp_indicator_id": null,
+      "factor_id": "a158_low_0",
+      "formula": "$low/$close",
+      "name": "LOW0",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::PercentRank",
+      "factor_id": "a158_rank5",
+      "formula": "Rank($close, 5)",
+      "name": "RANK5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::PercentRank",
+      "factor_id": "a158_rank10",
+      "formula": "Rank($close, 10)",
+      "name": "RANK10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::PercentRank",
+      "factor_id": "a158_rank20",
+      "formula": "Rank($close, 20)",
+      "name": "RANK20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::PercentRank",
+      "factor_id": "a158_rank30",
+      "formula": "Rank($close, 30)",
+      "name": "RANK30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::PercentRank",
+      "factor_id": "a158_rank60",
+      "formula": "Rank($close, 60)",
+      "name": "RANK60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingRsquared",
+      "factor_id": "a158_rsqr5",
+      "formula": "Rsquare($close, 5)",
+      "name": "RSQR5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingRsquared",
+      "factor_id": "a158_rsqr10",
+      "formula": "Rsquare($close, 10)",
+      "name": "RSQR10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingRsquared",
+      "factor_id": "a158_rsqr20",
+      "formula": "Rsquare($close, 20)",
+      "name": "RSQR20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingRsquared",
+      "factor_id": "a158_rsqr30",
+      "formula": "Rsquare($close, 30)",
+      "name": "RSQR30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingRsquared",
+      "factor_id": "a158_rsqr60",
+      "formula": "Rsquare($close, 60)",
+      "name": "RSQR60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingResidual",
+      "factor_id": "a158_resi5",
+      "formula": "Resi($close, 5)/$close",
+      "name": "RESI5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingResidual",
+      "factor_id": "a158_resi10",
+      "formula": "Resi($close, 10)/$close",
+      "name": "RESI10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingResidual",
+      "factor_id": "a158_resi20",
+      "formula": "Resi($close, 20)/$close",
+      "name": "RESI20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingResidual",
+      "factor_id": "a158_resi30",
+      "formula": "Resi($close, 30)/$close",
+      "name": "RESI30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::RollingResidual",
+      "factor_id": "a158_resi60",
+      "formula": "Resi($close, 60)/$close",
+      "name": "RESI60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMax",
+      "factor_id": "a158_imax5",
+      "formula": "IdxMax($high, 5)/5",
+      "name": "IMAX5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMax",
+      "factor_id": "a158_imax10",
+      "formula": "IdxMax($high, 10)/10",
+      "name": "IMAX10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMax",
+      "factor_id": "a158_imax20",
+      "formula": "IdxMax($high, 20)/20",
+      "name": "IMAX20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMax",
+      "factor_id": "a158_imax30",
+      "formula": "IdxMax($high, 30)/30",
+      "name": "IMAX30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMax",
+      "factor_id": "a158_imax60",
+      "formula": "IdxMax($high, 60)/60",
+      "name": "IMAX60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMin",
+      "factor_id": "a158_imin5",
+      "formula": "IdxMin($low, 5)/5",
+      "name": "IMIN5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMin",
+      "factor_id": "a158_imin10",
+      "formula": "IdxMin($low, 10)/10",
+      "name": "IMIN10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMin",
+      "factor_id": "a158_imin20",
+      "formula": "IdxMin($low, 20)/20",
+      "name": "IMIN20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMin",
+      "factor_id": "a158_imin30",
+      "formula": "IdxMin($low, 30)/30",
+      "name": "IMIN30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::IdxMin",
+      "factor_id": "a158_imin60",
+      "formula": "IdxMin($low, 60)/60",
+      "name": "IMIN60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::ImxD",
+      "factor_id": "a158_imxd5",
+      "formula": "(IdxMax($high, 5)-IdxMin($low, 5))/5",
+      "name": "IMXD5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::ImxD",
+      "factor_id": "a158_imxd10",
+      "formula": "(IdxMax($high, 10)-IdxMin($low, 10))/10",
+      "name": "IMXD10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::ImxD",
+      "factor_id": "a158_imxd20",
+      "formula": "(IdxMax($high, 20)-IdxMin($low, 20))/20",
+      "name": "IMXD20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::ImxD",
+      "factor_id": "a158_imxd30",
+      "formula": "(IdxMax($high, 30)-IdxMin($low, 30))/30",
+      "name": "IMXD30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::ImxD",
+      "factor_id": "a158_imxd60",
+      "formula": "(IdxMax($high, 60)-IdxMin($low, 60))/60",
+      "name": "IMXD60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntP",
+      "factor_id": "a158_cntp5",
+      "formula": "Mean($close>Ref($close, 1), 5)",
+      "name": "CNTP5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntP",
+      "factor_id": "a158_cntp10",
+      "formula": "Mean($close>Ref($close, 1), 10)",
+      "name": "CNTP10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntP",
+      "factor_id": "a158_cntp20",
+      "formula": "Mean($close>Ref($close, 1), 20)",
+      "name": "CNTP20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntP",
+      "factor_id": "a158_cntp30",
+      "formula": "Mean($close>Ref($close, 1), 30)",
+      "name": "CNTP30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntP",
+      "factor_id": "a158_cntp60",
+      "formula": "Mean($close>Ref($close, 1), 60)",
+      "name": "CNTP60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntN",
+      "factor_id": "a158_cntn5",
+      "formula": "Mean($close<Ref($close, 1), 5)",
+      "name": "CNTN5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntN",
+      "factor_id": "a158_cntn10",
+      "formula": "Mean($close<Ref($close, 1), 10)",
+      "name": "CNTN10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntN",
+      "factor_id": "a158_cntn20",
+      "formula": "Mean($close<Ref($close, 1), 20)",
+      "name": "CNTN20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntN",
+      "factor_id": "a158_cntn30",
+      "formula": "Mean($close<Ref($close, 1), 30)",
+      "name": "CNTN30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntN",
+      "factor_id": "a158_cntn60",
+      "formula": "Mean($close<Ref($close, 1), 60)",
+      "name": "CNTN60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntD",
+      "factor_id": "a158_cntd5",
+      "formula": "Mean($close>Ref($close, 1), 5)-Mean($close<Ref($close, 1), 5)",
+      "name": "CNTD5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntD",
+      "factor_id": "a158_cntd10",
+      "formula": "Mean($close>Ref($close, 1), 10)-Mean($close<Ref($close, 1), 10)",
+      "name": "CNTD10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntD",
+      "factor_id": "a158_cntd20",
+      "formula": "Mean($close>Ref($close, 1), 20)-Mean($close<Ref($close, 1), 20)",
+      "name": "CNTD20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntD",
+      "factor_id": "a158_cntd30",
+      "formula": "Mean($close>Ref($close, 1), 30)-Mean($close<Ref($close, 1), 30)",
+      "name": "CNTD30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::CntD",
+      "factor_id": "a158_cntd60",
+      "formula": "Mean($close>Ref($close, 1), 60)-Mean($close<Ref($close, 1), 60)",
+      "name": "CNTD60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumP",
+      "factor_id": "a158_sump5",
+      "formula": "Sum(Greater($close-Ref($close, 1), 0), 5)/(Sum(Abs($close-Ref($close, 1)), 5)+1e-12)",
+      "name": "SUMP5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumP",
+      "factor_id": "a158_sump10",
+      "formula": "Sum(Greater($close-Ref($close, 1), 0), 10)/(Sum(Abs($close-Ref($close, 1)), 10)+1e-12)",
+      "name": "SUMP10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumP",
+      "factor_id": "a158_sump20",
+      "formula": "Sum(Greater($close-Ref($close, 1), 0), 20)/(Sum(Abs($close-Ref($close, 1)), 20)+1e-12)",
+      "name": "SUMP20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumP",
+      "factor_id": "a158_sump30",
+      "formula": "Sum(Greater($close-Ref($close, 1), 0), 30)/(Sum(Abs($close-Ref($close, 1)), 30)+1e-12)",
+      "name": "SUMP30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumP",
+      "factor_id": "a158_sump60",
+      "formula": "Sum(Greater($close-Ref($close, 1), 0), 60)/(Sum(Abs($close-Ref($close, 1)), 60)+1e-12)",
+      "name": "SUMP60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumNegReturn",
+      "factor_id": "a158_sumn5",
+      "formula": "Sum(Greater(Ref($close, 1)-$close, 0), 5)/(Sum(Abs($close-Ref($close, 1)), 5)+1e-12)",
+      "name": "SUMN5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumNegReturn",
+      "factor_id": "a158_sumn10",
+      "formula": "Sum(Greater(Ref($close, 1)-$close, 0), 10)/(Sum(Abs($close-Ref($close, 1)), 10)+1e-12)",
+      "name": "SUMN10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumNegReturn",
+      "factor_id": "a158_sumn20",
+      "formula": "Sum(Greater(Ref($close, 1)-$close, 0), 20)/(Sum(Abs($close-Ref($close, 1)), 20)+1e-12)",
+      "name": "SUMN20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumNegReturn",
+      "factor_id": "a158_sumn30",
+      "formula": "Sum(Greater(Ref($close, 1)-$close, 0), 30)/(Sum(Abs($close-Ref($close, 1)), 30)+1e-12)",
+      "name": "SUMN30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumNegReturn",
+      "factor_id": "a158_sumn60",
+      "formula": "Sum(Greater(Ref($close, 1)-$close, 0), 60)/(Sum(Abs($close-Ref($close, 1)), 60)+1e-12)",
+      "name": "SUMN60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumD",
+      "factor_id": "a158_sumd5",
+      "formula": "(Sum(Greater($close-Ref($close, 1), 0), 5)-Sum(Greater(Ref($close, 1)-$close, 0), 5))/(Sum(Abs($close-Ref($close, 1)), 5)+1e-12)",
+      "name": "SUMD5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumD",
+      "factor_id": "a158_sumd10",
+      "formula": "(Sum(Greater($close-Ref($close, 1), 0), 10)-Sum(Greater(Ref($close, 1)-$close, 0), 10))/(Sum(Abs($close-Ref($close, 1)), 10)+1e-12)",
+      "name": "SUMD10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumD",
+      "factor_id": "a158_sumd20",
+      "formula": "(Sum(Greater($close-Ref($close, 1), 0), 20)-Sum(Greater(Ref($close, 1)-$close, 0), 20))/(Sum(Abs($close-Ref($close, 1)), 20)+1e-12)",
+      "name": "SUMD20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumD",
+      "factor_id": "a158_sumd30",
+      "formula": "(Sum(Greater($close-Ref($close, 1), 0), 30)-Sum(Greater(Ref($close, 1)-$close, 0), 30))/(Sum(Abs($close-Ref($close, 1)), 30)+1e-12)",
+      "name": "SUMD30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::SumD",
+      "factor_id": "a158_sumd60",
+      "formula": "(Sum(Greater($close-Ref($close, 1), 0), 60)-Sum(Greater(Ref($close, 1)-$close, 0), 60))/(Sum(Abs($close-Ref($close, 1)), 60)+1e-12)",
+      "name": "SUMD60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::WVMA",
+      "factor_id": "a158_wvma5",
+      "formula": "Std(Abs($close/Ref($close, 1)-1)*$volume, 5)/(Mean(Abs($close/Ref($close, 1)-1)*$volume, 5)+1e-12)",
+      "name": "WVMA5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::WVMA",
+      "factor_id": "a158_wvma10",
+      "formula": "Std(Abs($close/Ref($close, 1)-1)*$volume, 10)/(Mean(Abs($close/Ref($close, 1)-1)*$volume, 10)+1e-12)",
+      "name": "WVMA10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::WVMA",
+      "factor_id": "a158_wvma20",
+      "formula": "Std(Abs($close/Ref($close, 1)-1)*$volume, 20)/(Mean(Abs($close/Ref($close, 1)-1)*$volume, 20)+1e-12)",
+      "name": "WVMA20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::WVMA",
+      "factor_id": "a158_wvma30",
+      "formula": "Std(Abs($close/Ref($close, 1)-1)*$volume, 30)/(Mean(Abs($close/Ref($close, 1)-1)*$volume, 30)+1e-12)",
+      "name": "WVMA30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::WVMA",
+      "factor_id": "a158_wvma60",
+      "formula": "Std(Abs($close/Ref($close, 1)-1)*$volume, 60)/(Mean(Abs($close/Ref($close, 1)-1)*$volume, 60)+1e-12)",
+      "name": "WVMA60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 2
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumP",
+      "factor_id": "a158_vsump5",
+      "formula": "Sum(Greater($volume-Ref($volume, 1), 0), 5)/(Sum(Abs($volume-Ref($volume, 1)), 5)+1e-12)",
+      "name": "VSUMP5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumP",
+      "factor_id": "a158_vsump10",
+      "formula": "Sum(Greater($volume-Ref($volume, 1), 0), 10)/(Sum(Abs($volume-Ref($volume, 1)), 10)+1e-12)",
+      "name": "VSUMP10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumP",
+      "factor_id": "a158_vsump20",
+      "formula": "Sum(Greater($volume-Ref($volume, 1), 0), 20)/(Sum(Abs($volume-Ref($volume, 1)), 20)+1e-12)",
+      "name": "VSUMP20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumP",
+      "factor_id": "a158_vsump30",
+      "formula": "Sum(Greater($volume-Ref($volume, 1), 0), 30)/(Sum(Abs($volume-Ref($volume, 1)), 30)+1e-12)",
+      "name": "VSUMP30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumP",
+      "factor_id": "a158_vsump60",
+      "formula": "Sum(Greater($volume-Ref($volume, 1), 0), 60)/(Sum(Abs($volume-Ref($volume, 1)), 60)+1e-12)",
+      "name": "VSUMP60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumN",
+      "factor_id": "a158_vsumn5",
+      "formula": "Sum(Greater(Ref($volume, 1)-$volume, 0), 5)/(Sum(Abs($volume-Ref($volume, 1)), 5)+1e-12)",
+      "name": "VSUMN5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumN",
+      "factor_id": "a158_vsumn10",
+      "formula": "Sum(Greater(Ref($volume, 1)-$volume, 0), 10)/(Sum(Abs($volume-Ref($volume, 1)), 10)+1e-12)",
+      "name": "VSUMN10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumN",
+      "factor_id": "a158_vsumn20",
+      "formula": "Sum(Greater(Ref($volume, 1)-$volume, 0), 20)/(Sum(Abs($volume-Ref($volume, 1)), 20)+1e-12)",
+      "name": "VSUMN20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumN",
+      "factor_id": "a158_vsumn30",
+      "formula": "Sum(Greater(Ref($volume, 1)-$volume, 0), 30)/(Sum(Abs($volume-Ref($volume, 1)), 30)+1e-12)",
+      "name": "VSUMN30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumN",
+      "factor_id": "a158_vsumn60",
+      "formula": "Sum(Greater(Ref($volume, 1)-$volume, 0), 60)/(Sum(Abs($volume-Ref($volume, 1)), 60)+1e-12)",
+      "name": "VSUMN60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumD",
+      "factor_id": "a158_vsumd5",
+      "formula": "(Sum(Greater($volume-Ref($volume, 1), 0), 5)-Sum(Greater(Ref($volume, 1)-$volume, 0), 5))/(Sum(Abs($volume-Ref($volume, 1)), 5)+1e-12)",
+      "name": "VSUMD5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumD",
+      "factor_id": "a158_vsumd10",
+      "formula": "(Sum(Greater($volume-Ref($volume, 1), 0), 10)-Sum(Greater(Ref($volume, 1)-$volume, 0), 10))/(Sum(Abs($volume-Ref($volume, 1)), 10)+1e-12)",
+      "name": "VSUMD10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumD",
+      "factor_id": "a158_vsumd20",
+      "formula": "(Sum(Greater($volume-Ref($volume, 1), 0), 20)-Sum(Greater(Ref($volume, 1)-$volume, 0), 20))/(Sum(Abs($volume-Ref($volume, 1)), 20)+1e-12)",
+      "name": "VSUMD20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumD",
+      "factor_id": "a158_vsumd30",
+      "formula": "(Sum(Greater($volume-Ref($volume, 1), 0), 30)-Sum(Greater(Ref($volume, 1)-$volume, 0), 30))/(Sum(Abs($volume-Ref($volume, 1)), 30)+1e-12)",
+      "name": "VSUMD30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::VSumD",
+      "factor_id": "a158_vsumd60",
+      "formula": "(Sum(Greater($volume-Ref($volume, 1), 0), 60)-Sum(Greater(Ref($volume, 1)-$volume, 0), 60))/(Sum(Abs($volume-Ref($volume, 1)), 60)+1e-12)",
+      "name": "VSUMD60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 1
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::Quantile",
+      "factor_id": "a158_qtld5",
+      "formula": "Quantile($close, 5, 0.2)/$close",
+      "name": "QTLD5",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::Quantile",
+      "factor_id": "a158_qtld10",
+      "formula": "Quantile($close, 10, 0.2)/$close",
+      "name": "QTLD10",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::Quantile",
+      "factor_id": "a158_qtld20",
+      "formula": "Quantile($close, 20, 0.2)/$close",
+      "name": "QTLD20",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::Quantile",
+      "factor_id": "a158_qtld30",
+      "formula": "Quantile($close, 30, 0.2)/$close",
+      "name": "QTLD30",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::Quantile",
+      "factor_id": "a158_qtld60",
+      "formula": "Quantile($close, 60, 0.2)/$close",
+      "name": "QTLD60",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    },
+    {
+      "catalog_route": "public_cpp_binding",
+      "cpp_indicator_id": "stratforge::Alpha158VwapRatio",
+      "factor_id": "a158_vwap_0",
+      "formula": "$vwap/$close",
+      "name": "VWAP0",
+      "parity_status": "passed",
+      "runtime_route": "generated_pinned_qlib_family",
+      "warmup_bars": 0
+    }
+  ],
+  "provenance": {
+    "absolute_tolerance": 0.0005,
+    "catalog_sha256": "04cfc02efc78e523ed278f94ae95d310c0612d6132cfb7ab9b4ad2a3f32d6511",
+    "cpp_gate": "test_alpha158_qlib_parity",
+    "oracle": {
+      "dataset_version": 1,
+      "input_sha256": "76698ba6e68a7da4299f8d4e31bf07d91601e370356b457824a6111c12a0fb3c",
+      "oracle": "Qlib ExpressionD",
+      "phase": 1,
+      "qlib_loader_sha256": "814b7f7ab3d418ae3c87ce352220080b239eba2670eac9e38376b794be4075cb",
+      "qlib_revision": "79633dd9506ea689e5400dea0197717b5b3d74b7",
+      "qlib_version": "0.9.8.dev32",
+      "ticket": "TICKET_SF011"
+    },
+    "phase": 4,
+    "reference_sha256": "546b3d1c8123e3cf721942276ea0d4df4e0642da2632037bc7a1b9f0a28a1878",
+    "relative_tolerance": 2e-05,
+    "ticket": "TICKET_SF011"
+  },
+  "summary": {
+    "expression_catalog_routes": 63,
+    "failed": 0,
+    "formula_mismatches": 0,
+    "generated_qlib_family_routes": 158,
+    "passed": 158,
+    "public_cpp_bindings": 95,
+    "total": 158,
+    "warmup_mismatches": 0
+  }
+}

@@ -6,10 +6,10 @@
 #include <stratforge/analytics/extended_metrics.hpp>
 #include <stratforge/broker/broker.hpp>
 #include <stratforge/data/data_feed.hpp>
+#include <stratforge/data/epoch_time.hpp>
 #include <stratforge/observers/cash_value.hpp>
 #include <stratforge/engine/detail/backtest_json_writer.hpp>
 
-#include <chrono>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -66,10 +66,8 @@ struct SerializationContext {
         if (feed->size() > 0) {
             const auto& dt_data = feed->datetime().data();
             if (!dt_data.empty()) {
-                start_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    dt_data.front().time_since_epoch()).count();
-                end_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    dt_data.back().time_since_epoch()).count();
+                start_time = datetime_to_epoch_milliseconds(dt_data.front());
+                end_time = datetime_to_epoch_milliseconds(dt_data.back());
             }
         }
     }
@@ -212,8 +210,7 @@ struct SerializationContext {
 
         for (std::size_t i = 0; i < val_data.size() && i < dt_data.size(); ++i) {
             w.begin_object();
-            auto ts = std::chrono::duration_cast<std::chrono::milliseconds>(
-                dt_data[i].time_since_epoch()).count();
+            const auto ts = datetime_to_epoch_milliseconds(dt_data[i]);
             w.kv_int("timestamp", ts);
             w.kv_double("equity", val_data[i], 2);
 
@@ -238,12 +235,10 @@ struct SerializationContext {
             int64_t entry_ts = 0;
             int64_t exit_ts = 0;
             if (trade.entry_bar < dt_data.size()) {
-                entry_ts = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    dt_data[trade.entry_bar].time_since_epoch()).count();
+                entry_ts = datetime_to_epoch_milliseconds(dt_data[trade.entry_bar]);
             }
             if (trade.exit_bar < dt_data.size()) {
-                exit_ts = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    dt_data[trade.exit_bar].time_since_epoch()).count();
+                exit_ts = datetime_to_epoch_milliseconds(dt_data[trade.exit_bar]);
             }
 
             w.kv_int("entryTime", entry_ts);
@@ -276,8 +271,7 @@ struct SerializationContext {
 
         for (std::size_t i = 0; i < n; ++i) {
             w.begin_object();
-            auto ts = std::chrono::duration_cast<std::chrono::milliseconds>(
-                dt_data[i].time_since_epoch()).count();
+            const auto ts = datetime_to_epoch_milliseconds(dt_data[i]);
             w.kv_int("timestamp", ts);
             w.kv_double("open", i < o_data.size() ? o_data[i] : 0.0, 6);
             w.kv_double("high", i < h_data.size() ? h_data[i] : 0.0, 6);

@@ -33,6 +33,9 @@ add_executable(stratforge_tests
     test_indicator_ticket011.cpp
     test_public_live_engine.cpp
     test_candlestick.cpp
+    test_sf011_phase5.cpp
+    test_sf011_phase6.cpp
+    test_sf011_phase7.cpp
     test_mavp.cpp
     test_coverage_indicators.cpp
     test_coverage_broker.cpp
@@ -69,11 +72,11 @@ add_executable(stratforge_tests
     test_sf009_phase3.cpp
     test_sf009_phase4.cpp
     test_sf009_phase5.cpp
+    test_sf011_phase2.cpp
     test_instrument_venue_currency.cpp
     test_resampled_feed.cpp
     test_multi_clock_cerebro.cpp
     test_backtest_runner_feeds.cpp
-    test_ticket791_williams_conformance.cpp
     test_indicator_history_contract.cpp
     test_generated_strategy_warmup.cpp
 )
@@ -97,6 +100,7 @@ target_compile_definitions(stratforge_tests PRIVATE
     SF_SOURCE_DIR="${CMAKE_SOURCE_DIR}"
 )
 
+
 # -Wno-missing-field-initializers: GCC false positive with designated
 # initializers on structs containing std::optional fields with defaults.
 # Global -Wall -Wextra -Wpedantic -Werror applied via root CMakeLists.txt.
@@ -108,6 +112,9 @@ include(CTest)
 include(Catch)
 catch_discover_tests(stratforge_tests)
 
+
+# be tested against the same Arrow/Parquet libraries when they are available.
+
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 add_test(
     NAME indicator_history_contract_drift
@@ -116,12 +123,31 @@ add_test(
             --check
 )
 
+add_test(
+    NAME indicator_registry_schema
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_SOURCE_DIR}/tools/validate_registry_schema.py
+)
+
+add_test(
+    NAME indicator_registry_compile_drift
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_SOURCE_DIR}/tools/generate_compile_tests.py
+            --check
+)
+
+add_test(
+    NAME sf011_coverage_report_drift
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_SOURCE_DIR}/tools/golden_extract/generate_sf011_coverage.py
+            --check
+)
+
 set_target_properties(stratforge_tests PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/tests
 )
 
 # This private integration test is intentionally absent from the public
-# StratForge sync, whose SDK surface excludes qnx_strategy_sdk.
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test_ticket791_validation_sdk.py)
     add_test(
         NAME ticket791_validation_sdk
