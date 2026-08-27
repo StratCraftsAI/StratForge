@@ -1,0 +1,148 @@
+{
+  "candidates": [
+    {
+      "category": "geometry",
+      "covered": true,
+      "name": "CandleGeometry",
+      "outcome": "implemented_public",
+      "surface": "indicator_registry"
+    },
+    {
+      "category": "geometry",
+      "covered": true,
+      "name": "NormalizedCandleGeometry",
+      "outcome": "implemented_public",
+      "surface": "indicator_registry"
+    },
+    {
+      "category": "geometry",
+      "covered": true,
+      "name": "CandlePercentile",
+      "outcome": "implemented_public",
+      "surface": "indicator_registry"
+    },
+    {
+      "category": "structure",
+      "covered": true,
+      "name": "OutsideBar",
+      "outcome": "implemented_public",
+      "surface": "indicator_registry"
+    },
+    {
+      "category": "structure",
+      "covered": true,
+      "name": "InsideBarDepth",
+      "outcome": "implemented_public",
+      "surface": "indicator_registry"
+    },
+    {
+      "category": "structure",
+      "covered": true,
+      "name": "NarrowRange",
+      "outcome": "implemented_public",
+      "surface": "indicator_registry"
+    },
+    {
+      "category": "structure",
+      "covered": true,
+      "name": "WideRange",
+      "outcome": "implemented_public",
+      "surface": "indicator_registry"
+    },
+    {
+      "category": "context",
+      "covered": true,
+      "name": "PatternConfirmation",
+      "outcome": "implemented_composable",
+      "surface": "aggregate_header"
+    },
+    {
+      "category": "context",
+      "covered": true,
+      "name": "TrendContext",
+      "outcome": "implemented_composable",
+      "surface": "aggregate_header"
+    },
+    {
+      "category": "context",
+      "covered": true,
+      "name": "VolumeConfirmation",
+      "outcome": "implemented_composable",
+      "surface": "aggregate_header"
+    },
+    {
+      "category": "context",
+      "covered": true,
+      "name": "SupportResistanceContext",
+      "outcome": "implemented_composable",
+      "surface": "aggregate_header"
+    },
+    {
+      "category": "context",
+      "covered": true,
+      "name": "MultiTimeframeContext",
+      "outcome": "implemented_engine_contract",
+      "surface": "multi_feed_execution"
+    },
+    {
+      "category": "context",
+      "covered": true,
+      "name": "CandleQualityScore",
+      "outcome": "implemented_composable",
+      "surface": "aggregate_header"
+    },
+    {
+      "category": "synthetic_series",
+      "covered": true,
+      "name": "Renko",
+      "outcome": "architecture_approved_production_deferred",
+      "surface": "series_transform_contract"
+    },
+    {
+      "category": "synthetic_series",
+      "covered": true,
+      "name": "Kagi",
+      "outcome": "architecture_approved_production_deferred",
+      "surface": "series_transform_contract"
+    },
+    {
+      "category": "synthetic_series",
+      "covered": true,
+      "name": "ThreeLineBreak",
+      "outcome": "architecture_approved_production_deferred",
+      "surface": "series_transform_contract"
+    },
+    {
+      "category": "synthetic_series",
+      "covered": true,
+      "name": "PointAndFigure",
+      "outcome": "architecture_approved_production_deferred",
+      "surface": "series_transform_contract"
+    }
+  ],
+  "provenance": {
+    "inventory_sha256": "588e01df5861aa340b468d76b360ecdb0eb741e4b71776e874cb0098b08194eb",
+    "registry_sha256": "47dd2e56a420498454d02e722118ae552bfdea15982fc748b324f7660e1e7157",
+    "test_sha256": {
+      "context": "74248937c4d29d3fdfa9837c59859fc41fd4e620c01fe454a01bf72365983c99",
+      "geometry": "d682a4531b0df3a03e054329ad05b9af02e10e8920bc03e2ac38192edd0b0d33",
+      "multi_clock": "162e9a286512da029420582536f7f57372cec201272f78a7a0b82e0ae25c7f3a",
+      "structure": "3de5c074eb26762aa8aff2bfd3da8b157ea1387eb4e25353b1348c9433665008",
+      "synthetic_series": "bbf601d609fdf6eb01e66c835eb95a4fbdee45ce37d1d5a0cead706d2af74cdf"
+    },
+    "ticket": "TICKET_SF012",
+    "work_package": 10
+  },
+  "summary": {
+    "covered_candidates": 17,
+    "inventory_candidates": 17,
+    "outcomes": {
+      "architecture_approved_production_deferred": 4,
+      "implemented_composable": 5,
+      "implemented_engine_contract": 1,
+      "implemented_public": 7
+    },
+    "priority1_registry_types": 7,
+    "registry_presets": 2
+  }
+}

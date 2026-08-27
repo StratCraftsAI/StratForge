@@ -36,6 +36,11 @@ add_executable(stratforge_tests
     test_sf011_phase5.cpp
     test_sf011_phase6.cpp
     test_sf011_phase7.cpp
+    test_sf012_geometry.cpp
+    test_sf012_structure.cpp
+    test_sf012_context.cpp
+    test_sf012_multiclock.cpp
+    test_sf012_synthetic_series.cpp
     test_mavp.cpp
     test_coverage_indicators.cpp
     test_coverage_broker.cpp
@@ -140,6 +145,20 @@ add_test(
     NAME sf011_coverage_report_drift
     COMMAND ${Python3_EXECUTABLE}
             ${CMAKE_SOURCE_DIR}/tools/golden_extract/generate_sf011_coverage.py
+            --check
+)
+
+add_test(
+    NAME sf012_inventory_drift
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_SOURCE_DIR}/tools/golden_extract/generate_sf012_inventory.py
+            --check
+)
+
+add_test(
+    NAME sf012_coverage_report_drift
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_SOURCE_DIR}/tools/golden_extract/generate_sf012_coverage.py
             --check
 )
 

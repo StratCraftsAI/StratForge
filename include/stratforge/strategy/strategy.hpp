@@ -316,6 +316,10 @@ protected:
     }
 
     /// Advance generated indicators once for every feed that formed a bar.
+    /// Context-feed owners run before feed 0 so feed-0 wrappers can explicitly
+    /// align a context value that became causally visible on this master bar.
+    /// This never advances an input feed: Cerebro owns the clock flags and each
+    /// update hook remains responsible only for indicators bound to that feed.
     /// Single-feed evaluators that do not publish clock flags retain feed-0
     /// behavior for compatibility.
     void advance_generated_indicators() {
@@ -323,10 +327,13 @@ protected:
             update_indicators(0);
             return;
         }
-        for (std::size_t feed_index = 0; feed_index < feed_advanced_.size(); ++feed_index) {
+        for (std::size_t feed_index = 1; feed_index < feed_advanced_.size(); ++feed_index) {
             if (feed_advanced_[feed_index]) {
                 update_indicators(feed_index);
             }
+        }
+        if (!feed_advanced_.empty() && feed_advanced_[0]) {
+            update_indicators(0);
         }
     }
 

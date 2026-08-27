@@ -42,6 +42,11 @@ Multi-feed generated strategies override
 each owning feed. They override `update_indicators(feed_index)` to advance only
 the members bound to that feed. Engines own readiness: business logic runs on
 the feed-0 execution clock only after every declared feed requirement is met.
+When multiple feeds form a bar on the same master iteration, secondary-feed
+owners are updated before feed 0. A feed-0 context wrapper can therefore append
+an explicitly aligned copy of the latest context value whose close timestamp is
+not later than the execution close. Held context values do not update the
+secondary owner again, and wrappers never advance or resample an input feed.
 
 ## Public live execution core
 

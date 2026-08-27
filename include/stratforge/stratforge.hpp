@@ -48,6 +48,9 @@
 #include <stratforge/indicators/accum.hpp>
 #include <stratforge/indicators/candlestick_common.hpp>
 #include <stratforge/indicators/candlestick.hpp>
+#include <stratforge/indicators/candle_structure_common.hpp>
+#include <stratforge/indicators/candle_structure.hpp>
+#include <stratforge/indicators/pattern_context.hpp>
 #include <stratforge/indicators/adaptive.hpp>
 #include <stratforge/indicators/average.hpp>
 #include <stratforge/indicators/awesomeoscillator.hpp>

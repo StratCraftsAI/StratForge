@@ -1,0 +1,995 @@
+{
+  "provenance": {
+    "generated_on": "2026-08-27",
+    "sources": {
+      "lean": {
+        "license": "Apache-2.0",
+        "project": "QuantConnect LEAN",
+        "release": null,
+        "revision": "07fb0182bfe229edd9445cf675ac6509d0069539",
+        "role": "secondary streaming/readiness reference",
+        "url": "https://github.com/QuantConnect/Lean/tree/07fb0182bfe229edd9445cf675ac6509d0069539/Indicators/CandlestickPatterns"
+      },
+      "pandas_ta": {
+        "license": "MIT",
+        "project": "pandas-ta-classic 0.3.59",
+        "release": "0.3.59",
+        "revision": "8c3852d997e5f16af79b558760bddd77773d39de",
+        "role": "secondary reference; catalog includes TA-Lib wrappers",
+        "url": "https://github.com/xgboosted/pandas-ta-classic/tree/8c3852d997e5f16af79b558760bddd77773d39de/pandas_ta_classic/candles"
+      },
+      "qlib": {
+        "license": "MIT",
+        "project": "Microsoft Qlib",
+        "release": "v0.9.7-32-g79633dd",
+        "revision": "79633dd9506ea689e5400dea0197717b5b3d74b7",
+        "role": "independent formula oracle",
+        "url": "https://github.com/microsoft/qlib/blob/79633dd9506ea689e5400dea0197717b5b3d74b7/qlib/contrib/data/loader.py"
+      },
+      "stratforge": {
+        "license": "Apache-2.0",
+        "project": "StratForge",
+        "release": null,
+        "revision": "TICKET_SF011 baseline",
+        "role": "existing implementation/specification owner",
+        "url": "https://github.com/stratcraft-ai/StratForge"
+      },
+      "ta4j": {
+        "license": "MIT",
+        "project": "ta4j 0.18",
+        "release": "0.18",
+        "revision": "e9918d52853cae3ee70b7d1620b46ae80c8f2b84",
+        "role": "synthetic-series specification reference",
+        "url": "https://github.com/ta4j/ta4j/tree/e9918d52853cae3ee70b7d1620b46ae80c8f2b84"
+      },
+      "talib": {
+        "license": "BSD-3-Clause",
+        "project": "TA-Lib 0.6.4",
+        "release": "v0.6.4",
+        "revision": "43f9d5042ecc4bd367941846494ad907bf20ea50",
+        "role": "canonical traditional-pattern oracle",
+        "url": "https://github.com/TA-Lib/ta-lib/tree/43f9d5042ecc4bd367941846494ad907bf20ea50/src/ta_func"
+      },
+      "tulip": {
+        "license": "LGPL-3.0-or-later",
+        "project": "Tulip Indicators",
+        "release": null,
+        "revision": "be18abb13e075ba866898dcc7cb52399603302a6",
+        "role": "formula reference only; copying not approved",
+        "url": "https://github.com/TulipCharts/tulipindicators/tree/be18abb13e075ba866898dcc7cb52399603302a6"
+      }
+    },
+    "ticket": "TICKET_SF012",
+    "work_package": "WP0"
+  },
+  "rows": [
+    {
+      "aliases": [],
+      "canonical_name": "KMID",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KMID"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "KLEN",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KLEN"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "KMID2",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KMID2"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "KUP",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KUP"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "KUP2",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KUP2"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "KLOW",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KLOW"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "KLOW2",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KLOW2"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "KSFT",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KSFT"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "KSFT2",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Qlib Alpha158 current-bar K-line expression",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "SF011 already provides this pinned-Qlib type",
+      "source": "qlib",
+      "stratforge_matches": [
+        "stratforge::KSFT2"
+      ]
+    },
+    {
+      "aliases": [
+        "InsideBar",
+        "CDL_INSIDE"
+      ],
+      "canonical_name": "CdlInside",
+      "category": "structure",
+      "disposition": "existing",
+      "expected_lookback": "1",
+      "external_implementation": "native",
+      "formula_or_algorithm": "current range is strictly inside prior range",
+      "input_fields": [
+        "high",
+        "low"
+      ],
+      "output_domain": "0 or 1",
+      "parameters": [],
+      "reason": "Public implementation predates SF012; do not duplicate",
+      "source": "pandas_ta",
+      "stratforge_matches": [
+        "stratforge::CdlInside"
+      ]
+    },
+    {
+      "aliases": [
+        "CandleZScore",
+        "CDL_Z"
+      ],
+      "canonical_name": "CdlZ",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "period - 1",
+      "external_implementation": "native",
+      "formula_or_algorithm": "rolling candle body z-score",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [
+        "period",
+        "full",
+        "ddof"
+      ],
+      "reason": "Public implementation predates SF012; do not duplicate",
+      "source": "pandas_ta",
+      "stratforge_matches": [
+        "stratforge::CdlZ"
+      ]
+    },
+    {
+      "aliases": [
+        "HeikinAshiCandles"
+      ],
+      "canonical_name": "HeikinAshi",
+      "category": "synthetic_series",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "recursive Heikin-Ashi OHLC transform",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "four OHLC lines",
+      "parameters": [],
+      "reason": "Public implementation predates SF012; do not duplicate",
+      "source": "pandas_ta",
+      "stratforge_matches": [
+        "stratforge::HeikinAshi"
+      ]
+    },
+    {
+      "aliases": [
+        "HeikinAshiDelta",
+        "HADELTA"
+      ],
+      "canonical_name": "haDelta",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "0",
+      "external_implementation": "native",
+      "formula_or_algorithm": "Heikin-Ashi close minus open",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [],
+      "reason": "Public implementation predates SF012; do not duplicate",
+      "source": "pandas_ta",
+      "stratforge_matches": [
+        "stratforge::haDelta"
+      ]
+    },
+    {
+      "aliases": [
+        "QSTICK"
+      ],
+      "canonical_name": "QStick",
+      "category": "geometry",
+      "disposition": "existing",
+      "expected_lookback": "period - 1",
+      "external_implementation": "native",
+      "formula_or_algorithm": "moving average of close-open",
+      "input_fields": [
+        "open",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [
+        "period"
+      ],
+      "reason": "Public implementation predates SF012; do not duplicate",
+      "source": "tulip",
+      "stratforge_matches": [
+        "stratforge::QStick"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "CandleGeometry",
+      "category": "geometry",
+      "disposition": "candidate",
+      "expected_lookback": "1 for gap; 0 otherwise",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "body=close-open; range=high-low; upper=high-max(open,close); lower=min(open,close)-low; gap=open-prior_close",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous component lines",
+      "parameters": [],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "NormalizedCandleGeometry",
+      "category": "geometry",
+      "disposition": "candidate",
+      "expected_lookback": "max(1, ATR minimum period)",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "CandleGeometry components divided by existing ATR",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "continuous component lines",
+      "parameters": [
+        "atr_period"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "CandlePercentile",
+      "category": "geometry",
+      "disposition": "candidate",
+      "expected_lookback": "period - 1",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "rolling magnitude rank under the WP1 tie/current-window contract",
+      "input_fields": [
+        "selected candle measurement"
+      ],
+      "output_domain": "continuous percentile",
+      "parameters": [
+        "measurement",
+        "period"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "OutsideBar",
+      "category": "structure",
+      "disposition": "candidate",
+      "expected_lookback": "1",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "current range contains prior range under strict or inclusive comparisons",
+      "input_fields": [
+        "high",
+        "low"
+      ],
+      "output_domain": "0 or 1",
+      "parameters": [
+        "boundary_mode"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "InsideBarDepth",
+      "category": "structure",
+      "disposition": "candidate",
+      "expected_lookback": "1",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "active-mother-bar containment with depth, range, and breakout direction",
+      "input_fields": [
+        "high",
+        "low"
+      ],
+      "output_domain": "integer/real/-1,0,+1 components",
+      "parameters": [
+        "boundary_mode"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [
+        "NR4",
+        "NR7"
+      ],
+      "canonical_name": "NarrowRange",
+      "category": "structure",
+      "disposition": "candidate",
+      "expected_lookback": "period - 1",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "current range is the smallest in the rolling N-bar window",
+      "input_fields": [
+        "high",
+        "low"
+      ],
+      "output_domain": "0 or 1",
+      "parameters": [
+        "period",
+        "tie_policy"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "WideRange",
+      "category": "structure",
+      "disposition": "candidate",
+      "expected_lookback": "period - 1",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "current range is the largest in the rolling N-bar window",
+      "input_fields": [
+        "high",
+        "low"
+      ],
+      "output_domain": "0 or 1",
+      "parameters": [
+        "period",
+        "tie_policy"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "PatternConfirmation",
+      "category": "context",
+      "disposition": "candidate",
+      "expected_lookback": "max supplied input history",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "causal pending/confirmed/invalidated/expired event lifecycle",
+      "input_fields": [
+        "signal",
+        "price",
+        "confirmation_threshold",
+        "invalidation_threshold"
+      ],
+      "output_domain": "state and event age",
+      "parameters": [
+        "expiry_bars",
+        "overlap_policy"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "TrendContext",
+      "category": "context",
+      "disposition": "candidate",
+      "expected_lookback": "max supplied input history",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "classify signal against an explicitly supplied trend line",
+      "input_fields": [
+        "signal",
+        "trend_line"
+      ],
+      "output_domain": "-1/0/+1 and components",
+      "parameters": [],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "VolumeConfirmation",
+      "category": "context",
+      "disposition": "candidate",
+      "expected_lookback": "max supplied input history",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "signal volume divided by explicitly supplied rolling baseline",
+      "input_fields": [
+        "signal",
+        "volume",
+        "baseline"
+      ],
+      "output_domain": "ratio and flag",
+      "parameters": [],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "SupportResistanceContext",
+      "category": "context",
+      "disposition": "candidate",
+      "expected_lookback": "max supplied input history",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "signed and absolute distance from supplied level",
+      "input_fields": [
+        "signal",
+        "price",
+        "level_line"
+      ],
+      "output_domain": "distance and side",
+      "parameters": [
+        "level_kind"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "MultiTimeframeContext",
+      "category": "context",
+      "disposition": "candidate",
+      "expected_lookback": "max aligned input history",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "sample only explicitly aligned values available on source clock",
+      "input_fields": [
+        "signal",
+        "aligned_context"
+      ],
+      "output_domain": "context state",
+      "parameters": [],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "CandleQualityScore",
+      "category": "context",
+      "disposition": "candidate",
+      "expected_lookback": "max component history",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "transparent weighted composition with observable components",
+      "input_fields": [
+        "geometry",
+        "trend",
+        "confirmation",
+        "volume"
+      ],
+      "output_domain": "component and aggregate scores",
+      "parameters": [
+        "weights"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "stratforge",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "Renko",
+      "category": "synthetic_series",
+      "disposition": "candidate",
+      "expected_lookback": "not an indicator",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "variable-cardinality brick transform; WP9 architecture/prototype only",
+      "input_fields": [
+        "source_bar"
+      ],
+      "output_domain": "zero-to-many synthetic bars",
+      "parameters": [
+        "brick_size_or_atr",
+        "reversal_rule"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "ta4j",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "Kagi",
+      "category": "synthetic_series",
+      "disposition": "candidate",
+      "expected_lookback": "not an indicator",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "variable-cardinality direction/reversal transform",
+      "input_fields": [
+        "source_bar"
+      ],
+      "output_domain": "zero-to-many synthetic elements",
+      "parameters": [
+        "reversal_amount"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "ta4j",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [],
+      "canonical_name": "ThreeLineBreak",
+      "category": "synthetic_series",
+      "disposition": "candidate",
+      "expected_lookback": "not an indicator",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "variable-cardinality line-break transform",
+      "input_fields": [
+        "source_bar"
+      ],
+      "output_domain": "zero-to-many synthetic elements",
+      "parameters": [
+        "line_count"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "ta4j",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [
+        "Point & Figure"
+      ],
+      "canonical_name": "PointAndFigure",
+      "category": "synthetic_series",
+      "disposition": "candidate",
+      "expected_lookback": "not an indicator",
+      "external_implementation": "specification-derived",
+      "formula_or_algorithm": "variable-cardinality X/O-column transform",
+      "input_fields": [
+        "source_bar"
+      ],
+      "output_domain": "zero-to-many synthetic elements",
+      "parameters": [
+        "box_size",
+        "reversal_boxes"
+      ],
+      "reason": "Distinct SF012 scope; WP1/WP9 must freeze semantics before implementation",
+      "source": "ta4j",
+      "stratforge_matches": []
+    },
+    {
+      "aliases": [
+        "CDL2CROWS",
+        "CDL3BLACKCROWS",
+        "CDL3INSIDE",
+        "CDL3LINESTRIKE",
+        "CDL3OUTSIDE",
+        "CDL3STARSINSOUTH",
+        "CDL3WHITESOLDIERS",
+        "CDLABANDONEDBABY",
+        "CDLADVANCEBLOCK",
+        "CDLBELTHOLD",
+        "CDLBREAKAWAY",
+        "CDLCLOSINGMARUBOZU",
+        "CDLCONCEALBABYSWALL",
+        "CDLCOUNTERATTACK",
+        "CDLDARKCLOUDCOVER",
+        "CDLDOJI",
+        "CDLDOJISTAR",
+        "CDLDRAGONFLYDOJI",
+        "CDLENGULFING",
+        "CDLEVENINGDOJISTAR",
+        "CDLEVENINGSTAR",
+        "CDLGAPSIDESIDEWHITE",
+        "CDLGRAVESTONEDOJI",
+        "CDLHAMMER",
+        "CDLHANGINGMAN",
+        "CDLHARAMI",
+        "CDLHARAMICROSS",
+        "CDLHIGHWAVE",
+        "CDLHIKKAKE",
+        "CDLHIKKAKEMOD",
+        "CDLHOMINGPIGEON",
+        "CDLIDENTICAL3CROWS",
+        "CDLINNECK",
+        "CDLINVERTEDHAMMER",
+        "CDLKICKING",
+        "CDLKICKINGBYLENGTH",
+        "CDLLADDERBOTTOM",
+        "CDLLONGLEGGEDDOJI",
+        "CDLLONGLINE",
+        "CDLMARUBOZU",
+        "CDLMATCHINGLOW",
+        "CDLMATHOLD",
+        "CDLMORNINGDOJISTAR",
+        "CDLMORNINGSTAR",
+        "CDLONNECK",
+        "CDLPIERCING",
+        "CDLRICKSHAWMAN",
+        "CDLRISEFALL3METHODS",
+        "CDLSEPARATINGLINES",
+        "CDLSHOOTINGSTAR",
+        "CDLSHORTLINE",
+        "CDLSPINNINGTOP",
+        "CDLSTALLEDPATTERN",
+        "CDLSTICKSANDWICH",
+        "CDLTAKURI",
+        "CDLTASUKIGAP",
+        "CDLTHRUSTING",
+        "CDLTRISTAR",
+        "CDLUNIQUE3RIVER",
+        "CDLUPSIDEGAP2CROWS",
+        "CDLXSIDEGAP3METHODS"
+      ],
+      "canonical_name": "TA-Lib CDL catalog",
+      "category": "structure",
+      "disposition": "duplicate",
+      "expected_lookback": "pattern-specific",
+      "external_implementation": "native",
+      "formula_or_algorithm": "61 adaptive CDL recognizers",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "integer signals",
+      "parameters": [
+        "pattern-specific"
+      ],
+      "reason": "SF011 already implements and aliases all 61",
+      "source": "talib",
+      "stratforge_matches": [
+        "stratforge::CDL2CROWS",
+        "stratforge::CDL3BLACKCROWS",
+        "stratforge::CDL3INSIDE",
+        "stratforge::CDL3LINESTRIKE",
+        "stratforge::CDL3OUTSIDE",
+        "stratforge::CDL3STARSINSOUTH",
+        "stratforge::CDL3WHITESOLDIERS",
+        "stratforge::CDLABANDONEDBABY",
+        "stratforge::CDLADVANCEBLOCK",
+        "stratforge::CDLBELTHOLD",
+        "stratforge::CDLBREAKAWAY",
+        "stratforge::CDLCLOSINGMARUBOZU",
+        "stratforge::CDLCONCEALBABYSWALL",
+        "stratforge::CDLCOUNTERATTACK",
+        "stratforge::CDLDARKCLOUDCOVER",
+        "stratforge::CDLDOJI",
+        "stratforge::CDLDOJISTAR",
+        "stratforge::CDLDRAGONFLYDOJI",
+        "stratforge::CDLENGULFING",
+        "stratforge::CDLEVENINGDOJISTAR",
+        "stratforge::CDLEVENINGSTAR",
+        "stratforge::CDLGAPSIDESIDEWHITE",
+        "stratforge::CDLGRAVESTONEDOJI",
+        "stratforge::CDLHAMMER",
+        "stratforge::CDLHANGINGMAN",
+        "stratforge::CDLHARAMI",
+        "stratforge::CDLHARAMICROSS",
+        "stratforge::CDLHIGHWAVE",
+        "stratforge::CDLHIKKAKE",
+        "stratforge::CDLHIKKAKEMOD",
+        "stratforge::CDLHOMINGPIGEON",
+        "stratforge::CDLIDENTICAL3CROWS",
+        "stratforge::CDLINNECK",
+        "stratforge::CDLINVERTEDHAMMER",
+        "stratforge::CDLKICKING",
+        "stratforge::CDLKICKINGBYLENGTH",
+        "stratforge::CDLLADDERBOTTOM",
+        "stratforge::CDLLONGLEGGEDDOJI",
+        "stratforge::CDLLONGLINE",
+        "stratforge::CDLMARUBOZU",
+        "stratforge::CDLMATCHINGLOW",
+        "stratforge::CDLMATHOLD",
+        "stratforge::CDLMORNINGDOJISTAR",
+        "stratforge::CDLMORNINGSTAR",
+        "stratforge::CDLONNECK",
+        "stratforge::CDLPIERCING",
+        "stratforge::CDLRICKSHAWMAN",
+        "stratforge::CDLRISEFALL3METHODS",
+        "stratforge::CDLSEPARATINGLINES",
+        "stratforge::CDLSHOOTINGSTAR",
+        "stratforge::CDLSHORTLINE",
+        "stratforge::CDLSPINNINGTOP",
+        "stratforge::CDLSTALLEDPATTERN",
+        "stratforge::CDLSTICKSANDWICH",
+        "stratforge::CDLTAKURI",
+        "stratforge::CDLTASUKIGAP",
+        "stratforge::CDLTHRUSTING",
+        "stratforge::CDLTRISTAR",
+        "stratforge::CDLUNIQUE3RIVER",
+        "stratforge::CDLUPSIDEGAP2CROWS",
+        "stratforge::CDLXSIDEGAP3METHODS"
+      ]
+    },
+    {
+      "aliases": [
+        "cdl_inside",
+        "cdl_z",
+        "ha"
+      ],
+      "canonical_name": "pandas-ta candle utilities",
+      "category": "structure",
+      "disposition": "duplicate",
+      "expected_lookback": "utility-specific",
+      "external_implementation": "mixed native/wrapper",
+      "formula_or_algorithm": "native utilities plus optional TA-Lib wrappers",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "mixed",
+      "parameters": [
+        "utility-specific"
+      ],
+      "reason": "Distinct advertised utilities already have public equivalents",
+      "source": "pandas_ta",
+      "stratforge_matches": [
+        "CdlInside",
+        "CdlZ",
+        "HeikinAshi"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "LEAN candlestick catalog",
+      "category": "structure",
+      "disposition": "duplicate",
+      "expected_lookback": "pattern-specific",
+      "external_implementation": "native but overlapping",
+      "formula_or_algorithm": "streaming traditional candlestick recognizers",
+      "input_fields": [
+        "trade bars"
+      ],
+      "output_domain": "integer signals",
+      "parameters": [
+        "candle settings"
+      ],
+      "reason": "Readiness reference only; overlaps canonical SF011 catalog",
+      "source": "lean",
+      "stratforge_matches": [
+        "TA-Lib-compatible CDL surface"
+      ]
+    },
+    {
+      "aliases": [
+        "qstick"
+      ],
+      "canonical_name": "Tulip QStick source adoption",
+      "category": "geometry",
+      "disposition": "rejected",
+      "expected_lookback": "period - 1",
+      "external_implementation": "native",
+      "formula_or_algorithm": "moving average of close-open",
+      "input_fields": [
+        "open",
+        "close"
+      ],
+      "output_domain": "continuous real",
+      "parameters": [
+        "period"
+      ],
+      "reason": "Already exists; LGPL source copying is unnecessary and unapproved",
+      "source": "tulip",
+      "stratforge_matches": [
+        "stratforge::QStick"
+      ]
+    },
+    {
+      "aliases": [],
+      "canonical_name": "Heikin-Ashi as raw OHLC",
+      "category": "synthetic_series",
+      "disposition": "divergent",
+      "expected_lookback": "recursive",
+      "external_implementation": "native",
+      "formula_or_algorithm": "present recursive transformed candles as exchange bars",
+      "input_fields": [
+        "open",
+        "high",
+        "low",
+        "close"
+      ],
+      "output_domain": "OHLC bars",
+      "parameters": [],
+      "reason": "Treating synthetic candles as raw exchange data violates the ticket contract",
+      "source": "pandas_ta",
+      "stratforge_matches": [
+        "stratforge::HeikinAshi"
+      ]
+    }
+  ],
+  "summary": {
+    "dispositions": {
+      "candidate": 17,
+      "divergent": 1,
+      "duplicate": 3,
+      "existing": 14,
+      "rejected": 1
+    },
+    "new_implementation_count": 17,
+    "other_existing_capabilities_excluded": 5,
+    "qlib_factors_excluded": 9,
+    "rows": 36,
+    "talib_aliases_excluded": 61
+  }
+}

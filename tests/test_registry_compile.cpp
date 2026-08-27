@@ -16,6 +16,8 @@
 #include <stratforge/indicators/bollinger.hpp>
 #include <stratforge/indicators/bollingerpct.hpp>
 #include <stratforge/indicators/bop.hpp>
+#include <stratforge/indicators/candle_structure.hpp>
+#include <stratforge/indicators/candle_structure_common.hpp>
 #include <stratforge/indicators/candlestick.hpp>
 #include <stratforge/indicators/cci.hpp>
 #include <stratforge/indicators/crossover.hpp>
@@ -98,6 +100,189 @@
 #include <stratforge/indicators/zlema.hpp>
 
 #include <string>
+
+TEST_CASE("Registry compile: CandleGeometry", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CandleGeometry candlegeometry_(data.open(), data.high(), data.low(), data.close());
+
+    // Process enough bars (preload sets index to 0)
+    candlegeometry_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        candlegeometry_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_body = candlegeometry_.body();
+    [[maybe_unused]] const auto& ref_range = candlegeometry_.range();
+    [[maybe_unused]] const auto& ref_upper_wick = candlegeometry_.upper_wick();
+    [[maybe_unused]] const auto& ref_lower_wick = candlegeometry_.lower_wick();
+    [[maybe_unused]] const auto& ref_signed_gap = candlegeometry_.signed_gap();
+    [[maybe_unused]] const auto& ref_gap = candlegeometry_.gap();
+    [[maybe_unused]] auto op0 = candlegeometry_[0];
+}
+
+TEST_CASE("Registry compile: CandlePercentile", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::CandlePercentile candlepercentile_(data.open(), data.high(), data.low(), data.close(), stratforge::CandleMeasurement::body, 50);
+
+    // Process enough bars (preload sets index to 0)
+    candlepercentile_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        candlepercentile_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = candlepercentile_.line();
+    [[maybe_unused]] auto op0 = candlepercentile_[0];
+}
+
+TEST_CASE("Registry compile: InsideBarDepth", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::InsideBarDepth insidebardepth_(data.high(), data.low());
+
+    // Process enough bars (preload sets index to 0)
+    insidebardepth_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        insidebardepth_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_depth = insidebardepth_.depth();
+    [[maybe_unused]] const auto& ref_mother_range = insidebardepth_.mother_range();
+    [[maybe_unused]] const auto& ref_breakout = insidebardepth_.breakout();
+    [[maybe_unused]] auto op0 = insidebardepth_[0];
+}
+
+TEST_CASE("Registry compile: NarrowRange", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::NarrowRange narrowrange_(data.open(), data.high(), data.low(), data.close(), 4);
+
+    // Process enough bars (preload sets index to 0)
+    narrowrange_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        narrowrange_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = narrowrange_.line();
+    [[maybe_unused]] auto op0 = narrowrange_[0];
+}
+
+TEST_CASE("Registry compile: NormalizedCandleGeometry", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::NormalizedCandleGeometry normalizedcandlegeometry_(data.open(), data.high(), data.low(), data.close(), 14);
+
+    // Process enough bars (preload sets index to 0)
+    normalizedcandlegeometry_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        normalizedcandlegeometry_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_body = normalizedcandlegeometry_.body();
+    [[maybe_unused]] const auto& ref_range = normalizedcandlegeometry_.range();
+    [[maybe_unused]] const auto& ref_upper_wick = normalizedcandlegeometry_.upper_wick();
+    [[maybe_unused]] const auto& ref_lower_wick = normalizedcandlegeometry_.lower_wick();
+    [[maybe_unused]] const auto& ref_signed_gap = normalizedcandlegeometry_.signed_gap();
+    [[maybe_unused]] const auto& ref_gap = normalizedcandlegeometry_.gap();
+    [[maybe_unused]] auto op0 = normalizedcandlegeometry_[0];
+}
+
+TEST_CASE("Registry compile: NR4", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::NarrowRange nr4_(data.open(), data.high(), data.low(), data.close(), 4);
+
+    // Process enough bars (preload sets index to 0)
+    nr4_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        nr4_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = nr4_.line();
+    [[maybe_unused]] auto op0 = nr4_[0];
+}
+
+TEST_CASE("Registry compile: NR7", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::NarrowRange nr7_(data.open(), data.high(), data.low(), data.close(), 7);
+
+    // Process enough bars (preload sets index to 0)
+    nr7_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        nr7_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = nr7_.line();
+    [[maybe_unused]] auto op0 = nr7_[0];
+}
+
+TEST_CASE("Registry compile: OutsideBar", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::OutsideBar outsidebar_(data.high(), data.low());
+
+    // Process enough bars (preload sets index to 0)
+    outsidebar_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        outsidebar_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = outsidebar_.line();
+    [[maybe_unused]] auto op0 = outsidebar_[0];
+}
+
+TEST_CASE("Registry compile: WideRange", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::WideRange widerange_(data.open(), data.high(), data.low(), data.close(), 4);
+
+    // Process enough bars (preload sets index to 0)
+    widerange_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        widerange_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_line = widerange_.line();
+    [[maybe_unused]] auto op0 = widerange_[0];
+}
 
 TEST_CASE("Registry compile: ADX", "[registry][compile]") {
     stratforge::CsvData data(stratforge::CsvData::Params{
