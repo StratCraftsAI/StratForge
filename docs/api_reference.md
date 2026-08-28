@@ -3,7 +3,7 @@
 **Version**: Phase 10
 **Status**: API Freeze for LLM Generation
 **Date**: 2026-04-24
-**Indicators**: 260 registry entries (including compatibility aliases and presets)
+**Indicators**: 265 registry entries (including compatibility aliases and presets)
 
 This document defines the complete public API surface for stratforge:: C++23 backtesting engine.
 
@@ -195,7 +195,7 @@ public:
 
 ## Indicators
 
-stratforge provides **260 registry entries**, including compatibility aliases
+stratforge provides **265 registry entries**, including compatibility aliases
 and parameter presets. All indicators use the CRTP pattern via
 `Indicator<Derived>` or `PeriodN<Derived>`.
 
@@ -429,6 +429,33 @@ stratforge::InsideBarDepth inside{
     data.high(), data.low(), stratforge::BoundaryMode::inclusive};
 stratforge::NarrowRange nr4{
     data.open(), data.high(), data.low(), data.close(), 4};
+```
+
+### Candle Context Wrappers
+
+These registry-backed, line-agnostic wrappers compose supplied signal and
+context lines; they do not calculate hidden trends, pivots, or volume
+baselines. Their lifecycle and multi-clock semantics are specified in
+[Candle Structure and Context Contract](candle-structure-and-context-contract.md).
+
+| Class | Constructor inputs | Outputs | Header |
+|-------|--------------------|---------|--------|
+| `PatternConfirmation` | signal, price, confirmation/invalidation thresholds, `expiry_bars`, optional `SignalOverlapPolicy` (`ignore`, `replace`, or `queue_one`; default `replace`) | `state`, `event_id`, `age`, `direction` | pattern_context.hpp |
+| `TrendContext` | signal, supplied trend line | `alignment`, `direction` | pattern_context.hpp |
+| `VolumeConfirmation` | signal, volume, supplied baseline, optional `threshold=1.0` | `ratio`, `confirmed` | pattern_context.hpp |
+| `SupportResistanceContext` | signal, price, supplied support and resistance lines | `support_distance`, `resistance_distance` | pattern_context.hpp |
+| `CandleQualityScore` | geometry, trend, confirmation, and volume component lines; optional `CandleQualityWeights{geometry, trend, confirmation, volume}` with four finite non-negative values | `score`, `geometry`, `trend`, `confirmation`, `volume` | pattern_context.hpp |
+
+```cpp
+stratforge::PatternConfirmation confirmation{
+    signal, data.close(), confirm_level, invalidate_level, 3};
+stratforge::TrendContext trend_context{signal, trend};
+stratforge::VolumeConfirmation volume_context{
+    signal, data.volume(), volume_baseline, 1.5};
+stratforge::SupportResistanceContext levels{
+    signal, data.close(), support, resistance};
+stratforge::CandleQualityScore quality{
+    geometry, trend_context.alignment(), confirmation.state(), volume_context.ratio()};
 ```
 
 ### Candlestick Patterns (10)

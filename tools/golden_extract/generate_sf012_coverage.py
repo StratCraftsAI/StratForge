@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +23,11 @@ STRUCTURE_COMMON = ROOT / "include" / "stratforge" / "indicators" / "candle_stru
 CONTEXT = ROOT / "include" / "stratforge" / "indicators" / "pattern_context.hpp"
 ARCHITECTURE = ROOT / "docs" / "synthetic-series-architecture.md"
 API_REFERENCE = ROOT / "docs" / "api_reference.md"
+HISTORY_DOCUMENTATION = ROOT / "docs" / "indicator-history-contract.md"
+REGISTRY_COMPILE = ROOT / "tests" / "test_registry_compile.cpp"
+HISTORY_CONTRACT = ROOT / "include" / "stratforge" / "indicators" / "history_contract_generated.hpp"
+COMPILE_GENERATOR = ROOT / "tools" / "generate_compile_tests.py"
+HISTORY_GENERATOR = ROOT / "tools" / "generate_indicator_history_contract.py"
 
 PUBLIC_TYPES = ("CandleGeometry", "NormalizedCandleGeometry", "CandlePercentile",
                 "OutsideBar", "InsideBarDepth", "NarrowRange", "WideRange")
@@ -33,6 +40,21 @@ TESTS = {
     "context": ROOT / "tests" / "test_sf012_context.cpp",
     "multi_clock": ROOT / "tests" / "test_sf012_multiclock.cpp",
     "synthetic_series": ROOT / "tests" / "test_sf012_synthetic_series.cpp",
+}
+CONTEXT_PARAMETERS = {
+    "PatternConfirmation": {
+        "expiry_bars": {"type": "std::size_t", "default": 3},
+        "overlap_policy": {
+            "type": "SignalOverlapPolicy", "default": "replace",
+            "compile_test_value": "queue_one",
+        },
+    },
+    "CandleQualityScore": {
+        "weights": {
+            "type": "CandleQualityWeights", "default": [1.0, 1.0, 1.0, 1.0],
+            "compile_test_value": [1.0, 2.0, 3.0, 4.0],
+        },
+    },
 }
 
 
@@ -49,6 +71,42 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def load_generator(path: Path) -> Any:
+    spec = importlib.util.spec_from_file_location(path.stem, path)
+    require(spec is not None and spec.loader is not None,
+            f"unable to load generator: {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def markdown_table_identities(document: str) -> set[str]:
+    identities: set[str] = set()
+    for line in document.splitlines():
+        cells = [cell.strip() for cell in line.split("|")]
+        if len(cells) < 3:
+            continue
+        first = cells[1]
+        if first.startswith("`") and first.endswith("`"):
+            identities.add(first.removeprefix("`").removesuffix("`"))
+    return identities
+
+
+def markdown_code_identities(document: str) -> set[str]:
+    return set(re.findall(r"`([A-Za-z_][A-Za-z0-9_]*)`", document))
+
+
+def public_type_is_declared(document: str, name: str) -> bool:
+    return re.search(rf"^(?:class|struct)\s+{re.escape(name)}\b", document,
+                     re.MULTILINE) is not None
+
+
+def registry_parameters_match(entry: dict[str, Any], expected: dict[str, dict[str, Any]]) -> bool:
+    parameters = {str(parameter["name"]): parameter for parameter in entry["constructor_params"]}
+    return all(parameters.get(name) == {"name": name, "position": position, **metadata}
+               for position, (name, metadata) in enumerate(expected.items(), start=1))
+
+
 def build_report() -> dict[str, Any]:
     inventory = load_json(INVENTORY)
     candidates = [row for row in inventory["rows"] if row["disposition"] == "candidate"]
@@ -58,10 +116,20 @@ def build_report() -> dict[str, Any]:
     require(names == expected, "SF012 candidate set does not match the frozen contract")
 
     registry = load_json(REGISTRY)
-    registry_slugs = {str(row["slug"]) for row in registry}
+    registry_by_slug = {str(row["slug"]): row for row in registry}
+    registry_slugs = set(registry_by_slug)
     for name in PUBLIC_TYPES:
         require(name in registry_slugs, f"public Priority 1 type is not registered: {name}")
     require({"NR4", "NR7"}.issubset(registry_slugs), "NR4/NR7 registry presets are missing")
+
+    compile_generator = load_generator(COMPILE_GENERATOR)
+    history_generator = load_generator(HISTORY_GENERATOR)
+    generated_compile_is_current = (REGISTRY_COMPILE.is_file() and
+                                    REGISTRY_COMPILE.read_text(encoding="utf-8") ==
+                                    compile_generator.render(registry))
+    generated_history_is_current = (HISTORY_CONTRACT.is_file() and
+                                    HISTORY_CONTRACT.read_text(encoding="utf-8") ==
+                                    history_generator.render(registry))
 
     aggregate = AGGREGATE.read_text(encoding="utf-8")
     require("indicators/candle_structure.hpp" in aggregate, "aggregate header omits candle structure")
@@ -70,13 +138,30 @@ def build_report() -> dict[str, Any]:
                  STRUCTURE.read_text(encoding="utf-8"))
     context = CONTEXT.read_text(encoding="utf-8")
     api = API_REFERENCE.read_text(encoding="utf-8")
+    history_documentation = HISTORY_DOCUMENTATION.read_text(encoding="utf-8")
     architecture = ARCHITECTURE.read_text(encoding="utf-8")
+    api_identities = markdown_table_identities(api)
+    history_identities = markdown_code_identities(history_documentation)
     for name in PUBLIC_TYPES:
-        require(f"class {name}" in structure or f"using {name}" in structure,
+        require(public_type_is_declared(structure, name) or
+                re.search(rf"^using\s+{re.escape(name)}\b", structure, re.MULTILINE) is not None,
                 f"public type is missing: {name}")
-        require(name in api, f"API reference omits public type: {name}")
+        require(name in api_identities, f"API reference omits public type: {name}")
     for name in CONTEXT_TYPES:
-        require(f"class {name}" in context, f"context wrapper is missing: {name}")
+        checks = {
+            "declared": public_type_is_declared(context, name),
+            "registered": name in registry_by_slug,
+            "api_documented": name in api_identities,
+            "history_documented": name in history_identities,
+            "compile_generated": generated_compile_is_current,
+            "history_generated": generated_history_is_current,
+        }
+        if name in CONTEXT_PARAMETERS:
+            checks["parameters_registered"] = registry_parameters_match(
+                registry_by_slug[name], CONTEXT_PARAMETERS[name])
+        require(all(checks.values()),
+                f"context surface is incomplete for {name}: " +
+                ", ".join(label for label, passed in checks.items() if not passed))
     architecture_names = {"Renko": "Renko", "Kagi": "Kagi",
                           "ThreeLineBreak": "Three-Line Break", "PointAndFigure": "Point & Figure"}
     for name in SYNTHETIC_TYPES:
@@ -91,13 +176,43 @@ def build_report() -> dict[str, Any]:
         if name in PUBLIC_TYPES:
             outcome, surface = "implemented_public", "indicator_registry"
         elif name in CONTEXT_TYPES:
-            outcome, surface = "implemented_composable", "aggregate_header"
+            outcome, surface = "implemented_composable", "indicator_registry"
         elif name == "MultiTimeframeContext":
             outcome, surface = "implemented_engine_contract", "multi_feed_execution"
         else:
             outcome, surface = "architecture_approved_production_deferred", "series_transform_contract"
+        if name in PUBLIC_TYPES:
+            checks = {
+                "declared": public_type_is_declared(structure, name) or
+                            re.search(rf"^using\s+{re.escape(name)}\b", structure,
+                                      re.MULTILINE) is not None,
+                "registered": name in registry_by_slug,
+                "api_documented": name in api_identities,
+                "compile_generated": generated_compile_is_current,
+                "history_generated": generated_history_is_current,
+            }
+        elif name in CONTEXT_TYPES:
+            checks = {
+                "declared": public_type_is_declared(context, name),
+                "registered": name in registry_by_slug,
+                "api_documented": name in api_identities,
+                "history_documented": name in history_identities,
+                "compile_generated": generated_compile_is_current,
+                "history_generated": generated_history_is_current,
+            }
+            if name in CONTEXT_PARAMETERS:
+                checks["parameters_registered"] = registry_parameters_match(
+                    registry_by_slug[name], CONTEXT_PARAMETERS[name])
+        elif name == "MultiTimeframeContext":
+            checks = {"integration_test": TESTS["multi_clock"].is_file()}
+        else:
+            checks = {"architecture_documented": architecture_names[name] in architecture,
+                      "not_registered": name not in registry_by_slug}
+        covered = all(checks.values())
+        require(covered, f"SF012 candidate is not covered: {name}")
         rows.append({"name": name, "category": candidate["category"],
-                     "outcome": outcome, "surface": surface, "covered": True})
+                     "outcome": outcome, "surface": surface,
+                     "checks": checks, "covered": covered})
 
     counts: dict[str, int] = {}
     for row in rows:
@@ -107,11 +222,25 @@ def build_report() -> dict[str, Any]:
             "ticket": "TICKET_SF012", "work_package": 10,
             "inventory_sha256": sha256(INVENTORY), "registry_sha256": sha256(REGISTRY),
             "test_sha256": {label: sha256(path) for label, path in TESTS.items()},
+            "source_sha256": {
+                "aggregate": sha256(AGGREGATE), "structure": sha256(STRUCTURE),
+                "structure_common": sha256(STRUCTURE_COMMON), "context": sha256(CONTEXT),
+                "architecture": sha256(ARCHITECTURE), "api_reference": sha256(API_REFERENCE),
+                "history_documentation": sha256(HISTORY_DOCUMENTATION),
+            },
+            "generator_sha256": {
+                "registry_compile": sha256(COMPILE_GENERATOR),
+                "history_contract": sha256(HISTORY_GENERATOR),
+            },
+            "generated_artifact_sha256": {
+                "registry_compile": sha256(REGISTRY_COMPILE),
+                "history_contract": sha256(HISTORY_CONTRACT),
+            },
         },
         "summary": {"inventory_candidates": len(rows),
                     "covered_candidates": sum(bool(row["covered"]) for row in rows),
                     "outcomes": counts, "priority1_registry_types": len(PUBLIC_TYPES),
-                    "registry_presets": 2},
+                    "context_registry_types": len(CONTEXT_TYPES), "registry_presets": 2},
         "candidates": rows,
     }
 

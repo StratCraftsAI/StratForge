@@ -2,10 +2,13 @@
 
 #include <stratforge/indicators/history_contract.hpp>
 
+#include <array>
 #include <cstdint>
 #include <string>
 #include <string_view>
 #include <limits>
+#include <utility>
+#include <vector>
 
 namespace history = stratforge::indicator_history;
 
@@ -128,6 +131,58 @@ TEST_CASE("indicator history contract exposes a stable compatibility identity",
     CHECK(history::contract_version == std::string_view{"1.0.0"});
 }
 
+TEST_CASE("context indicator history contracts resolve every public accessor",
+          "[indicator][history_contract][sf012]") {
+    const std::array<std::pair<std::string_view, std::string_view>, 15> contracts{{
+        {"PatternConfirmation", "state"}, {"PatternConfirmation", "event_id"},
+        {"PatternConfirmation", "age"}, {"PatternConfirmation", "direction"},
+        {"TrendContext", "alignment"}, {"TrendContext", "direction"},
+        {"VolumeConfirmation", "ratio"}, {"VolumeConfirmation", "confirmed"},
+        {"SupportResistanceContext", "support_distance"},
+        {"SupportResistanceContext", "resistance_distance"},
+        {"CandleQualityScore", "score"}, {"CandleQualityScore", "geometry"},
+        {"CandleQualityScore", "trend"}, {"CandleQualityScore", "confirmation"},
+        {"CandleQualityScore", "volume"},
+    }};
+
+    for (const auto& [indicator, accessor] : contracts) {
+        CAPTURE(indicator, accessor);
+        const auto result = history::effective_minimum_period(indicator, {}, accessor);
+        REQUIRE(result);
+        CHECK(*result == 1);
+    }
+}
+
+TEST_CASE("context history contracts accept typed optional constructor parameters",
+          "[indicator][history_contract][sf012]") {
+    const history::Parameters lifecycle_parameters{
+        {"expiry_bars", std::uint64_t{3}},
+        {"overlap_policy", std::string{"queue_one"}},
+    };
+    const auto lifecycle = history::effective_minimum_period(
+        "PatternConfirmation", lifecycle_parameters, "state");
+    REQUIRE(lifecycle);
+    CHECK(*lifecycle == 1);
+
+    const history::Parameters score_parameters{
+        {"weights", std::vector<double>{1.0, 2.0, 3.0, 4.0}},
+    };
+    const auto score = history::effective_minimum_period(
+        "CandleQualityScore", score_parameters, "score");
+    REQUIRE(score);
+    CHECK(*score == 1);
+
+    const auto invalid_policy = history::effective_minimum_period(
+        "PatternConfirmation", {{"overlap_policy", std::string{"replace_all"}}}, "state");
+    REQUIRE_FALSE(invalid_policy);
+    CHECK(invalid_policy.error().code == history::ErrorCode::InvalidParameter);
+
+    const auto malformed_weights = history::effective_minimum_period(
+        "CandleQualityScore", {{"weights", std::vector<double>{1.0, 2.0}}}, "score");
+    REQUIRE_FALSE(malformed_weights);
+    CHECK(malformed_weights.error().code == history::ErrorCode::InvalidParameter);
+}
+
 TEST_CASE("indicator history contract checks lookback arithmetic",
           "[indicator][history_contract]") {
     const auto warmup = history::required_warmup(14, 2);
@@ -143,7 +198,7 @@ TEST_CASE("indicator history contract checks lookback arithmetic",
 TEST_CASE("every registered indicator accessor has a resolvable default contract",
           "[indicator][history_contract][drift]") {
     const auto descriptors = history::descriptors();
-    REQUIRE(descriptors.size() == 260);
+    REQUIRE(descriptors.size() == 265);
 
     for (const auto& descriptor : descriptors) {
         history::Parameters parameters;

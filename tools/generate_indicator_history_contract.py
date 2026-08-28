@@ -15,6 +15,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "tools" / "market-analysis-indicator.json"
 OUTPUT = ROOT / "include" / "stratforge" / "indicators" / "history_contract_generated.hpp"
+CONTEXT_LINE_TOKENS = {
+    "signal": "close", "price": "close", "confirmation_threshold": "close",
+    "invalidation_threshold": "close", "trend": "close", "volume": "volume",
+    "baseline": "close", "support": "close", "resistance": "close",
+    "geometry": "close", "confirmation": "close",
+}
 
 
 def cpp_string(value: str) -> str:
@@ -27,6 +33,15 @@ def default_expression(param: dict) -> str:
             return "std::numeric_limits<double>::quiet_NaN()"
         raise ValueError(f"missing default for {param['name']}")
     value = param["default"]
+    if param["type"] == "SignalOverlapPolicy":
+        return cpp_string(value)
+    if param["type"] == "CandleQualityWeights":
+        if not isinstance(value, list) or len(value) != 4:
+            raise ValueError(f"invalid CandleQualityWeights default for {param['name']}")
+        if not all(isinstance(component, (int, float)) and math.isfinite(component)
+                   for component in value):
+            raise ValueError(f"non-finite CandleQualityWeights default for {param['name']}")
+        return "std::vector<double>{" + ", ".join(repr(component) for component in value) + "}"
     if isinstance(value, bool):
         return "true" if value else "false"
     if isinstance(value, float):
@@ -38,13 +53,27 @@ def default_expression(param: dict) -> str:
 
 def parameter_variant_expression(param: dict) -> str:
     expression = default_expression(param)
+    if param["type"] == "CandleQualityWeights":
+        return f"Parameter{{{expression}}}"
     wrappers = {
         "std::size_t": "std::uint64_t",
         "int": "std::int64_t",
         "double": "double",
         "bool": "bool",
+        "SignalOverlapPolicy": "std::string",
+        "CandleQualityWeights": "std::vector<double>",
     }
     return f"Parameter{{{wrappers[param['type']]}{{{expression}}}}}"
+
+
+def constructor_parameter_expression(param: dict) -> str:
+    name = param["name"]
+    if param["type"] == "SignalOverlapPolicy":
+        return f"static_cast<stratforge::SignalOverlapPolicy>({name})"
+    if param["type"] == "CandleQualityWeights":
+        return (f"stratforge::CandleQualityWeights{{{name}[0], {name}[1], {name}[2], "
+                f"{name}[3]}}")
+    return name
 
 
 def constructor(entry: dict) -> tuple[str, str]:
@@ -52,10 +81,12 @@ def constructor(entry: dict) -> tuple[str, str]:
     text = text.replace("{MAType}", "stratforge::SMA")
     for token in ("data0", "data1", "line1", "line2"):
         text = text.replace("{" + token + "}", "close")
+    for token, line in CONTEXT_LINE_TOKENS.items():
+        text = text.replace("{" + token + "}", line)
     for field in ("open", "high", "low", "close", "volume"):
         text = text.replace(f"data.{field}()", field)
     for param in entry["constructor_params"]:
-        text = text.replace("{" + param["name"] + "}", param["name"])
+        text = text.replace("{" + param["name"] + "}", constructor_parameter_expression(param))
     match = re.match(r"^(.*?)\s+(\w+)_\{(.*)\};$", text)
     if not match:
         raise ValueError(f"unsupported code_template for {entry['slug']}: {text}")
@@ -98,6 +129,8 @@ def generate_entry(entry: dict) -> list[str]:
         "int": "read_int",
         "double": "read_double",
         "bool": "read_bool",
+        "SignalOverlapPolicy": "read_signal_overlap_policy",
+        "CandleQualityWeights": "read_candle_quality_weights",
     }
     for param in entry["constructor_params"]:
         name = param["name"]
@@ -181,6 +214,8 @@ def generate_aggregate_entry(entry: dict) -> list[str]:
         "int": "read_int",
         "double": "read_double",
         "bool": "read_bool",
+        "SignalOverlapPolicy": "read_signal_overlap_policy",
+        "CandleQualityWeights": "read_candle_quality_weights",
     }
     for param in entry["constructor_params"]:
         name = param["name"]
@@ -227,6 +262,8 @@ def generate_observed_entry(entry: dict) -> list[str]:
         "int": "read_int",
         "double": "read_double",
         "bool": "read_bool",
+        "SignalOverlapPolicy": "read_signal_overlap_policy",
+        "CandleQualityWeights": "read_candle_quality_weights",
     }
     for param in entry["constructor_params"]:
         name = param["name"]
@@ -359,6 +396,8 @@ def render(entries: list[dict]) -> str:
         "int": "ParameterType::Int",
         "double": "ParameterType::Double",
         "bool": "ParameterType::Bool",
+        "SignalOverlapPolicy": "ParameterType::Enum",
+        "CandleQualityWeights": "ParameterType::DoubleVector",
     }
     for entry in entries:
         aliases = ", ".join(cpp_string(alias) for alias in entry["aliases"])

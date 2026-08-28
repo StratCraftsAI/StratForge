@@ -20,32 +20,47 @@ SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 REGISTRY_PATH = SCRIPT_DIR / "market-analysis-indicator.json"
 OUTPUT_PATH = PROJECT_ROOT / "tests" / "test_registry_compile.cpp"
+CONTEXT_LINE_NAMES = (
+    "signal", "price", "confirmation_threshold", "invalidation_threshold", "trend",
+    "volume", "baseline", "support", "resistance", "geometry", "confirmation",
+)
 
 
-def substitute_defaults(code_template: str, params: list[dict]) -> str:
-    """Replace {param} placeholders with default values."""
+def parameter_value_expression(param: dict, value_key: str) -> str:
+    """Render one registry parameter as a C++ expression."""
+    if value_key in param:
+        value = param[value_key]
+    elif "default" in param:
+        value = param["default"]
+    else:
+        type_defaults = {
+            "std::size_t": "14",
+            "int": "14",
+            "double": "0.5",
+            "bool": "false",
+        }
+        return type_defaults.get(param["type"], "0")
+
+    if param["type"] == "SignalOverlapPolicy":
+        return f"stratforge::SignalOverlapPolicy::{value}"
+    if param["type"] == "CandleQualityWeights":
+        if not isinstance(value, list) or len(value) != 4:
+            raise ValueError(f"invalid CandleQualityWeights value for {param['name']}")
+        return "stratforge::CandleQualityWeights{" + ", ".join(repr(component) for component in value) + "}"
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, float):
+        return repr(value)
+    return str(value)
+
+
+def substitute_defaults(code_template: str, params: list[dict],
+                        value_key: str = "default") -> str:
+    """Replace {param} placeholders with registered values."""
     result = code_template
     for p in params:
         placeholder = "{" + p["name"] + "}"
-        if "default" in p:
-            val = p["default"]
-            if isinstance(val, bool):
-                val_str = "true" if val else "false"
-            elif isinstance(val, float):
-                val_str = repr(val)
-            else:
-                val_str = str(val)
-            result = result.replace(placeholder, val_str)
-        else:
-            # No default - use a reasonable fallback based on type
-            type_defaults = {
-                "std::size_t": "14",
-                "int": "14",
-                "double": "0.5",
-                "bool": "false",
-            }
-            val_str = type_defaults.get(p["type"], "0")
-            result = result.replace(placeholder, val_str)
+        result = result.replace(placeholder, parameter_value_expression(p, value_key))
     return result
 
 
@@ -79,9 +94,10 @@ def provide_data_inputs(inst: str, entry: dict) -> str:
     return inst
 
 
-def generate_dual_line_instantiation(code_template: str, params: list[dict]) -> str:
+def generate_dual_line_instantiation(code_template: str, params: list[dict],
+                                     value_key: str) -> str:
     """For dual_line indicators, replace {data0}/{data1} with SMA lines."""
-    result = substitute_defaults(code_template, params)
+    result = substitute_defaults(code_template, params, value_key)
     result = result.replace("{data0}", "sma_a_.line()")
     result = result.replace("{data1}", "sma_b_.line()")
     result = result.replace("{line1}", "sma_a_.line()")
@@ -89,14 +105,32 @@ def generate_dual_line_instantiation(code_template: str, params: list[dict]) -> 
     return braces_to_parens(result)
 
 
-def generate_template_instantiation(code_template: str, params: list[dict]) -> str:
+def generate_template_instantiation(code_template: str, params: list[dict],
+                                    value_key: str) -> str:
     """For template indicators, replace {MAType} with stratforge::SMA."""
-    result = substitute_defaults(code_template, params)
+    result = substitute_defaults(code_template, params, value_key)
     result = result.replace("{MAType}", "stratforge::SMA")
     return braces_to_parens(result)
 
 
-def generate_test_case(entry: dict) -> str:
+def generate_context_line_instantiation(code_template: str, params: list[dict],
+                                        value_key: str) -> str:
+    result = substitute_defaults(code_template, params, value_key)
+    for name in CONTEXT_LINE_NAMES:
+        result = result.replace("{" + name + "}", f"context_{name}_")
+    return braces_to_parens(result)
+
+
+def context_line_fixture(lines: list[str], indent: str = "    ") -> None:
+    for name in CONTEXT_LINE_NAMES:
+        lines.append(f"{indent}stratforge::Line<double> context_{name}_;")
+    for name in CONTEXT_LINE_NAMES:
+        source = "data.volume()[0]" if name == "volume" else "data.close()[0]"
+        lines.append(f"{indent}context_{name}_.forward({source});")
+
+
+def generate_test_case(entry: dict, value_key: str = "default",
+                       label: str = "") -> str:
     """Generate a single TEST_CASE for an indicator."""
     slug = entry["slug"]
     data_input = entry["data_input"]
@@ -105,7 +139,7 @@ def generate_test_case(entry: dict) -> str:
     accessors = entry["output_accessors"]
 
     lines = []
-    lines.append(f'TEST_CASE("Registry compile: {slug}", "[registry][compile]") {{')
+    lines.append(f'TEST_CASE("Registry compile{label}: {slug}", "[registry][compile]") {{')
     lines.append(f'    stratforge::CsvData data(stratforge::CsvData::Params{{')
     lines.append(f'        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",')
     lines.append(f'    }});')
@@ -115,11 +149,15 @@ def generate_test_case(entry: dict) -> str:
     if data_input == "dual_line":
         lines.append(f'    stratforge::SMA sma_a_(data.close(), 10);')
         lines.append(f'    stratforge::SMA sma_b_(data.close(), 30);')
-        inst = generate_dual_line_instantiation(code_template, params)
+        inst = generate_dual_line_instantiation(code_template, params, value_key)
+    elif data_input == "context_lines":
+        context_line_fixture(lines)
+        lines.append(f'')
+        inst = generate_context_line_instantiation(code_template, params, value_key)
     elif entry.get("template_keys") or "{MAType}" in code_template:
-        inst = generate_template_instantiation(code_template, params)
+        inst = generate_template_instantiation(code_template, params, value_key)
     else:
-        inst = braces_to_parens(substitute_defaults(code_template, params))
+        inst = braces_to_parens(substitute_defaults(code_template, params, value_key))
 
     inst = provide_data_inputs(inst, entry)
 
@@ -139,6 +177,10 @@ def generate_test_case(entry: dict) -> str:
     lines.append(f'        data.advance();')
     if data_input == "dual_line":
         lines.append(f'        sma_a_.next(); sma_b_.next();')
+    if data_input == "context_lines":
+        for name in CONTEXT_LINE_NAMES:
+            source = "data.volume()[0]" if name == "volume" else "data.close()[0]"
+            lines.append(f'        context_{name}_.forward({source});')
     lines.append(f'        {var_name}.next();')
     lines.append(f'    }}')
     lines.append(f'')
@@ -166,6 +208,7 @@ def render(registry: list[dict]) -> str:
     parts.append("")
     parts.append("#include <catch2/catch_test_macros.hpp>")
     parts.append("#include <stratforge/data/csv_data.hpp>")
+    parts.append("#include <stratforge/core/line.hpp>")
     parts.append("#include <stratforge/indicators/sma.hpp>  // for dual_line fixtures")
     parts.append("")
     for inc in includes:
@@ -177,6 +220,9 @@ def render(registry: list[dict]) -> str:
     for entry in registry:
         parts.append(generate_test_case(entry))
         parts.append("")
+        if any("compile_test_value" in parameter for parameter in entry["constructor_params"]):
+            parts.append(generate_test_case(entry, "compile_test_value", " non-default"))
+            parts.append("")
 
     return '\n'.join(parts)
 
@@ -207,7 +253,11 @@ def main() -> int:
         print(f"Verified {OUTPUT_PATH} covers all {len(registry)} registry rows")
         return 0
     OUTPUT_PATH.write_text(content)
-    print(f"Generated {OUTPUT_PATH} with {len(registry)} test cases")
+    test_cases = len(registry) + sum(
+        any("compile_test_value" in parameter for parameter in entry["constructor_params"])
+        for entry in registry
+    )
+    print(f"Generated {OUTPUT_PATH} with {test_cases} test cases")
     return 0
 
 

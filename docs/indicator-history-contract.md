@@ -48,6 +48,22 @@ an explicitly aligned copy of the latest context value whose close timestamp is
 not later than the execution close. Held context values do not update the
 secondary owner again, and wrappers never advance or resample an input feed.
 
+## Context wrapper history
+
+`PatternConfirmation`, `TrendContext`, `VolumeConfirmation`,
+`SupportResistanceContext`, and `CandleQualityScore` are registry-backed
+context indicators. Their generated registry-history contracts use one bar for
+every accessor because the registry fixture supplies raw lines. In a composed
+strategy, the required warmup is the maximum history requirement of the
+explicitly supplied input lines, as specified in the Candle Structure and
+Context Contract. `PatternConfirmation` exposes `expiry_bars` with registry
+default `3` and `overlap_policy` as one of `ignore`, `replace`, or `queue_one`
+(default `replace`). `VolumeConfirmation` exposes `threshold` with default
+`1.0`. `CandleQualityScore` exposes `weights` as an ordered four-double list
+`[geometry, trend, confirmation, volume]`; all values must be finite and
+non-negative. Expiry and these optional context parameters do not change first
+readiness.
+
 ## Public live execution core
 
 The public live surface consists of `MarketConnector`, `LiveDataFeed`, and

@@ -1743,8 +1743,8 @@
     "alpha158_inventory_sha256": "523a7479433a641ddde2081cc1e4e1f1cbadaa24b460f7b478c98066d6960ed7",
     "alpha158_parity_report_sha256": "5364d626a37920b32251f9f89ad9005db392884cfc3cc1fd73c5935d2878f8ba",
     "phase": 8,
-    "registry_compile_test_sha256": "4c932b394f9660f8a9538e596a15e34f280139f37233cd89172adc3d57a0ef1d",
-    "registry_sha256": "47dd2e56a420498454d02e722118ae552bfdea15982fc748b324f7660e1e7157",
+    "registry_compile_test_sha256": "4cca8e32edca73f67c6f43c8c8efb95e12228ba3ac27a22b8c083f739b90f4a2",
+    "registry_sha256": "1039cb4652a40ec05b0554288c40c54082a9c26cdd49babd12cbe86bafff8229",
     "talib_alias_header_sha256": "f7f8d481b2d3cffa210237df725249b76347cd2b9fef455f785b9a31696dc7dd",
     "talib_fixture_sha256": "bacb6f46ad82976f4f7b89fb08c7e54af7624d16958fbb8e297728d6088955e7",
     "ticket": "TICKET_SF011"
@@ -1754,8 +1754,8 @@
     "discoverable": 219,
     "executable": 219,
     "logical_ids": 219,
-    "registry_compile_cases": 260,
-    "registry_rows": 260,
+    "registry_compile_cases": 265,
+    "registry_rows": 265,
     "talib_discrete_patterns": 61,
     "unique_namespaced_ids": 219
   },

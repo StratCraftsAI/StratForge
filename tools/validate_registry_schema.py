@@ -6,6 +6,7 @@ Exits non-zero on failure.
 """
 
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -19,10 +20,19 @@ VALID_CATEGORIES = {
     "trend", "momentum", "volatility", "volume", "directional",
     "statistical", "statistic", "signal", "envelope", "helper", "adaptive",
     "advanced", "pattern", "oscillator", "utility", "overlap", "price_transform",
-    "candlestick"
+    "candlestick", "context"
 }
-VALID_DATA_INPUTS = {"single_line", "full_data", "dual_line", "close"}
-VALID_PARAM_TYPES = {"std::size_t", "int", "double", "bool"}
+VALID_DATA_INPUTS = {"single_line", "full_data", "dual_line", "close", "context_lines"}
+VALID_PARAM_TYPES = {
+    "std::size_t", "int", "double", "bool", "SignalOverlapPolicy", "CandleQualityWeights"
+}
+SIGNAL_OVERLAP_POLICIES = {"ignore", "replace", "queue_one"}
+
+
+def valid_weights(value: object) -> bool:
+    return (isinstance(value, list) and len(value) == 4 and
+            all(isinstance(item, (int, float)) and not isinstance(item, bool) and
+                math.isfinite(float(item)) and float(item) >= 0.0 for item in value))
 
 
 def validate_entry(entry: dict, idx: int) -> list[str]:
@@ -87,10 +97,18 @@ def validate_entry(entry: dict, idx: int) -> list[str]:
             if "position" in param and (not isinstance(param["position"], int) or param["position"] < 1):
                 errors.append(f"{pp}: position must be integer >= 1")
             # Check no extra keys
-            allowed_keys = {"name", "type", "position", "default"}
+            allowed_keys = {"name", "type", "position", "default", "compile_test_value"}
             extra = set(param.keys()) - allowed_keys
             if extra:
                 errors.append(f"{pp}: unexpected keys {extra}")
+            if param.get("type") == "SignalOverlapPolicy":
+                for key in ("default", "compile_test_value"):
+                    if key in param and param[key] not in SIGNAL_OVERLAP_POLICIES:
+                        errors.append(f"{pp}: {key} must be a SignalOverlapPolicy spelling")
+            if param.get("type") == "CandleQualityWeights":
+                for key in ("default", "compile_test_value"):
+                    if key in param and not valid_weights(param[key]):
+                        errors.append(f"{pp}: {key} must contain four finite non-negative doubles")
 
     # data_input enum
     if entry["data_input"] not in VALID_DATA_INPUTS:

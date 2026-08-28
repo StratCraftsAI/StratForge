@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = Path(__file__).resolve().parent / "output" / "sf011" / "coverage_report.json"
 ALPHA_INVENTORY = OUTPUT.parent / "alpha158_inventory.json"
 ALPHA_PARITY = OUTPUT.parent / "alpha158_parity_report.json"
+ALPHA_REFERENCE = OUTPUT.parents[1] / "alpha158" / "alpha158_reference.json"
 CANDLE_FIXTURE = OUTPUT.parents[1] / "talib_candles" / "talib_candles_reference.json"
 REGISTRY = ROOT / "tools" / "market-analysis-indicator.json"
 COMPILE_TEST = ROOT / "tests" / "test_registry_compile.cpp"
@@ -27,6 +28,10 @@ TALIB_ALIASES = ROOT / "include" / "stratforge" / "indicators" / "talib_compat.h
 EXPECTED_ALPHA158 = 158
 EXPECTED_CANDLES = 61
 EXPECTED_LOGICAL_IDS = EXPECTED_ALPHA158 + EXPECTED_CANDLES
+EXPECTED_PARITY_CATALOG_SHA256 = "04cfc02efc78e523ed278f94ae95d310c0612d6132cfb7ab9b4ad2a3f32d6511"
+EXPECTED_PARITY_CPP_GATE = "test_alpha158_qlib_parity"
+EXPECTED_PARITY_ABSOLUTE_TOLERANCE = 5.0e-4
+EXPECTED_PARITY_RELATIVE_TOLERANCE = 2.0e-5
 
 
 def load_json(path: Path) -> Any:
@@ -66,9 +71,60 @@ def candle_test_names() -> set[str]:
     return names
 
 
-def build_report() -> dict[str, Any]:
-    alpha_inventory = load_json(ALPHA_INVENTORY)
-    alpha_parity = load_json(ALPHA_PARITY)
+def alpha_warmup_bars(factor: dict[str, Any]) -> int:
+    for index, value_class in enumerate(factor["value_classes"]):
+        if value_class != "nan":
+            return index
+    raise SystemExit(f"Alpha158 reference factor never produces a value: {factor['name']}")
+
+
+def validate_alpha_parity_provenance(
+    alpha_parity: dict[str, Any], alpha_reference: dict[str, Any], alpha_reference_path: Path,
+) -> None:
+    provenance = alpha_parity.get("provenance")
+    require(isinstance(provenance, dict), "Alpha158 parity provenance is missing")
+    require(
+        provenance.get("ticket") == "TICKET_SF011",
+        "Alpha158 parity ticket provenance has drifted",
+    )
+    require(
+        provenance.get("phase") == 4,
+        "Alpha158 parity phase provenance has drifted",
+    )
+    require(
+        provenance.get("oracle") == alpha_reference["provenance"],
+        "Alpha158 parity oracle provenance has drifted",
+    )
+    require(
+        provenance.get("reference_sha256") == sha256(alpha_reference_path),
+        "Alpha158 parity reference provenance has drifted",
+    )
+    require(
+        provenance.get("catalog_sha256") == EXPECTED_PARITY_CATALOG_SHA256,
+        "Alpha158 parity catalog provenance has drifted",
+    )
+    require(
+        provenance.get("cpp_gate") == EXPECTED_PARITY_CPP_GATE,
+        "Alpha158 parity C++ gate provenance has drifted",
+    )
+    require(
+        provenance.get("absolute_tolerance") == EXPECTED_PARITY_ABSOLUTE_TOLERANCE,
+        "Alpha158 parity absolute tolerance has drifted",
+    )
+    require(
+        provenance.get("relative_tolerance") == EXPECTED_PARITY_RELATIVE_TOLERANCE,
+        "Alpha158 parity relative tolerance has drifted",
+    )
+
+
+def build_report(
+    alpha_inventory_path: Path = ALPHA_INVENTORY,
+    alpha_parity_path: Path = ALPHA_PARITY,
+    alpha_reference_path: Path = ALPHA_REFERENCE,
+) -> dict[str, Any]:
+    alpha_inventory = load_json(alpha_inventory_path)
+    alpha_parity = load_json(alpha_parity_path)
+    alpha_reference = load_json(alpha_reference_path)
     candle_fixture = load_json(CANDLE_FIXTURE)
     registry = load_json(REGISTRY)
     require(isinstance(registry, list), "indicator registry must be a JSON array")
@@ -90,6 +146,9 @@ def build_report() -> dict[str, Any]:
     require(len(parity_rows) == EXPECTED_ALPHA158, "Alpha158 parity report must contain 158 rows")
     parity_by_id = {str(row["factor_id"]): row for row in parity_rows}
     require(len(parity_by_id) == EXPECTED_ALPHA158, "Alpha158 parity factor IDs are not unique")
+    reference_by_name = {str(row["name"]): row for row in alpha_reference["factors"]}
+    require(len(reference_by_name) == EXPECTED_ALPHA158, "Alpha158 reference names are not unique")
+    validate_alpha_parity_provenance(alpha_parity, alpha_reference, alpha_reference_path)
 
     alpha_ids = [str(row["factor_id"]) for row in alpha_rows]
     alpha_names = [str(row["name"]) for row in alpha_rows]
@@ -100,8 +159,41 @@ def build_report() -> dict[str, Any]:
     for row in alpha_rows:
         factor_id = str(row["factor_id"])
         parity = parity_by_id.get(factor_id)
+        reference = reference_by_name.get(str(row["name"]))
+        require(reference is not None, f"Alpha158 inventory factor is absent from reference: {factor_id}")
+        require(parity is not None, f"Alpha158 factor lacks a parity row: {factor_id}")
+        require(
+            parity.get("factor_id") == factor_id,
+            f"Alpha158 parity identity drift: {factor_id}",
+        )
+        require(
+            parity.get("name") == row["name"],
+            f"Alpha158 parity name drift: {factor_id}",
+        )
+        require(
+            parity.get("formula") == reference["expression"],
+            f"Alpha158 parity formula drift: {factor_id}",
+        )
+        require(
+            parity.get("warmup_bars") == alpha_warmup_bars(reference),
+            f"Alpha158 parity warmup drift: {factor_id}",
+        )
+        require(
+            parity.get("catalog_route") == (
+                "public_cpp_binding" if row.get("cpp_indicator_id") else "expression"
+            ),
+            f"Alpha158 parity route drift: {factor_id}",
+        )
+        require(
+            parity.get("runtime_route") == "generated_pinned_qlib_family",
+            f"Alpha158 parity runtime route drift: {factor_id}",
+        )
+        require(
+            parity.get("cpp_indicator_id") == row.get("cpp_indicator_id"),
+            f"Alpha158 parity binding drift: {factor_id}",
+        )
         discoverable = row.get("status") == "mapped" and bool(row.get("name"))
-        executable = parity is not None and parity.get("parity_status") == "passed"
+        executable = parity.get("parity_status") == "passed"
         require(discoverable, f"Alpha158 factor is not catalog-discoverable: {factor_id}")
         require(executable, f"Alpha158 factor is not executable with parity: {factor_id}")
         factors.append({
@@ -172,8 +264,8 @@ def build_report() -> dict[str, Any]:
         "provenance": {
             "ticket": "TICKET_SF011",
             "phase": 8,
-            "alpha158_inventory_sha256": sha256(ALPHA_INVENTORY),
-            "alpha158_parity_report_sha256": sha256(ALPHA_PARITY),
+            "alpha158_inventory_sha256": sha256(alpha_inventory_path),
+            "alpha158_parity_report_sha256": sha256(alpha_parity_path),
             "talib_fixture_sha256": sha256(CANDLE_FIXTURE),
             "registry_sha256": sha256(REGISTRY),
             "registry_compile_test_sha256": sha256_compile_test(COMPILE_TEST),
@@ -197,14 +289,18 @@ def build_report() -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="fail if the checked report has drifted")
+    parser.add_argument("--alpha-inventory", type=Path, default=ALPHA_INVENTORY)
+    parser.add_argument("--alpha-parity", type=Path, default=ALPHA_PARITY)
+    parser.add_argument("--alpha-reference", type=Path, default=ALPHA_REFERENCE)
+    parser.add_argument("--output", type=Path, default=OUTPUT)
     args = parser.parse_args()
-    report = build_report()
+    report = build_report(args.alpha_inventory, args.alpha_parity, args.alpha_reference)
     if args.check:
-        require(OUTPUT.exists(), f"coverage report is missing: {OUTPUT}")
-        require(load_json(OUTPUT) == report, "SF011 coverage report has drifted; regenerate it")
+        require(args.output.exists(), f"coverage report is missing: {args.output}")
+        require(load_json(args.output) == report, "SF011 coverage report has drifted; regenerate it")
         print(json.dumps(report["summary"], sort_keys=True))
         return
-    write_json(OUTPUT, report)
+    write_json(args.output, report)
     print(json.dumps(report["summary"], sort_keys=True))
 
 

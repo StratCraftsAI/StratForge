@@ -148,6 +148,8 @@ add_test(
             --check
 )
 
+
+
 add_test(
     NAME sf012_inventory_drift
     COMMAND ${Python3_EXECUTABLE}

@@ -62,7 +62,8 @@
           "utility",
           "overlap",
           "price_transform",
-          "candlestick"
+          "candlestick",
+          "context"
         ],
         "description": "Indicator category"
       },
@@ -88,7 +89,7 @@
             },
             "type": {
               "type": "string",
-              "enum": ["std::size_t", "int", "double", "bool"],
+              "enum": ["std::size_t", "int", "double", "bool", "SignalOverlapPolicy", "CandleQualityWeights"],
               "description": "C++ type of the parameter"
             },
             "position": {
@@ -98,6 +99,9 @@
             },
             "default": {
               "description": "Default value (type matches 'type' field)"
+            },
+            "compile_test_value": {
+              "description": "Optional non-default value emitted in a generated compile case"
             }
           },
           "additionalProperties": false
@@ -106,7 +110,7 @@
       },
       "data_input": {
         "type": "string",
-        "enum": ["single_line", "full_data", "dual_line", "close"],
+        "enum": ["single_line", "full_data", "dual_line", "close", "context_lines"],
         "description": "Input data pattern"
       },
       "output_lines": {

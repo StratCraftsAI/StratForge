@@ -2,6 +2,13 @@
   "candidates": [
     {
       "category": "geometry",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "CandleGeometry",
       "outcome": "implemented_public",
@@ -9,6 +16,13 @@
     },
     {
       "category": "geometry",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "NormalizedCandleGeometry",
       "outcome": "implemented_public",
@@ -16,6 +30,13 @@
     },
     {
       "category": "geometry",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "CandlePercentile",
       "outcome": "implemented_public",
@@ -23,6 +44,13 @@
     },
     {
       "category": "structure",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "OutsideBar",
       "outcome": "implemented_public",
@@ -30,6 +58,13 @@
     },
     {
       "category": "structure",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "InsideBarDepth",
       "outcome": "implemented_public",
@@ -37,6 +72,13 @@
     },
     {
       "category": "structure",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "NarrowRange",
       "outcome": "implemented_public",
@@ -44,6 +86,13 @@
     },
     {
       "category": "structure",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "WideRange",
       "outcome": "implemented_public",
@@ -51,34 +100,70 @@
     },
     {
       "category": "context",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_documented": true,
+        "history_generated": true,
+        "parameters_registered": true,
+        "registered": true
+      },
       "covered": true,
       "name": "PatternConfirmation",
       "outcome": "implemented_composable",
-      "surface": "aggregate_header"
+      "surface": "indicator_registry"
     },
     {
       "category": "context",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_documented": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "TrendContext",
       "outcome": "implemented_composable",
-      "surface": "aggregate_header"
+      "surface": "indicator_registry"
     },
     {
       "category": "context",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_documented": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "VolumeConfirmation",
       "outcome": "implemented_composable",
-      "surface": "aggregate_header"
+      "surface": "indicator_registry"
     },
     {
       "category": "context",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_documented": true,
+        "history_generated": true,
+        "registered": true
+      },
       "covered": true,
       "name": "SupportResistanceContext",
       "outcome": "implemented_composable",
-      "surface": "aggregate_header"
+      "surface": "indicator_registry"
     },
     {
       "category": "context",
+      "checks": {
+        "integration_test": true
+      },
       "covered": true,
       "name": "MultiTimeframeContext",
       "outcome": "implemented_engine_contract",
@@ -86,13 +171,26 @@
     },
     {
       "category": "context",
+      "checks": {
+        "api_documented": true,
+        "compile_generated": true,
+        "declared": true,
+        "history_documented": true,
+        "history_generated": true,
+        "parameters_registered": true,
+        "registered": true
+      },
       "covered": true,
       "name": "CandleQualityScore",
       "outcome": "implemented_composable",
-      "surface": "aggregate_header"
+      "surface": "indicator_registry"
     },
     {
       "category": "synthetic_series",
+      "checks": {
+        "architecture_documented": true,
+        "not_registered": true
+      },
       "covered": true,
       "name": "Renko",
       "outcome": "architecture_approved_production_deferred",
@@ -100,6 +198,10 @@
     },
     {
       "category": "synthetic_series",
+      "checks": {
+        "architecture_documented": true,
+        "not_registered": true
+      },
       "covered": true,
       "name": "Kagi",
       "outcome": "architecture_approved_production_deferred",
@@ -107,6 +209,10 @@
     },
     {
       "category": "synthetic_series",
+      "checks": {
+        "architecture_documented": true,
+        "not_registered": true
+      },
       "covered": true,
       "name": "ThreeLineBreak",
       "outcome": "architecture_approved_production_deferred",
@@ -114,6 +220,10 @@
     },
     {
       "category": "synthetic_series",
+      "checks": {
+        "architecture_documented": true,
+        "not_registered": true
+      },
       "covered": true,
       "name": "PointAndFigure",
       "outcome": "architecture_approved_production_deferred",
@@ -121,8 +231,25 @@
     }
   ],
   "provenance": {
+    "generated_artifact_sha256": {
+      "history_contract": "01ce14751416db95a09644c2482234f508aca9afaa16835c5d2fb7b18edd9b06",
+      "registry_compile": "1f5eb6391ed5b1171a6cbb2ed74d5ed1b53b2f3f1ed9f06cfd31b38b0caf1d05"
+    },
+    "generator_sha256": {
+      "history_contract": "8d5ea6407a447111ff5bd3583a780e30c19aaba6ca95d0f644a86b1fc9d3a03f",
+      "registry_compile": "1447c5100050bcf091b71a5f83c17deac8191bf0ffac380d015e7485e49b9ddf"
+    },
     "inventory_sha256": "588e01df5861aa340b468d76b360ecdb0eb741e4b71776e874cb0098b08194eb",
-    "registry_sha256": "47dd2e56a420498454d02e722118ae552bfdea15982fc748b324f7660e1e7157",
+    "registry_sha256": "1039cb4652a40ec05b0554288c40c54082a9c26cdd49babd12cbe86bafff8229",
+    "source_sha256": {
+      "aggregate": "50520f315ebebcc8fcd1046e8707690bfd2369db9d59d1916b6f68ca5a39c5de",
+      "api_reference": "600cef040bf35f7368d07a999afbebb821d458f43a280945234fd1a1102af641",
+      "architecture": "57e1d28636033c94a549b750133cbe0f1b8891b6ba2d2052b7a2a403a764ccae",
+      "context": "b9a02ccfe1bff87ecd6912d25a72f7f1f000181a51167fbb4c9f14f02635c5c2",
+      "history_documentation": "21e898d88617d0c6b4c4bcb82d272da257ecc39d1933e9469c0b233d3da0706c",
+      "structure": "cfb3db021b609f0ae1335d49835f5080a91cda4661af6271a99979369d1d2ed6",
+      "structure_common": "dfd64e0bb79b43c37caf1315f593ff1a80df4ec2e4cd828461cf74e2318faaaa"
+    },
     "test_sha256": {
       "context": "74248937c4d29d3fdfa9837c59859fc41fd4e620c01fe454a01bf72365983c99",
       "geometry": "d682a4531b0df3a03e054329ad05b9af02e10e8920bc03e2ac38192edd0b0d33",
@@ -134,6 +261,7 @@
     "work_package": 10
   },
   "summary": {
+    "context_registry_types": 5,
     "covered_candidates": 17,
     "inventory_candidates": 17,
     "outcomes": {

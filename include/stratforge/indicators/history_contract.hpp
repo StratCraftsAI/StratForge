@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <expected>
@@ -28,11 +30,12 @@ struct Error {
     std::string message;
 };
 
-using Parameter = std::variant<std::int64_t, std::uint64_t, double, bool>;
+using Parameter = std::variant<std::int64_t, std::uint64_t, double, bool, std::string,
+                               std::vector<double>>;
 using Parameters = std::map<std::string, Parameter, std::less<>>;
 using Result = std::expected<std::size_t, Error>;
 
-enum class ParameterType { Size, Int, Double, Bool };
+enum class ParameterType { Size, Int, Double, Bool, Enum, DoubleVector };
 
 struct ParameterDescriptor {
     std::string_view name;
@@ -119,6 +122,49 @@ read_bool(const Parameters& parameters, std::string_view name, bool default_valu
     if (it == parameters.end()) return default_value;
     if (const auto* value = std::get_if<bool>(&it->second)) return *value;
     return std::unexpected(invalid_parameter(name, "expected bool"));
+}
+
+inline ParameterResult<std::string>
+read_string(const Parameters& parameters, std::string_view name, std::string default_value) {
+    const auto it = parameters.find(name);
+    if (it == parameters.end()) return default_value;
+    if (const auto* value = std::get_if<std::string>(&it->second)) return *value;
+    return std::unexpected(invalid_parameter(name, "expected string"));
+}
+
+inline ParameterResult<int>
+read_signal_overlap_policy(const Parameters& parameters, std::string_view name,
+                           std::string default_value) {
+    const auto value = read_string(parameters, name, std::move(default_value));
+    if (!value) return std::unexpected(value.error());
+    if (*value == "ignore") return 0;
+    if (*value == "replace") return 1;
+    if (*value == "queue_one") return 2;
+    return std::unexpected(invalid_parameter(name, "expected ignore, replace, or queue_one"));
+}
+
+inline ParameterResult<std::array<double, 4>>
+read_candle_quality_weights(const Parameters& parameters, std::string_view name,
+                            std::vector<double> default_value) {
+    const auto it = parameters.find(name);
+    const auto* values = it == parameters.end()
+                             ? &default_value
+                             : std::get_if<std::vector<double>>(&it->second);
+    if (values == nullptr) {
+        return std::unexpected(invalid_parameter(name, "expected four doubles"));
+    }
+    if (values->size() != 4) {
+        return std::unexpected(invalid_parameter(name, "expected exactly four doubles"));
+    }
+    std::array<double, 4> result{};
+    for (std::size_t index = 0; index < result.size(); ++index) {
+        if (!std::isfinite((*values)[index]) || (*values)[index] < 0.0) {
+            return std::unexpected(invalid_parameter(name,
+                                                      "weights must be finite and non-negative"));
+        }
+        result[index] = (*values)[index];
+    }
+    return result;
 }
 
 template <typename IndicatorType>

@@ -4,6 +4,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <stratforge/data/csv_data.hpp>
+#include <stratforge/core/line.hpp>
 #include <stratforge/indicators/sma.hpp>  // for dual_line fixtures
 
 #include <stratforge/indicators/accum.hpp>
@@ -61,6 +62,7 @@
 #include <stratforge/indicators/oscillator.hpp>
 #include <stratforge/indicators/oscillator_extra.hpp>
 #include <stratforge/indicators/pattern.hpp>
+#include <stratforge/indicators/pattern_context.hpp>
 #include <stratforge/indicators/pctrank.hpp>
 #include <stratforge/indicators/percentchange.hpp>
 #include <stratforge/indicators/pivotpoint.hpp>
@@ -142,6 +144,394 @@ TEST_CASE("Registry compile: CandlePercentile", "[registry][compile]") {
 
     [[maybe_unused]] const auto& ref_line = candlepercentile_.line();
     [[maybe_unused]] auto op0 = candlepercentile_[0];
+}
+
+TEST_CASE("Registry compile: PatternConfirmation", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::Line<double> context_signal_;
+    stratforge::Line<double> context_price_;
+    stratforge::Line<double> context_confirmation_threshold_;
+    stratforge::Line<double> context_invalidation_threshold_;
+    stratforge::Line<double> context_trend_;
+    stratforge::Line<double> context_volume_;
+    stratforge::Line<double> context_baseline_;
+    stratforge::Line<double> context_support_;
+    stratforge::Line<double> context_resistance_;
+    stratforge::Line<double> context_geometry_;
+    stratforge::Line<double> context_confirmation_;
+    context_signal_.forward(data.close()[0]);
+    context_price_.forward(data.close()[0]);
+    context_confirmation_threshold_.forward(data.close()[0]);
+    context_invalidation_threshold_.forward(data.close()[0]);
+    context_trend_.forward(data.close()[0]);
+    context_volume_.forward(data.volume()[0]);
+    context_baseline_.forward(data.close()[0]);
+    context_support_.forward(data.close()[0]);
+    context_resistance_.forward(data.close()[0]);
+    context_geometry_.forward(data.close()[0]);
+    context_confirmation_.forward(data.close()[0]);
+
+    stratforge::PatternConfirmation patternconfirmation_(context_signal_, context_price_, context_confirmation_threshold_, context_invalidation_threshold_, 3, stratforge::SignalOverlapPolicy::replace);
+
+    // Process enough bars (preload sets index to 0)
+    patternconfirmation_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        context_signal_.forward(data.close()[0]);
+        context_price_.forward(data.close()[0]);
+        context_confirmation_threshold_.forward(data.close()[0]);
+        context_invalidation_threshold_.forward(data.close()[0]);
+        context_trend_.forward(data.close()[0]);
+        context_volume_.forward(data.volume()[0]);
+        context_baseline_.forward(data.close()[0]);
+        context_support_.forward(data.close()[0]);
+        context_resistance_.forward(data.close()[0]);
+        context_geometry_.forward(data.close()[0]);
+        context_confirmation_.forward(data.close()[0]);
+        patternconfirmation_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_state = patternconfirmation_.state();
+    [[maybe_unused]] const auto& ref_event_id = patternconfirmation_.event_id();
+    [[maybe_unused]] const auto& ref_age = patternconfirmation_.age();
+    [[maybe_unused]] const auto& ref_direction = patternconfirmation_.direction();
+    [[maybe_unused]] auto op0 = patternconfirmation_[0];
+}
+
+TEST_CASE("Registry compile non-default: PatternConfirmation", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::Line<double> context_signal_;
+    stratforge::Line<double> context_price_;
+    stratforge::Line<double> context_confirmation_threshold_;
+    stratforge::Line<double> context_invalidation_threshold_;
+    stratforge::Line<double> context_trend_;
+    stratforge::Line<double> context_volume_;
+    stratforge::Line<double> context_baseline_;
+    stratforge::Line<double> context_support_;
+    stratforge::Line<double> context_resistance_;
+    stratforge::Line<double> context_geometry_;
+    stratforge::Line<double> context_confirmation_;
+    context_signal_.forward(data.close()[0]);
+    context_price_.forward(data.close()[0]);
+    context_confirmation_threshold_.forward(data.close()[0]);
+    context_invalidation_threshold_.forward(data.close()[0]);
+    context_trend_.forward(data.close()[0]);
+    context_volume_.forward(data.volume()[0]);
+    context_baseline_.forward(data.close()[0]);
+    context_support_.forward(data.close()[0]);
+    context_resistance_.forward(data.close()[0]);
+    context_geometry_.forward(data.close()[0]);
+    context_confirmation_.forward(data.close()[0]);
+
+    stratforge::PatternConfirmation patternconfirmation_(context_signal_, context_price_, context_confirmation_threshold_, context_invalidation_threshold_, 3, stratforge::SignalOverlapPolicy::queue_one);
+
+    // Process enough bars (preload sets index to 0)
+    patternconfirmation_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        context_signal_.forward(data.close()[0]);
+        context_price_.forward(data.close()[0]);
+        context_confirmation_threshold_.forward(data.close()[0]);
+        context_invalidation_threshold_.forward(data.close()[0]);
+        context_trend_.forward(data.close()[0]);
+        context_volume_.forward(data.volume()[0]);
+        context_baseline_.forward(data.close()[0]);
+        context_support_.forward(data.close()[0]);
+        context_resistance_.forward(data.close()[0]);
+        context_geometry_.forward(data.close()[0]);
+        context_confirmation_.forward(data.close()[0]);
+        patternconfirmation_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_state = patternconfirmation_.state();
+    [[maybe_unused]] const auto& ref_event_id = patternconfirmation_.event_id();
+    [[maybe_unused]] const auto& ref_age = patternconfirmation_.age();
+    [[maybe_unused]] const auto& ref_direction = patternconfirmation_.direction();
+    [[maybe_unused]] auto op0 = patternconfirmation_[0];
+}
+
+TEST_CASE("Registry compile: TrendContext", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::Line<double> context_signal_;
+    stratforge::Line<double> context_price_;
+    stratforge::Line<double> context_confirmation_threshold_;
+    stratforge::Line<double> context_invalidation_threshold_;
+    stratforge::Line<double> context_trend_;
+    stratforge::Line<double> context_volume_;
+    stratforge::Line<double> context_baseline_;
+    stratforge::Line<double> context_support_;
+    stratforge::Line<double> context_resistance_;
+    stratforge::Line<double> context_geometry_;
+    stratforge::Line<double> context_confirmation_;
+    context_signal_.forward(data.close()[0]);
+    context_price_.forward(data.close()[0]);
+    context_confirmation_threshold_.forward(data.close()[0]);
+    context_invalidation_threshold_.forward(data.close()[0]);
+    context_trend_.forward(data.close()[0]);
+    context_volume_.forward(data.volume()[0]);
+    context_baseline_.forward(data.close()[0]);
+    context_support_.forward(data.close()[0]);
+    context_resistance_.forward(data.close()[0]);
+    context_geometry_.forward(data.close()[0]);
+    context_confirmation_.forward(data.close()[0]);
+
+    stratforge::TrendContext trendcontext_(context_signal_, context_trend_);
+
+    // Process enough bars (preload sets index to 0)
+    trendcontext_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        context_signal_.forward(data.close()[0]);
+        context_price_.forward(data.close()[0]);
+        context_confirmation_threshold_.forward(data.close()[0]);
+        context_invalidation_threshold_.forward(data.close()[0]);
+        context_trend_.forward(data.close()[0]);
+        context_volume_.forward(data.volume()[0]);
+        context_baseline_.forward(data.close()[0]);
+        context_support_.forward(data.close()[0]);
+        context_resistance_.forward(data.close()[0]);
+        context_geometry_.forward(data.close()[0]);
+        context_confirmation_.forward(data.close()[0]);
+        trendcontext_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_alignment = trendcontext_.alignment();
+    [[maybe_unused]] const auto& ref_direction = trendcontext_.direction();
+    [[maybe_unused]] auto op0 = trendcontext_[0];
+}
+
+TEST_CASE("Registry compile: VolumeConfirmation", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::Line<double> context_signal_;
+    stratforge::Line<double> context_price_;
+    stratforge::Line<double> context_confirmation_threshold_;
+    stratforge::Line<double> context_invalidation_threshold_;
+    stratforge::Line<double> context_trend_;
+    stratforge::Line<double> context_volume_;
+    stratforge::Line<double> context_baseline_;
+    stratforge::Line<double> context_support_;
+    stratforge::Line<double> context_resistance_;
+    stratforge::Line<double> context_geometry_;
+    stratforge::Line<double> context_confirmation_;
+    context_signal_.forward(data.close()[0]);
+    context_price_.forward(data.close()[0]);
+    context_confirmation_threshold_.forward(data.close()[0]);
+    context_invalidation_threshold_.forward(data.close()[0]);
+    context_trend_.forward(data.close()[0]);
+    context_volume_.forward(data.volume()[0]);
+    context_baseline_.forward(data.close()[0]);
+    context_support_.forward(data.close()[0]);
+    context_resistance_.forward(data.close()[0]);
+    context_geometry_.forward(data.close()[0]);
+    context_confirmation_.forward(data.close()[0]);
+
+    stratforge::VolumeConfirmation volumeconfirmation_(context_signal_, context_volume_, context_baseline_, 1.0);
+
+    // Process enough bars (preload sets index to 0)
+    volumeconfirmation_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        context_signal_.forward(data.close()[0]);
+        context_price_.forward(data.close()[0]);
+        context_confirmation_threshold_.forward(data.close()[0]);
+        context_invalidation_threshold_.forward(data.close()[0]);
+        context_trend_.forward(data.close()[0]);
+        context_volume_.forward(data.volume()[0]);
+        context_baseline_.forward(data.close()[0]);
+        context_support_.forward(data.close()[0]);
+        context_resistance_.forward(data.close()[0]);
+        context_geometry_.forward(data.close()[0]);
+        context_confirmation_.forward(data.close()[0]);
+        volumeconfirmation_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_ratio = volumeconfirmation_.ratio();
+    [[maybe_unused]] const auto& ref_confirmed = volumeconfirmation_.confirmed();
+    [[maybe_unused]] auto op0 = volumeconfirmation_[0];
+}
+
+TEST_CASE("Registry compile: SupportResistanceContext", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::Line<double> context_signal_;
+    stratforge::Line<double> context_price_;
+    stratforge::Line<double> context_confirmation_threshold_;
+    stratforge::Line<double> context_invalidation_threshold_;
+    stratforge::Line<double> context_trend_;
+    stratforge::Line<double> context_volume_;
+    stratforge::Line<double> context_baseline_;
+    stratforge::Line<double> context_support_;
+    stratforge::Line<double> context_resistance_;
+    stratforge::Line<double> context_geometry_;
+    stratforge::Line<double> context_confirmation_;
+    context_signal_.forward(data.close()[0]);
+    context_price_.forward(data.close()[0]);
+    context_confirmation_threshold_.forward(data.close()[0]);
+    context_invalidation_threshold_.forward(data.close()[0]);
+    context_trend_.forward(data.close()[0]);
+    context_volume_.forward(data.volume()[0]);
+    context_baseline_.forward(data.close()[0]);
+    context_support_.forward(data.close()[0]);
+    context_resistance_.forward(data.close()[0]);
+    context_geometry_.forward(data.close()[0]);
+    context_confirmation_.forward(data.close()[0]);
+
+    stratforge::SupportResistanceContext supportresistancecontext_(context_signal_, context_price_, context_support_, context_resistance_);
+
+    // Process enough bars (preload sets index to 0)
+    supportresistancecontext_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        context_signal_.forward(data.close()[0]);
+        context_price_.forward(data.close()[0]);
+        context_confirmation_threshold_.forward(data.close()[0]);
+        context_invalidation_threshold_.forward(data.close()[0]);
+        context_trend_.forward(data.close()[0]);
+        context_volume_.forward(data.volume()[0]);
+        context_baseline_.forward(data.close()[0]);
+        context_support_.forward(data.close()[0]);
+        context_resistance_.forward(data.close()[0]);
+        context_geometry_.forward(data.close()[0]);
+        context_confirmation_.forward(data.close()[0]);
+        supportresistancecontext_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_support_distance = supportresistancecontext_.support_distance();
+    [[maybe_unused]] const auto& ref_resistance_distance = supportresistancecontext_.resistance_distance();
+    [[maybe_unused]] auto op0 = supportresistancecontext_[0];
+}
+
+TEST_CASE("Registry compile: CandleQualityScore", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::Line<double> context_signal_;
+    stratforge::Line<double> context_price_;
+    stratforge::Line<double> context_confirmation_threshold_;
+    stratforge::Line<double> context_invalidation_threshold_;
+    stratforge::Line<double> context_trend_;
+    stratforge::Line<double> context_volume_;
+    stratforge::Line<double> context_baseline_;
+    stratforge::Line<double> context_support_;
+    stratforge::Line<double> context_resistance_;
+    stratforge::Line<double> context_geometry_;
+    stratforge::Line<double> context_confirmation_;
+    context_signal_.forward(data.close()[0]);
+    context_price_.forward(data.close()[0]);
+    context_confirmation_threshold_.forward(data.close()[0]);
+    context_invalidation_threshold_.forward(data.close()[0]);
+    context_trend_.forward(data.close()[0]);
+    context_volume_.forward(data.volume()[0]);
+    context_baseline_.forward(data.close()[0]);
+    context_support_.forward(data.close()[0]);
+    context_resistance_.forward(data.close()[0]);
+    context_geometry_.forward(data.close()[0]);
+    context_confirmation_.forward(data.close()[0]);
+
+    stratforge::CandleQualityScore candlequalityscore_(context_geometry_, context_trend_, context_confirmation_, context_volume_, stratforge::CandleQualityWeights{1.0, 1.0, 1.0, 1.0});
+
+    // Process enough bars (preload sets index to 0)
+    candlequalityscore_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        context_signal_.forward(data.close()[0]);
+        context_price_.forward(data.close()[0]);
+        context_confirmation_threshold_.forward(data.close()[0]);
+        context_invalidation_threshold_.forward(data.close()[0]);
+        context_trend_.forward(data.close()[0]);
+        context_volume_.forward(data.volume()[0]);
+        context_baseline_.forward(data.close()[0]);
+        context_support_.forward(data.close()[0]);
+        context_resistance_.forward(data.close()[0]);
+        context_geometry_.forward(data.close()[0]);
+        context_confirmation_.forward(data.close()[0]);
+        candlequalityscore_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_score = candlequalityscore_.score();
+    [[maybe_unused]] const auto& ref_geometry = candlequalityscore_.geometry();
+    [[maybe_unused]] const auto& ref_trend = candlequalityscore_.trend();
+    [[maybe_unused]] const auto& ref_confirmation = candlequalityscore_.confirmation();
+    [[maybe_unused]] const auto& ref_volume = candlequalityscore_.volume();
+    [[maybe_unused]] auto op0 = candlequalityscore_[0];
+}
+
+TEST_CASE("Registry compile non-default: CandleQualityScore", "[registry][compile]") {
+    stratforge::CsvData data(stratforge::CsvData::Params{
+        .filename = std::string(SF_SOURCE_DIR) + "/tools/golden_extract/datas/2006-day-001.txt",
+    });
+    data.preload();
+
+    stratforge::Line<double> context_signal_;
+    stratforge::Line<double> context_price_;
+    stratforge::Line<double> context_confirmation_threshold_;
+    stratforge::Line<double> context_invalidation_threshold_;
+    stratforge::Line<double> context_trend_;
+    stratforge::Line<double> context_volume_;
+    stratforge::Line<double> context_baseline_;
+    stratforge::Line<double> context_support_;
+    stratforge::Line<double> context_resistance_;
+    stratforge::Line<double> context_geometry_;
+    stratforge::Line<double> context_confirmation_;
+    context_signal_.forward(data.close()[0]);
+    context_price_.forward(data.close()[0]);
+    context_confirmation_threshold_.forward(data.close()[0]);
+    context_invalidation_threshold_.forward(data.close()[0]);
+    context_trend_.forward(data.close()[0]);
+    context_volume_.forward(data.volume()[0]);
+    context_baseline_.forward(data.close()[0]);
+    context_support_.forward(data.close()[0]);
+    context_resistance_.forward(data.close()[0]);
+    context_geometry_.forward(data.close()[0]);
+    context_confirmation_.forward(data.close()[0]);
+
+    stratforge::CandleQualityScore candlequalityscore_(context_geometry_, context_trend_, context_confirmation_, context_volume_, stratforge::CandleQualityWeights{1.0, 2.0, 3.0, 4.0});
+
+    // Process enough bars (preload sets index to 0)
+    candlequalityscore_.next();
+    for (std::size_t i = 0; i < 59; ++i) {
+        data.advance();
+        context_signal_.forward(data.close()[0]);
+        context_price_.forward(data.close()[0]);
+        context_confirmation_threshold_.forward(data.close()[0]);
+        context_invalidation_threshold_.forward(data.close()[0]);
+        context_trend_.forward(data.close()[0]);
+        context_volume_.forward(data.volume()[0]);
+        context_baseline_.forward(data.close()[0]);
+        context_support_.forward(data.close()[0]);
+        context_resistance_.forward(data.close()[0]);
+        context_geometry_.forward(data.close()[0]);
+        context_confirmation_.forward(data.close()[0]);
+        candlequalityscore_.next();
+    }
+
+    [[maybe_unused]] const auto& ref_score = candlequalityscore_.score();
+    [[maybe_unused]] const auto& ref_geometry = candlequalityscore_.geometry();
+    [[maybe_unused]] const auto& ref_trend = candlequalityscore_.trend();
+    [[maybe_unused]] const auto& ref_confirmation = candlequalityscore_.confirmation();
+    [[maybe_unused]] const auto& ref_volume = candlequalityscore_.volume();
+    [[maybe_unused]] auto op0 = candlequalityscore_[0];
 }
 
 TEST_CASE("Registry compile: InsideBarDepth", "[registry][compile]") {

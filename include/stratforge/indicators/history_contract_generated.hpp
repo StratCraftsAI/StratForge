@@ -60,6 +60,7 @@
 #include <stratforge/indicators/oscillator.hpp>
 #include <stratforge/indicators/oscillator_extra.hpp>
 #include <stratforge/indicators/pattern.hpp>
+#include <stratforge/indicators/pattern_context.hpp>
 #include <stratforge/indicators/pctrank.hpp>
 #include <stratforge/indicators/percentchange.hpp>
 #include <stratforge/indicators/pivotpoint.hpp>
@@ -153,6 +154,121 @@ inline Result resolve_generated(std::string_view identity,
                 "runtime minimum-period arithmetic overflow"});
         }
         if (accessor == "line" || accessor == "line()") return accessor_period(indicator, "line");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "PatternConfirmation") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "expiry_bars" && name != "overlap_policy") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto expiry_bars_result = read_size(
+            parameters, "expiry_bars", 3);
+        if (!expiry_bars_result) return std::unexpected(expiry_bars_result.error());
+        const auto expiry_bars = *expiry_bars_result;
+        auto overlap_policy_result = read_signal_overlap_policy(
+            parameters, "overlap_policy", "replace");
+        if (!overlap_policy_result) return std::unexpected(overlap_policy_result.error());
+        const auto overlap_policy = *overlap_policy_result;
+        if (!(accessor == "state" || accessor == "state()" || accessor == "event_id" || accessor == "event_id()" || accessor == "age" || accessor == "age()" || accessor == "direction" || accessor == "direction()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::PatternConfirmation indicator(close, close, close, close, expiry_bars, static_cast<stratforge::SignalOverlapPolicy>(overlap_policy));
+        if (expiry_bars > std::numeric_limits<std::size_t>::max() / 2 &&
+            indicator.minimum_period() < expiry_bars) {
+            return std::unexpected(Error{ErrorCode::Overflow,
+                "runtime minimum-period arithmetic overflow"});
+        }
+        if (accessor == "state" || accessor == "state()") return accessor_period(indicator, "state");
+        if (accessor == "event_id" || accessor == "event_id()") return accessor_period(indicator, "event_id");
+        if (accessor == "age" || accessor == "age()") return accessor_period(indicator, "age");
+        if (accessor == "direction" || accessor == "direction()") return accessor_period(indicator, "direction");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "TrendContext") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "alignment" || accessor == "alignment()" || accessor == "direction" || accessor == "direction()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::TrendContext indicator(close, close);
+        if (accessor == "alignment" || accessor == "alignment()") return accessor_period(indicator, "alignment");
+        if (accessor == "direction" || accessor == "direction()") return accessor_period(indicator, "direction");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "VolumeConfirmation") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "threshold") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto threshold_result = read_double(
+            parameters, "threshold", 1.0);
+        if (!threshold_result) return std::unexpected(threshold_result.error());
+        const auto threshold = *threshold_result;
+        if (!(accessor == "ratio" || accessor == "ratio()" || accessor == "confirmed" || accessor == "confirmed()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::VolumeConfirmation indicator(close, volume, close, threshold);
+        if (accessor == "ratio" || accessor == "ratio()") return accessor_period(indicator, "ratio");
+        if (accessor == "confirmed" || accessor == "confirmed()") return accessor_period(indicator, "confirmed");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "SupportResistanceContext") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        if (!(accessor == "support_distance" || accessor == "support_distance()" || accessor == "resistance_distance" || accessor == "resistance_distance()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::SupportResistanceContext indicator(close, close, close, close);
+        if (accessor == "support_distance" || accessor == "support_distance()") return accessor_period(indicator, "support_distance");
+        if (accessor == "resistance_distance" || accessor == "resistance_distance()") return accessor_period(indicator, "resistance_distance");
+        return std::unexpected(Error{ErrorCode::UnknownAccessor,
+            "unknown accessor: " + std::string(accessor)});
+    }
+
+    if (identity == "CandleQualityScore") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "weights") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto weights_result = read_candle_quality_weights(
+            parameters, "weights", std::vector<double>{1.0, 1.0, 1.0, 1.0});
+        if (!weights_result) return std::unexpected(weights_result.error());
+        const auto weights = *weights_result;
+        if (!(accessor == "score" || accessor == "score()" || accessor == "geometry" || accessor == "geometry()" || accessor == "trend" || accessor == "trend()" || accessor == "confirmation" || accessor == "confirmation()" || accessor == "volume" || accessor == "volume()")) {
+            return std::unexpected(Error{ErrorCode::UnknownAccessor,
+                "unknown accessor: " + std::string(accessor)});
+        }
+        stratforge::CandleQualityScore indicator(close, close, close, volume, stratforge::CandleQualityWeights{weights[0], weights[1], weights[2], weights[3]});
+        if (accessor == "score" || accessor == "score()") return accessor_period(indicator, "score");
+        if (accessor == "geometry" || accessor == "geometry()") return accessor_period(indicator, "geometry");
+        if (accessor == "trend" || accessor == "trend()") return accessor_period(indicator, "trend");
+        if (accessor == "confirmation" || accessor == "confirmation()") return accessor_period(indicator, "confirmation");
+        if (accessor == "volume" || accessor == "volume()") return accessor_period(indicator, "volume");
         return std::unexpected(Error{ErrorCode::UnknownAccessor,
             "unknown accessor: " + std::string(accessor)});
     }
@@ -6624,6 +6740,76 @@ inline Result aggregate_generated(std::string_view identity,
         return indicator.minimum_period();
     }
 
+    if (identity == "PatternConfirmation") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "expiry_bars" && name != "overlap_policy") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto expiry_bars_result = read_size(
+            parameters, "expiry_bars", 3);
+        if (!expiry_bars_result) return std::unexpected(expiry_bars_result.error());
+        const auto expiry_bars = *expiry_bars_result;
+        auto overlap_policy_result = read_signal_overlap_policy(
+            parameters, "overlap_policy", "replace");
+        if (!overlap_policy_result) return std::unexpected(overlap_policy_result.error());
+        const auto overlap_policy = *overlap_policy_result;
+        stratforge::PatternConfirmation indicator(close, close, close, close, expiry_bars, static_cast<stratforge::SignalOverlapPolicy>(overlap_policy));
+        return indicator.minimum_period();
+    }
+
+    if (identity == "TrendContext") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::TrendContext indicator(close, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "VolumeConfirmation") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "threshold") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto threshold_result = read_double(
+            parameters, "threshold", 1.0);
+        if (!threshold_result) return std::unexpected(threshold_result.error());
+        const auto threshold = *threshold_result;
+        stratforge::VolumeConfirmation indicator(close, volume, close, threshold);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "SupportResistanceContext") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::SupportResistanceContext indicator(close, close, close, close);
+        return indicator.minimum_period();
+    }
+
+    if (identity == "CandleQualityScore") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "weights") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto weights_result = read_candle_quality_weights(
+            parameters, "weights", std::vector<double>{1.0, 1.0, 1.0, 1.0});
+        if (!weights_result) return std::unexpected(weights_result.error());
+        const auto weights = *weights_result;
+        stratforge::CandleQualityScore indicator(close, close, close, volume, stratforge::CandleQualityWeights{weights[0], weights[1], weights[2], weights[3]});
+        return indicator.minimum_period();
+    }
+
     if (identity == "InsideBarDepth") {
         if (!parameters.empty()) {
             return std::unexpected(Error{ErrorCode::InvalidParameter,
@@ -10604,6 +10790,281 @@ inline Result observed_readiness_generated(std::string_view identity,
             if (accessor == "line" || accessor == "line()") {
                 const auto& output = indicator.line();
                 const auto ready_at = accessor_period(indicator, "line");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "PatternConfirmation") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "expiry_bars" && name != "overlap_policy") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto expiry_bars_result = read_size(
+            parameters, "expiry_bars", 3);
+        if (!expiry_bars_result) return std::unexpected(expiry_bars_result.error());
+        const auto expiry_bars = *expiry_bars_result;
+        auto overlap_policy_result = read_signal_overlap_policy(
+            parameters, "overlap_policy", "replace");
+        if (!overlap_policy_result) return std::unexpected(overlap_policy_result.error());
+        const auto overlap_policy = *overlap_policy_result;
+        stratforge::PatternConfirmation indicator(close, close, close, close, expiry_bars, static_cast<stratforge::SignalOverlapPolicy>(overlap_policy));
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "state" || accessor == "state()") {
+                const auto& output = indicator.state();
+                const auto ready_at = accessor_period(indicator, "state");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "event_id" || accessor == "event_id()") {
+                const auto& output = indicator.event_id();
+                const auto ready_at = accessor_period(indicator, "event_id");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "age" || accessor == "age()") {
+                const auto& output = indicator.age();
+                const auto ready_at = accessor_period(indicator, "age");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "direction" || accessor == "direction()") {
+                const auto& output = indicator.direction();
+                const auto ready_at = accessor_period(indicator, "direction");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "TrendContext") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::TrendContext indicator(close, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "alignment" || accessor == "alignment()") {
+                const auto& output = indicator.alignment();
+                const auto ready_at = accessor_period(indicator, "alignment");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "direction" || accessor == "direction()") {
+                const auto& output = indicator.direction();
+                const auto ready_at = accessor_period(indicator, "direction");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "VolumeConfirmation") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "threshold") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto threshold_result = read_double(
+            parameters, "threshold", 1.0);
+        if (!threshold_result) return std::unexpected(threshold_result.error());
+        const auto threshold = *threshold_result;
+        stratforge::VolumeConfirmation indicator(close, volume, close, threshold);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "ratio" || accessor == "ratio()") {
+                const auto& output = indicator.ratio();
+                const auto ready_at = accessor_period(indicator, "ratio");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "confirmed" || accessor == "confirmed()") {
+                const auto& output = indicator.confirmed();
+                const auto ready_at = accessor_period(indicator, "confirmed");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "SupportResistanceContext") {
+        if (!parameters.empty()) {
+            return std::unexpected(Error{ErrorCode::InvalidParameter,
+                "indicator accepts no constructor parameters"});
+        }
+        stratforge::SupportResistanceContext indicator(close, close, close, close);
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "support_distance" || accessor == "support_distance()") {
+                const auto& output = indicator.support_distance();
+                const auto ready_at = accessor_period(indicator, "support_distance");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "resistance_distance" || accessor == "resistance_distance()") {
+                const auto& output = indicator.resistance_distance();
+                const auto ready_at = accessor_period(indicator, "resistance_distance");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+        }
+        return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+            "deterministic runtime probe did not observe structural readiness"});
+    }
+
+    if (identity == "CandleQualityScore") {
+        for (const auto& [name, value] : parameters) {
+            static_cast<void>(value);
+            if (name != "weights") {
+                return std::unexpected(Error{ErrorCode::InvalidParameter,
+                    "unknown parameter '" + name + "'"});
+            }
+        }
+        auto weights_result = read_candle_quality_weights(
+            parameters, "weights", std::vector<double>{1.0, 1.0, 1.0, 1.0});
+        if (!weights_result) return std::unexpected(weights_result.error());
+        const auto weights = *weights_result;
+        stratforge::CandleQualityScore indicator(close, close, close, volume, stratforge::CandleQualityWeights{weights[0], weights[1], weights[2], weights[3]});
+        const auto aggregate = indicator.minimum_period();
+        if (aggregate > 100000) {
+            return std::unexpected(Error{ErrorCode::UnsupportedPeriodContract,
+                "runtime readiness probe is bounded to 100000 bars"});
+        }
+        for (std::size_t bar = 0; bar < aggregate + 2; ++bar) {
+            const double step = static_cast<double>(bar);
+            const double base = 100.0 + step * 0.1 + std::sin(step * 0.37) * 3.0;
+            open.forward(base - 0.25);
+            high.forward(base + 2.0);
+            low.forward(base - 2.0);
+            close.forward(base + std::cos(step * 0.19));
+            volume.forward(1000.0 + static_cast<double>((bar * 17) % 101));
+            period_line.forward(14.0);
+            indicator.next();
+            if (accessor == "score" || accessor == "score()") {
+                const auto& output = indicator.score();
+                const auto ready_at = accessor_period(indicator, "score");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "geometry" || accessor == "geometry()") {
+                const auto& output = indicator.geometry();
+                const auto ready_at = accessor_period(indicator, "geometry");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "trend" || accessor == "trend()") {
+                const auto& output = indicator.trend();
+                const auto ready_at = accessor_period(indicator, "trend");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "confirmation" || accessor == "confirmation()") {
+                const auto& output = indicator.confirmation();
+                const auto ready_at = accessor_period(indicator, "confirmation");
+                if (bar + 1 == ready_at && !output.empty()) {
+                    static_cast<void>(output[0]);
+                    return bar + 1;
+                }
+            }
+            if (accessor == "volume" || accessor == "volume()") {
+                const auto& output = indicator.volume();
+                const auto ready_at = accessor_period(indicator, "volume");
                 if (bar + 1 == ready_at && !output.empty()) {
                     static_cast<void>(output[0]);
                     return bar + 1;
@@ -21773,6 +22234,11 @@ inline std::span<const IndicatorDescriptor> descriptors_generated() {
     static const std::vector<IndicatorDescriptor> descriptors{
         IndicatorDescriptor{"CandleGeometry", {"CandleGeometry"}, {}, {"body", "range", "upper_wick", "lower_wick", "signed_gap", "gap"}},
         IndicatorDescriptor{"CandlePercentile", {"CandlePercentile"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{50}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
+        IndicatorDescriptor{"PatternConfirmation", {"PatternConfirmation"}, {ParameterDescriptor{"expiry_bars", ParameterType::Size, Parameter{std::uint64_t{3}}, "runtime constructor normalization", "runtime constructor constraints"}, ParameterDescriptor{"overlap_policy", ParameterType::Enum, Parameter{std::string{"replace"}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"state", "event_id", "age", "direction"}},
+        IndicatorDescriptor{"TrendContext", {"TrendContext"}, {}, {"alignment", "direction"}},
+        IndicatorDescriptor{"VolumeConfirmation", {"VolumeConfirmation"}, {ParameterDescriptor{"threshold", ParameterType::Double, Parameter{double{1.0}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"ratio", "confirmed"}},
+        IndicatorDescriptor{"SupportResistanceContext", {"SupportResistanceContext"}, {}, {"support_distance", "resistance_distance"}},
+        IndicatorDescriptor{"CandleQualityScore", {"CandleQualityScore"}, {ParameterDescriptor{"weights", ParameterType::DoubleVector, Parameter{std::vector<double>{1.0, 1.0, 1.0, 1.0}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"score", "geometry", "trend", "confirmation", "volume"}},
         IndicatorDescriptor{"InsideBarDepth", {"InsideBarDepth"}, {}, {"depth", "mother_range", "breakout"}},
         IndicatorDescriptor{"NarrowRange", {"NarrowRange"}, {ParameterDescriptor{"period", ParameterType::Size, Parameter{std::uint64_t{4}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"line"}},
         IndicatorDescriptor{"NormalizedCandleGeometry", {"NormalizedCandleGeometry"}, {ParameterDescriptor{"atr_period", ParameterType::Size, Parameter{std::uint64_t{14}}, "runtime constructor normalization", "runtime constructor constraints"}}, {"body", "range", "upper_wick", "lower_wick", "signed_gap", "gap"}},
