@@ -84,6 +84,8 @@ add_executable(stratforge_tests
     test_backtest_runner_feeds.cpp
     test_indicator_history_contract.cpp
     test_generated_strategy_warmup.cpp
+    test_corrective_p1.cpp
+    test_corrective_p4.cpp
 )
 
 target_link_libraries(stratforge_tests PRIVATE
